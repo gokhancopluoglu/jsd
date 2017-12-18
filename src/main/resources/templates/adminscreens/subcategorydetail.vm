@@ -1,0 +1,233 @@
+#set($size = $subCategoryList.size())
+#if ($selectedCategoryId != "")
+<form class="aui">
+    <table id="subCategoryTable" class="aui tablesorter">
+        <thead>
+            <tr class="tr">
+                <th id="subCategoryId" class="sorter-true" style="display: none;">
+                    <div class="tablesorter-header-inner">ID</div>
+                </th>
+                <th id="subCategoryName" class="sorter-true">
+                    <div class="tablesorter-header-inner">Sub Category Name</div>
+                </th>
+                <th id="order" class="sorter-false">
+                    <div class="tablesorter-header-inner"></div>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            #set ($counter = 1)
+            #if ($size > 0)
+                #foreach($subCategoryTableRow in $subCategoryList)
+                    <tr>
+                        #set ($subCategoryId = $subCategoryTableRow.get('subCategoryId'))
+                        #set ($subCategoryName = $subCategoryTableRow.get('subCategoryName'))
+
+                        <td style="display: none;">
+                            <input class="text"  type="text" name="subCategoryId$counter" id="subCategoryId$counter" value="#if($subCategoryId)$subCategoryId#end"/>
+                        </td>
+                        <td>
+                            <input class="text long-field" type="text" name="subCategoryName$counter" id="subCategoryName$counter" value="#if($subCategoryName)$subCategoryName#end"/>
+                        </td>
+                        <td>
+                            <input class="aui-button jirasubcategorytabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                        </td>
+                    </tr>
+                    #set ($counter = $counter + 1)
+                #end
+                <tr>
+                    <td>
+                        <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                        <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
+                    </td>
+                </tr>
+            #else
+                <tr>
+                    <td style="display: none;">
+                        <input class="text" type="text" name="subCategoryId$counter" id="subCategoryId$counter" value=""/>
+                    </td>
+                    <td>
+                        <input class="text long-field" type="text" name="subCategoryName$counter" id="subCategoryName$counter" value=""/>
+                    </td>
+                    <td>
+                        <input class="aui-button jirasubcategorytabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                        <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
+                    </td>
+                </tr>
+            #end
+        </tbody>
+    </table>
+</form>
+#end
+
+<input type="hidden" name="selectedCategoryId" id="selectedCategoryId"  value="#if($selectedCategoryId)$selectedCategoryId#end">
+
+<div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+  	<p class="title">
+		<span class="aui-icon icon-success"></span>
+	</p>
+</div>
+
+
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		$(".jirasubcategorytabledelete").click(function() {
+			event.preventDefault();
+			var url = "subcategorydefservlet";
+			var deleteid = parseInt($(this).attr("id"));
+			var tableData = AJS.$('#subCategoryTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('subCategoryTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	if (deleteid != i)
+		    	{
+			    	var arrayOfThisRow = [];
+			        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                    if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                        var inputval1 = inputs[0].value;
+                        arrayOfThisRow.push(inputval1);
+                        var inputval2 = inputs[1].value;
+                        arrayOfThisRow.push(inputval2);
+
+                        var myJsonString = JSON.stringify(arrayOfThisRow);
+                        myTableArray.push(myJsonString);
+                    }
+			    }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'deleterow' : 'yes',
+			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val()
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#subCategoryTable").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+
+	jQuery(document).ready(function() {
+		AJS.$("#addRowButton").click(function(event) {
+
+			event.preventDefault();
+			var url = "subcategorydefservlet";
+			
+			var tableData = AJS.$('#subCategoryTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('subCategoryTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	var arrayOfThisRow = [];
+		        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                    var inputval1 = inputs[0].value;
+                    arrayOfThisRow.push(inputval1);
+                    var inputval2 = inputs[1].value;
+                    arrayOfThisRow.push(inputval2);
+
+                    var myJsonString = JSON.stringify(arrayOfThisRow);
+                    myTableArray.push(myJsonString);
+                }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'addnewrow' : 'yes',
+                    'selectedCategoryId' : AJS.$("#selectedCategoryId").val()
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#subCategoryTable").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+		
+	jQuery(document).ready(function() {
+		AJS.$("#submitButton").click(function(event) {
+
+			event.preventDefault();
+						
+			var url = "subcategorydefservlet";
+			var tableData = AJS.$('#subCategoryTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('subCategoryTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	var arrayOfThisRow = [];
+		        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                    var inputval1 = inputs[0].value;
+                    arrayOfThisRow.push(inputval1);
+                    var inputval2 = inputs[1].value;
+                    arrayOfThisRow.push(inputval2);
+
+                    var myJsonString = JSON.stringify(arrayOfThisRow);
+                    myTableArray.push(myJsonString);
+                }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "POST",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val()
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+
+                    AJS.$("input").attr("disabled", true);
+
+                    AJS.$('#submitButton').css("visibility", "hidden");
+                    AJS.$('#addRowButton').css("visibility", "hidden");
+                    AJS.$(".jirasubcategorytabledelete").css("visibility", "hidden");
+
+                    AJS.$('#settingsSaved').css("visibility", "visible");
+                    AJS.$('#settingsSaved').css("display", "");
+                    AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                    AJS.$("#settingsSaved").delay(2000).fadeOut();
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+</script>

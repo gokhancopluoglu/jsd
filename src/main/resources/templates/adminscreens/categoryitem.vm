@@ -1,0 +1,68 @@
+<html>
+
+<head>
+    <title>Category Item Definition Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	<h3 class="formtitle">Category Item Definition Screen</h3>
+	</td>
+	<div class="content-container">
+        <div class="content-body">
+            <form action="categoryitemdefservlet" method="get" id="admin-form" class="aui">
+                <fieldset class="group">
+                    <div class="field-group">
+                        <legend><span>Category</span></legend>
+                        <select class="select" name="category" id="category">
+                          <option value="" id="none"></option>
+                          #foreach($categoryRow in $categoryList)
+                              #set ($categoryId = $categoryRow.get('categoryId'))
+                              #set ($categoryName = $categoryRow.get('categoryName'))
+                              <option value="$categoryId" id="$categoryId">$categoryName</option>
+                          #end
+                        </select>
+                    </div>
+                    <div id="categoryItemDetail"></div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    
+   <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+                callCategoryChangeFunction();
+            });
+
+            callCategoryChangeFunction();
+
+            function callCategoryChangeFunction()
+            {
+                var url = "categoryitemdefservlet";
+
+                $("#category").change(function() {
+                    jQuery.ajax({
+                        type: "GET",
+                        url : url,
+                        data : {
+                            'initial' : 'yes',
+                            'selectedCategoryId' : AJS.$("#category").val()
+                        },
+                        success : function(data) {
+                            console.log(data);
+                            AJS.$("#categoryItemDetail").html(data);
+                        },
+                        error : function(response) {
+                            AJS.$("#categoryItemDetail").html("");
+                        }
+                    });
+                });
+            }
+        });
+   </script>
+</body>
+
+</html>

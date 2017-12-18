@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="plugin-icon">images/pluginIcon.png</param>
+    <param name="plugin-logo">images/pluginLogo.png</param>
+  </plugin-info>
+  <!-- add our i18n resource -->
+  <resource type="i18n" name="i18n" location="cardif-jsd-engine"/>
+  <!-- add our web resources -->
+  <web-resource key="cardif-jsd-engine-resources" name="cardif-jsd-engine Web Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <dependency>com.atlassian.auiplugin:jquery-ui-other</dependency>
+    <resource type="download" name="cardif-jsd-engine.css" location="/css/cardif-jsd-engine.css"/>
+    <resource type="download" name="cardif-jsd-engine.js" location="/js/cardif-jsd-engine.js"/>
+    <resource type="download" name="images/" location="/images"/>
+    <context>cardif-jsd-engine</context>
+  </web-resource>
+
+  <ao key="ao-module">
+    <description>The module configuring the Active Objects service used by this plugin</description>
+    <entity>tr.com.almbase.plugin.activeobject.BusinessRule</entity>
+    <entity>tr.com.almbase.plugin.activeobject.Category</entity>
+    <entity>tr.com.almbase.plugin.activeobject.CategoryItem</entity>
+    <entity>tr.com.almbase.plugin.activeobject.SubCategory</entity>
+    <entity>tr.com.almbase.plugin.activeobject.GroupUser</entity>
+  </ao>
+
+  <component-import key="ao" name="Active Objects Service" interface="com.atlassian.activeobjects.external.ActiveObjects">
+    <description>Component to access Active Objects functionality from the plugin</description>
+  </component-import>
+
+  <component key="BusinessRuleControllerImpl" class="tr.com.almbase.plugin.activeobject.BusinessRuleControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.BusinessRuleController</interface>
+  </component>
+  <component key="CategoryControllerImpl" class="tr.com.almbase.plugin.activeobject.CategoryControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.CategoryController</interface>
+  </component>
+  <component key="CategoryItemControllerImpl" class="tr.com.almbase.plugin.activeobject.CategoryItemControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.CategoryItemController</interface>
+  </component>
+  <component key="SubCategoryControllerImpl" class="tr.com.almbase.plugin.activeobject.SubCategoryControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.SubCategoryController</interface>
+  </component>
+  <component key="GroupUserControllerImpl" class="tr.com.almbase.plugin.activeobject.GroupUserControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.GroupUserController</interface>
+  </component>
+
+  <component-import key="PageBuilderService" interface="com.atlassian.webresource.api.assembler.PageBuilderService"/>
+  <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" filter=""/>
+  <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+  <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
+  <component-import key="pluginAccessor" interface="com.atlassian.plugin.PluginAccessor"/>
+  <component-import key="pluginController" interface="com.atlassian.plugin.PluginController"/>
+  <component-import key="txTemplate" interface="com.atlassian.sal.api.transaction.TransactionTemplate"/>
+  <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
+  <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+  <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
+
+  <web-section key="jsd_engine_plugin_section" name="JSD Engine Plugin Settings" location="admin_plugins_menu" i18n-name-key="JSD Engine Plugin Settings" weight="120">
+    <label key="Cardif JSD Engine"/>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-section>
+  <web-item key="categoryDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Definition" weight="121">
+    <label key="Category Definition"/>
+    <link linkId="categoryDefinitionLink">/plugins/servlet/categorydefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="subCategoryDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Sub Category Definition" weight="122">
+    <label key="Sub Category Definition"/>
+    <link linkId="subCategoryDefinitionLink">/plugins/servlet/subcategorydefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="categoryItemDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Item Definition" weight="123">
+    <label key="Category Item Definition"/>
+    <link linkId="categoryItemDefinitionLink">/plugins/servlet/categoryitemdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="124">
+    <label key="Business Rule Definition"/>
+    <link linkId="businessRuleDefinitionLink">/plugins/servlet/businessruledefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="125">
+    <label key="Group User Definition"/>
+    <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+
+  <servlet name="Category Def Servlet" i18n-name-key="category-def-servlet.name" key="category-def-servlet" class="tr.com.almbase.plugin.servlet.CategoryDefServlet">
+    <description key="category-def-servlet.description">The Category Definition Servlet Plugin</description>
+    <url-pattern>/categorydefservlet</url-pattern>
+  </servlet>
+  <servlet name="Sub Category Def Servlet" i18n-name-key="sub-category-def-servlet.name" key="sub-category-def-servlet" class="tr.com.almbase.plugin.servlet.SubCategoryDefServlet">
+    <description key="sub-category-def-servlet.description">The Sub Category Definition Servlet Plugin</description>
+    <url-pattern>/subcategorydefservlet</url-pattern>
+  </servlet>
+  <servlet name="Category Item Def Servlet" i18n-name-key="category-item-def-servlet.name" key="category-item-def-servlet" class="tr.com.almbase.plugin.servlet.CategoryItemDefServlet">
+    <description key="category-item-def-servlet.description">The Category Item Definition Servlet Plugin</description>
+    <url-pattern>/categoryitemdefservlet</url-pattern>
+  </servlet>
+  <servlet name="Business Rule Def Servlet" i18n-name-key="business-rule-def-servlet.name" key="business-rule-def-servlet" class="tr.com.almbase.plugin.servlet.BusinessRuleDefServlet">
+    <description key="business-rule-def-servlet.description">The Business Rule Definition Servlet Plugin</description>
+    <url-pattern>/businessruledefservlet</url-pattern>
+  </servlet>
+  <servlet name="Group User Def Servlet" i18n-name-key="group-user-def-servlet.name" key="group-user-def-servlet" class="tr.com.almbase.plugin.servlet.GroupUserDefServlet">
+    <description key="group-user-def-servlet.description">The Group User Definition Servlet Plugin</description>
+    <url-pattern>/groupuserdefservlet</url-pattern>
+  </servlet>
+
+  <workflow-function key="assign-to-business-rule" name="Assign To Business Rule" i18n-name-key="assign-to-business-rule.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRuleFactory">
+    <description key="assign-to-business-rule.description">The Assign To Business Rule Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRule</function-class>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-business-rule.vm"/>
+  </workflow-function>
+
+  <workflow-function key="assign-to-group-user" name="Assign To Group User" i18n-name-key="assign-to-group-user.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUserFactory">
+    <description key="assign-to-group-user.description">The Assign To Group User Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUser</function-class>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-group-user.vm"/>
+    <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
+    <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
+  </workflow-function>
+
+</atlassian-plugin>

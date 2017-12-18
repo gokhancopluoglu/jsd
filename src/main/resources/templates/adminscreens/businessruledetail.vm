@@ -1,0 +1,308 @@
+<div id="businessRuleDetail">
+    <form class="aui">
+        <div class="field-group">
+            <legend><span>Sub Category</span></legend>
+            <select class="select" name="subCategory" id="subCategory">
+              <option value="" id="none"></option>
+              #foreach($subCategoryRow in $subCategoryList)
+                #set ($subCategoryId = $subCategoryRow.get('subCategoryId'))
+                #set ($subCategoryName = $subCategoryRow.get('subCategoryName'))
+                #if($subCategoryId == $selectedSubCategoryId)
+                    <option selected value="$subCategoryId">$subCategoryName</option>
+                #else
+                    <option value="$subCategoryId">$subCategoryName</option>
+                #end
+              #end
+            </select>
+        </div>
+        <div class="field-group">
+            <legend><span>Category Item</span></legend>
+            <select class="select" name="categoryItem" id="categoryItem">
+              <option value="" id="none"></option>
+              #foreach($categoryItemRow in $categoryItemList)
+                #set ($categoryItemId = $categoryItemRow.get('categoryItemId'))
+                #set ($categoryItemName = $categoryItemRow.get('categoryItemName'))
+                #if($categoryItemId == $selectedCategoryItemId)
+                    <option selected value="$categoryItemId">$categoryItemName</option>
+                #else
+                    <option value="$categoryItemId">$categoryItemName</option>
+                #end
+              #end
+            </select>
+        </div>
+        <br>
+        <div class="field-group">
+            #set($size = $businessRuleList.size())
+            #if ($selectedCategoryId != "")
+            <table id="businessRuleTable" class="aui tablesorter">
+                <thead>
+                    <tr class="tr">
+                        <th id="businessRuleId" class="sorter-true" style="display: none;">
+                            <div class="tablesorter-header-inner">ID</div>
+                        </th>
+                        <th id="userName" class="sorter-true">
+                            <div class="tablesorter-header-inner">User Name</div>
+                        </th>
+                        <th id="order" class="sorter-false">
+                            <div class="tablesorter-header-inner"></div>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    #set ($counter = 1)
+                    #if ($size > 0)
+                        #foreach($businessRuleTableRow in $businessRuleList)
+                            <tr>
+                                #set ($businessRuleId = $businessRuleTableRow.get('businessRuleId'))
+                                #set ($userName = $businessRuleTableRow.get('userName'))
+
+                                <td style="display: none;">
+                                    <input class="text"  type="text" name="businessRuleId$counter" id="businessRuleId$counter" value="#if($businessRuleId)$businessRuleId#end"/>
+                                </td>
+                                <td>
+                                    <select id="userName$counter" name="userName$counter" class="single-user-picker" data-user-type="assignee">
+                                        <option selected="selected" value="#if($userName)$userName#end">#if($userName)$userName#end</option>
+                                    </select>
+                                    <script type="text/javascript">
+                                        new AJS.SingleSelect({
+                                          element : AJS.$("#userName$counter"),
+                                          submitInputVal: true,
+                                          showDropdownButton: false,
+                                          errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
+                                          ajaxOptions : {
+                                            url : contextPath + "/rest/api/2/user/picker",
+                                            query : true,
+                                            data: {showAvatar: true},
+                                            formatResponse : JIRA.UserPickerUtil.formatResponse
+                                          }
+                                        });
+                                    </script>
+                                </td>
+                                <td>
+                                    <input class="aui-button jirabusinessruletabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                                </td>
+                            </tr>
+                            #set ($counter = $counter + 1)
+                        #end
+                        <tr>
+                            <td>
+                                <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
+                            </td>
+                        </tr>
+                    #else
+                        <tr>
+                            <td style="display: none;">
+                                <input class="text" type="text" name="businessRuleId$counter" id="businessRuleId$counter" value=""/>
+                            </td>
+                            <td>
+                                <select id="userName$counter" name="userName$counter" class="single-user-picker" data-user-type="assignee">
+                                    <option selected="selected" value=""></option>
+                                </select>
+                                <script type="text/javascript">
+                                    new AJS.SingleSelect({
+                                      element : AJS.$("#userName$counter"),
+                                      submitInputVal: true,
+                                      showDropdownButton: false,
+                                      errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
+                                      ajaxOptions : {
+                                        url : contextPath + "/rest/api/2/user/picker",
+                                        query : true,
+                                        data: {showAvatar: true},
+                                        formatResponse : JIRA.UserPickerUtil.formatResponse
+                                      }
+                                    });
+                                </script>
+                            </td>
+                            <td>
+                                <input class="aui-button jirabusinessruletabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
+                            </td>
+                        </tr>
+                    #end
+                </tbody>
+            </table>
+            #end
+        </div>
+    </form>
+
+    <input type="hidden" name="selectedCategoryId" id="selectedCategoryId"  value="#if($selectedCategoryId)$selectedCategoryId#end">
+    <input type="hidden" name="selectedSubCategoryId" id="selectedSubCategoryId"  value="#if($selectedSubCategoryId)$selectedSubCategoryId#end">
+    <input type="hidden" name="selectedCategoryItemId" id="selectedCategoryItemId"  value="#if($selectedCategoryItemId)$selectedCategoryItemId#end">
+
+    <div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+        <p class="title">
+            <span class="aui-icon icon-success"></span>
+        </p>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+            callSubCategoryChangeFunction();
+            callCategoryItemChangeFunction();
+        });
+
+        callSubCategoryChangeFunction();
+        callCategoryItemChangeFunction();
+
+        function callSubCategoryChangeFunction()
+        {
+            var url = "businessruledefservlet";
+
+            $("#subCategory").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'subcategorychanged' : 'yes',
+                        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
+                        'selectedSubCategoryId' : AJS.$("#subCategory").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#businessRuleDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#businessRuleDetail").html("");
+                    }
+                });
+            });
+        };
+
+        function callCategoryItemChangeFunction()
+        {
+            var url = "businessruledefservlet";
+
+            $("#categoryItem").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'categoryitemchanged' : 'yes',
+                        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
+                        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
+                        'selectedCategoryItemId' : AJS.$("#categoryItem").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#businessRuleDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#businessRuleDetail").html("");
+                    }
+                });
+            });
+        }
+    });
+
+
+	jQuery(document).ready(function($) {
+		$(".jirabusinessruletabledelete").click(function() {
+			event.preventDefault();
+			var url = "businessruledefservlet";
+			var deleteid = parseInt($(this).attr("id"));
+			var tableData = AJS.$('#businessRuleTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('businessRuleTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+
+		    for (i = 1; i < rijen; i++) {
+		    	if (deleteid != i)
+		    	{
+			    	var businessRuleId = AJS.$("#businessRuleId1").val() == "null" ? "" : AJS.$("#businessRuleId1").val();
+                    var userName = AJS.$("#userName1").val() == "null" ? "" : AJS.$("#userName1").val();
+
+                    var arrayOfThisRow = [];
+                    arrayOfThisRow.push(businessRuleId);
+                    arrayOfThisRow.push(userName);
+                    var myJsonString = JSON.stringify(arrayOfThisRow);
+                    myTableArray.push(myJsonString);
+			    }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'deleterow' : 'yes',
+			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
+			        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
+			        'selectedCategoryItemId' : AJS.$("#selectedCategoryItemId").val()
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#businessRuleDetail").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	});
+		
+	jQuery(document).ready(function() {
+		AJS.$("#submitButton").click(function(event) {
+
+			event.preventDefault();
+						
+			var url = "businessruledefservlet";
+			var tableData = AJS.$('#businessRuleTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('businessRuleTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	var businessRuleId = AJS.$("#businessRuleId1").val() == "null" ? "" : AJS.$("#businessRuleId1").val();
+                var userName = AJS.$("#userName1").val() == "null" ? "" : AJS.$("#userName1").val();
+
+                var arrayOfThisRow = [];
+                arrayOfThisRow.push(businessRuleId);
+                arrayOfThisRow.push(userName);
+                var myJsonString = JSON.stringify(arrayOfThisRow);
+                myTableArray.push(myJsonString);
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "POST",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
+			        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
+			        'selectedCategoryItemId' : AJS.$("#selectedCategoryItemId").val()
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+
+                    AJS.$("input").attr("disabled", true);
+
+                    AJS.$('#submitButton').css("visibility", "hidden");
+
+                    AJS.$(".jiracategoryitemtabledelete").css("visibility", "hidden");
+
+                    AJS.$('#settingsSaved').css("visibility", "visible");
+                    AJS.$('#settingsSaved').css("display", "");
+                    AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                    AJS.$("#settingsSaved").delay(2000).fadeOut();
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+</script>

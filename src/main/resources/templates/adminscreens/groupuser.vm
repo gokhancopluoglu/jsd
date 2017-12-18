@@ -1,0 +1,77 @@
+<html>
+
+<head>
+    <title>Group User Definition Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	<h3 class="formtitle">Group User Definition Screen</h3>
+	</td>
+	<div class="content-container">
+        <div class="content-body">
+            <form action="groupuserdefservlet" method="get" id="admin-form" class="aui">
+                <fieldset class="group">
+                    <div class="field-group">
+                        <legend><span>Group Name</span></legend>
+                        <select id="groupName" name="groupName" class="single-group-picker">
+                            <option selected="selected" value="#if($groupName)$groupName#end">#if($groupName)$groupName#end</option>
+                        </select>
+                        <script type="text/javascript">
+                            new AJS.SingleSelect({
+                              element : AJS.$("#groupName"),
+                              submitInputVal: true,
+                              showDropdownButton: false,
+                              errorMessage: AJS.format("There is no such group \'\'{0}\'\'.", "'{0}'"),
+                              ajaxOptions : {
+                                  url : contextPath + "/rest/api/2/groups/picker",
+                                  query : true,
+                                  data: {showAvatar: true},
+                                  formatResponse : JIRA.GroupPickerUtil.formatResponse
+                              }
+                            });
+                        </script>
+                    </div>
+                    <div id="groupUserDetail"></div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    
+   <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+                callGroupNameChangeFunction();
+            });
+
+            callGroupNameChangeFunction();
+
+            function callGroupNameChangeFunction()
+            {
+                var url = "groupuserdefservlet";
+
+                $("#groupName").change(function() {
+                    jQuery.ajax({
+                        type: "GET",
+                        url : url,
+                        data : {
+                            'groupnamechanged' : 'yes',
+                            'selectedGroupName' : AJS.$("#groupName").val()
+                        },
+                        success : function(data) {
+                            console.log(data);
+                            AJS.$("#groupUserDetail").html(data);
+                        },
+                        error : function(response) {
+                            AJS.$("#groupUserDetail").html("");
+                        }
+                    });
+                });
+            }
+        });
+   </script>
+</body>
+
+</html>
