@@ -108,13 +108,42 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
     public BusinessRule createRecordInAOTable(BusinessRuleObject businessRuleObject) {
         BusinessRule returnBusinessRule = null;
         try {
-            log.debug("New setting!");
-            BusinessRule businessRuleRecord = activeObjects.create(BusinessRule.class);
-            if (businessRuleRecord != null)
+            BusinessRule foundAO = null;
+            if (null != businessRuleObject.getCategoryItemId() && !businessRuleObject.getCategoryItemId().equalsIgnoreCase("")) {
+                foundAO = getRecordFromAOTableByCategoryItemId(businessRuleObject.getCategoryItemId());
+            } else if (null != businessRuleObject.getSubCategoryId() && !businessRuleObject.getSubCategoryId().equalsIgnoreCase("")) {
+                BusinessRule [] businessRules = getRecordFromAOTableBySubCategoryId(businessRuleObject.getSubCategoryId());
+                if (null != businessRules && businessRules.length == 1) {
+                    foundAO = businessRules[0];
+                }
+            } else if (null != businessRuleObject.getCategoryId() && !businessRuleObject.getCategoryId().equalsIgnoreCase("")) {
+                BusinessRule [] businessRules = getRecordFromAOTableByCategoryId(businessRuleObject.getCategoryId());
+                if (null != businessRules && businessRules.length == 1) {
+                    foundAO = businessRules[0];
+                }
+            }
+
+
+            if (foundAO != null)
             {
-                returnBusinessRule = setAOValuesAndReturnAsObject(businessRuleObject, businessRuleRecord);
+                deleteRecordFromAOTable(foundAO);
+
+                BusinessRule businessRule = activeObjects.create(BusinessRule.class);
+                if (businessRule != null)
+                {
+                    returnBusinessRule = setAOValuesAndReturnAsObject(businessRuleObject, businessRule);
+                } else {
+                    log.error("An error occured while creating empty object!");
+                }
             } else {
-                log.error("An error occured while creating empty object!");
+                log.debug("New setting!");
+                BusinessRule businessRule = activeObjects.create(BusinessRule.class);
+                if (businessRule != null)
+                {
+                    returnBusinessRule = setAOValuesAndReturnAsObject(businessRuleObject, businessRule);
+                } else {
+                    log.error("An error occured while creating empty object!");
+                }
             }
         } catch (Exception e) {
             StringWriter stack = new StringWriter();

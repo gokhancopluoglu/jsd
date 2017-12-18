@@ -32,107 +32,38 @@
         </div>
         <br>
         <div class="field-group">
-            #set($size = $businessRuleList.size())
-            #if ($selectedCategoryId != "")
-            <table id="businessRuleTable" class="aui tablesorter">
-                <thead>
-                    <tr class="tr">
-                        <th id="businessRuleId" class="sorter-true" style="display: none;">
-                            <div class="tablesorter-header-inner">ID</div>
-                        </th>
-                        <th id="userName" class="sorter-true">
-                            <div class="tablesorter-header-inner">User Name</div>
-                        </th>
-                        <th id="order" class="sorter-false">
-                            <div class="tablesorter-header-inner"></div>
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    #set ($counter = 1)
-                    #if ($size > 0)
-                        #foreach($businessRuleTableRow in $businessRuleList)
-                            <tr>
-                                #set ($businessRuleId = $businessRuleTableRow.get('businessRuleId'))
-                                #set ($userName = $businessRuleTableRow.get('userName'))
-
-                                <td style="display: none;">
-                                    <input class="text"  type="text" name="businessRuleId$counter" id="businessRuleId$counter" value="#if($businessRuleId)$businessRuleId#end"/>
-                                </td>
-                                <td>
-                                    <select id="userName$counter" name="userName$counter" class="single-user-picker" data-user-type="assignee">
-                                        <option selected="selected" value="#if($userName)$userName#end">#if($userName)$userName#end</option>
-                                    </select>
-                                    <script type="text/javascript">
-                                        new AJS.SingleSelect({
-                                          element : AJS.$("#userName$counter"),
-                                          submitInputVal: true,
-                                          showDropdownButton: false,
-                                          errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
-                                          ajaxOptions : {
-                                            url : contextPath + "/rest/api/2/user/picker",
-                                            query : true,
-                                            data: {showAvatar: true},
-                                            formatResponse : JIRA.UserPickerUtil.formatResponse
-                                          }
-                                        });
-                                    </script>
-                                </td>
-                                <td>
-                                    <input class="aui-button jirabusinessruletabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
-                                </td>
-                            </tr>
-                            #set ($counter = $counter + 1)
-                        #end
-                        <tr>
-                            <td>
-                                <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
-                            </td>
-                        </tr>
-                    #else
-                        <tr>
-                            <td style="display: none;">
-                                <input class="text" type="text" name="businessRuleId$counter" id="businessRuleId$counter" value=""/>
-                            </td>
-                            <td>
-                                <select id="userName$counter" name="userName$counter" class="single-user-picker" data-user-type="assignee">
-                                    <option selected="selected" value=""></option>
-                                </select>
-                                <script type="text/javascript">
-                                    new AJS.SingleSelect({
-                                      element : AJS.$("#userName$counter"),
-                                      submitInputVal: true,
-                                      showDropdownButton: false,
-                                      errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
-                                      ajaxOptions : {
-                                        url : contextPath + "/rest/api/2/user/picker",
-                                        query : true,
-                                        data: {showAvatar: true},
-                                        formatResponse : JIRA.UserPickerUtil.formatResponse
-                                      }
-                                    });
-                                </script>
-                            </td>
-                            <td>
-                                <input class="aui-button jirabusinessruletabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
-                            </td>
-                        </tr>
-                    #end
-                </tbody>
-            </table>
-            #end
+            <label for="userName">User Name</label>
+           <select id="userName" name="userName" class="single-user-picker" data-user-type="assignee">
+               <option selected="selected" value="#if($userName)$userName#end">#if($userDisplayName)$userDisplayName#end</option>
+           </select>
+           <script type="text/javascript">
+               new AJS.SingleSelect({
+                 element : AJS.$("#userName"),
+                 submitInputVal: true,
+                 showDropdownButton: false,
+                 errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
+                 ajaxOptions : {
+                   url : contextPath + "/rest/api/2/user/picker",
+                   query : true,
+                   data: {showAvatar: true},
+                   formatResponse : JIRA.UserPickerUtil.formatResponse
+                 }
+               });
+           </script>
         </div>
     </form>
+
+
+    <div class="field-group">
+        <input class="aui-button" type="submit" value="Save" id="saveButton" style="float: left;">
+        <input class="aui-button" type="submit" value="Delete" id="deleteButton" style="float: left; visibility: hidden">
+        <input class="aui-button" type="submit" value="Continue" id="continueButton" style="float: left; visibility: hidden" />
+    </div>
 
     <input type="hidden" name="selectedCategoryId" id="selectedCategoryId"  value="#if($selectedCategoryId)$selectedCategoryId#end">
     <input type="hidden" name="selectedSubCategoryId" id="selectedSubCategoryId"  value="#if($selectedSubCategoryId)$selectedSubCategoryId#end">
     <input type="hidden" name="selectedCategoryItemId" id="selectedCategoryItemId"  value="#if($selectedCategoryItemId)$selectedCategoryItemId#end">
+    <input type="hidden" name="recordExists" id="recordExists" value="#if($recordExists)$recordExists#end">
 
     <div class="aui-message success" id="settingsSaved" style="visibility: hidden">
         <p class="title">
@@ -143,6 +74,15 @@
 
 
 <script type="text/javascript">
+    AJS.$(document).ready(function () {
+        var recordExistsVal = AJS.$("#recordExists").val();
+        if (recordExistsVal == "yes") {
+            AJS.$('#deleteButton').css("visibility", "visible");
+        } else {
+            AJS.$('#deleteButton').css("visibility", "hidden");
+        }
+    });
+
     jQuery(document).ready(function($) {
         JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
             callSubCategoryChangeFunction();
@@ -202,107 +142,90 @@
         }
     });
 
+    AJS.$("#saveButton").click(function(event) {
+        event.preventDefault();
 
-	jQuery(document).ready(function($) {
-		$(".jirabusinessruletabledelete").click(function() {
-			event.preventDefault();
-			var url = "businessruledefservlet";
-			var deleteid = parseInt($(this).attr("id"));
-			var tableData = AJS.$('#businessRuleTable').html();
-			
-			var myTableArray = [];
-			var table = document.getElementById('businessRuleTable');
-		    var rijen = table.getElementsByTagName("tr").length;
+        var url = "businessruledefservlet";
+        var actionType = "save";
+        var selectedCategoryId = AJS.$("#selectedCategoryId").val() == "null" ? "" : AJS.$("#selectedCategoryId").val();
+        var selectedSubCategoryId = AJS.$("#selectedSubCategoryId").val() == "null" ? "" : AJS.$("#selectedSubCategoryId").val();
+        var selectedCategoryItemId = AJS.$("#selectedCategoryItemId").val() == "null" ? "" : AJS.$("#selectedCategoryItemId").val();
+        var userName = AJS.$("#userName").val() == "null" ? "" : AJS.$("#userName").val();
 
-		    for (i = 1; i < rijen; i++) {
-		    	if (deleteid != i)
-		    	{
-			    	var businessRuleId = AJS.$("#businessRuleId1").val() == "null" ? "" : AJS.$("#businessRuleId1").val();
-                    var userName = AJS.$("#userName1").val() == "null" ? "" : AJS.$("#userName1").val();
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'selectedCategoryId' : selectedCategoryId,
+                'selectedSubCategoryId' : selectedSubCategoryId,
+                'selectedCategoryItemId' : selectedCategoryItemId,
+                'selectedUserName' : userName,
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
 
-                    var arrayOfThisRow = [];
-                    arrayOfThisRow.push(businessRuleId);
-                    arrayOfThisRow.push(userName);
-                    var myJsonString = JSON.stringify(arrayOfThisRow);
-                    myTableArray.push(myJsonString);
-			    }
-		    }
-		    
-		    var data_to_send = JSON.stringify(myTableArray);
-		    
-			jQuery.ajax({
-				type : "GET",
-				url : url,
-				data : { 
-			        'tableData' : data_to_send,
-			        'deleterow' : 'yes',
-			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
-			        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
-			        'selectedCategoryItemId' : AJS.$("#selectedCategoryItemId").val()
-			    },
-				success : function(data) {
-					console.log('dom', self, data);
-					AJS.$("#businessRuleDetail").html(data);
-				},
-				error : function() {
-					console.log('error', arguments);
-				}
-			});
-		});
-	});
-		
-	jQuery(document).ready(function() {
-		AJS.$("#submitButton").click(function(event) {
+                AJS.$("input").attr("disabled", true);
 
-			event.preventDefault();
-						
-			var url = "businessruledefservlet";
-			var tableData = AJS.$('#businessRuleTable').html();
-			
-			var myTableArray = [];
-			var table = document.getElementById('businessRuleTable');
-		    var rijen = table.getElementsByTagName("tr").length;
-		    		
-		    for (i = 1; i < rijen; i++) {
-		    	var businessRuleId = AJS.$("#businessRuleId1").val() == "null" ? "" : AJS.$("#businessRuleId1").val();
-                var userName = AJS.$("#userName1").val() == "null" ? "" : AJS.$("#userName1").val();
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
 
-                var arrayOfThisRow = [];
-                arrayOfThisRow.push(businessRuleId);
-                arrayOfThisRow.push(userName);
-                var myJsonString = JSON.stringify(arrayOfThisRow);
-                myTableArray.push(myJsonString);
-		    }
-		    
-		    var data_to_send = JSON.stringify(myTableArray);
-		    
-			jQuery.ajax({
-				type : "POST",
-				url : url,
-				data : { 
-			        'tableData' : data_to_send,
-			        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
-			        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
-			        'selectedCategoryItemId' : AJS.$("#selectedCategoryItemId").val()
-			    },
-				success : function(data) {
-					console.log('dom', self, data);
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
 
-                    AJS.$("input").attr("disabled", true);
+    AJS.$("#deleteButton").click(function(event) {
+        event.preventDefault();
 
-                    AJS.$('#submitButton').css("visibility", "hidden");
+        var url = "businessruledefservlet";
+        var selectedCategoryId = AJS.$("#selectedCategoryId").val() == "null" ? "" : AJS.$("#selectedCategoryId").val();
+        var selectedSubCategoryId = AJS.$("#selectedSubCategoryId").val() == "null" ? "" : AJS.$("#selectedSubCategoryId").val();
+        var selectedCategoryItemId = AJS.$("#selectedCategoryItemId").val() == "null" ? "" : AJS.$("#selectedCategoryItemId").val();
+        var userName = AJS.$("#userName").val() == "null" ? "" : AJS.$("#userName").val();
+        var actionType = "delete";
 
-                    AJS.$(".jiracategoryitemtabledelete").css("visibility", "hidden");
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'selectedCategoryId' : selectedCategoryId,
+                'selectedSubCategoryId' : selectedSubCategoryId,
+                'selectedCategoryItemId' : selectedCategoryItemId,
+                'selectedUserName' : userName,
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
 
-                    AJS.$('#settingsSaved').css("visibility", "visible");
-                    AJS.$('#settingsSaved').css("display", "");
-                    AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
-                    AJS.$("#settingsSaved").delay(2000).fadeOut();
-				},
-				error : function() {
-					console.log('error', arguments);
-				}
-			});
-		});
-	}); 
+                AJS.$("input").attr("disabled", true);
+
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
+
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Deleted</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
+
+    AJS.$("#continueButton").click(function(event) {
+        event.preventDefault();
+        location.reload();
+    });
 </script>
