@@ -48,10 +48,27 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             CustomField categoryItemCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.CATEGORY_ITEM_CF_ID);
 
             String categoryCFVal = (String)issue.getCustomFieldValue(categoryCF);
+            if (null != categoryCFVal) {
+                if (categoryCFVal.contains("<value>") && categoryCFVal.contains("</value>")) {
+                    categoryCFVal = categoryCFVal.substring(categoryCFVal.indexOf("<value>") + 7, categoryCFVal.indexOf("</value>"));
+                }
+            }
             log.debug("Category Val" + categoryCFVal);
+
             String subCategoryCFVal = (String)issue.getCustomFieldValue(subCategoryCF);
+            if (null != subCategoryCFVal) {
+                if (subCategoryCFVal.contains("<value>") && subCategoryCFVal.contains("</value>")) {
+                    subCategoryCFVal = subCategoryCFVal.substring(subCategoryCFVal.indexOf("<value>") + 7, subCategoryCFVal.indexOf("</value>"));
+                }
+            }
             log.debug("Sub Category Val" + subCategoryCFVal);
+
             String categoryItemCFVal = (String)issue.getCustomFieldValue(categoryItemCF);
+            if (null != categoryItemCFVal) {
+                if (categoryItemCFVal.contains("<value>") && categoryItemCFVal.contains("</value>")) {
+                    categoryItemCFVal = categoryItemCFVal.substring(categoryItemCFVal.indexOf("<value>") + 7, categoryItemCFVal.indexOf("</value>"));
+                }
+            }
             log.debug("Category Item Val" + categoryItemCFVal);
 
             ApplicationUser user = null;
