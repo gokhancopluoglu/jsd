@@ -1,7 +1,6 @@
 package tr.com.almbase.plugin.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -91,11 +90,11 @@ public class CategoryDefServlet extends HttpServlet
                         Map<String, String> categoryMap = new HashMap<>();
                         String categoryId = jsonTableRowArray.get(0).getAsString();
                         String categoryName = jsonTableRowArray.get(1).getAsString();
-                        String issueTypeId = jsonTableRowArray.get(2).getAsString();
+                        String requestType = jsonTableRowArray.get(2).getAsString();
                         String groupName = jsonTableRowArray.get(3).getAsString();
                         categoryMap.put("categoryId", categoryId);
                         categoryMap.put("categoryName", categoryName);
-                        categoryMap.put("issueTypeId", issueTypeId);
+                        categoryMap.put("requestType", requestType);
                         categoryMap.put("groupName", groupName);
                         categoryList.add(categoryMap);
                     }
@@ -103,12 +102,11 @@ public class CategoryDefServlet extends HttpServlet
                     Map<String, String> categoryMap = new HashMap<>();
                     categoryMap.put("categoryId", "");
                     categoryMap.put("categoryName", "");
-                    categoryMap.put("issueTypeId", "");
+                    categoryMap.put("requestType", "");
                     categoryMap.put("groupName", "");
 
                     categoryList.add(categoryMap);
 
-                    context.put("issueTypes", getIssueTypes());
                     context.put("categoryList", categoryList);
                     templateRenderer.render(CATEGORY_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
                 } else if (deleterow.equalsIgnoreCase("yes")) {
@@ -122,16 +120,15 @@ public class CategoryDefServlet extends HttpServlet
                         Map<String, String> categoryMap = new HashMap<>();
                         String categoryId = jsonTableRowArray.get(0).getAsString();
                         String categoryName = jsonTableRowArray.get(1).getAsString();
-                        String issueTypeId = jsonTableRowArray.get(2).getAsString();
+                        String requestType = jsonTableRowArray.get(2).getAsString();
                         String groupName = jsonTableRowArray.get(3).getAsString();
                         categoryMap.put("categoryId", categoryId);
                         categoryMap.put("categoryName", categoryName);
-                        categoryMap.put("issueTypeId", issueTypeId);
+                        categoryMap.put("requestType", requestType);
                         categoryMap.put("groupName", groupName);
                         categoryList.add(categoryMap);
                     }
 
-                    context.put("issueTypes", getIssueTypes());
                     context.put("categoryList", categoryList);
                     templateRenderer.render(CATEGORY_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
                 } else if (initial.equalsIgnoreCase("yes")) {
@@ -142,12 +139,11 @@ public class CategoryDefServlet extends HttpServlet
                             Map<String, String> categoryMap = new HashMap<>();
                             categoryMap.put("categoryId", String.valueOf(category.getID()));
                             categoryMap.put("categoryName", category.getCategoryName());
-                            categoryMap.put("issueTypeId", category.getIssueTypeId());
+                            categoryMap.put("requestType", category.getRequestType());
                             categoryMap.put("groupName", category.getGroupName());
                             categoryList.add(categoryMap);
                         }
                     }
-                    context.put("issueTypes", getIssueTypes());
                     context.put("categoryList", categoryList);
                     templateRenderer.render(CATEGORY_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
                 } else {
@@ -177,13 +173,13 @@ public class CategoryDefServlet extends HttpServlet
 
                 String categoryId = jsonTableRowArray.get(0).getAsString();
                 String categoryName = jsonTableRowArray.get(1).getAsString();
-                String issueTypeId = jsonTableRowArray.get(2).getAsString();
+                String requestType = jsonTableRowArray.get(2).getAsString();
                 String groupName = jsonTableRowArray.get(3).getAsString();
 
                 Map<String, String> categoryMap = new HashMap<>();
                 categoryMap.put("categoryId", categoryId);
                 categoryMap.put("categoryName", categoryName);
-                categoryMap.put("issueTypeId", issueTypeId);
+                categoryMap.put("requestType", requestType);
                 categoryMap.put("groupName", groupName);
                 categoryMapList.add(categoryMap);
             }
@@ -194,7 +190,7 @@ public class CategoryDefServlet extends HttpServlet
                 Map<String, String> categoryMap = (Map<String, String>)categoryIterator.next();
                 String categoryId = categoryMap.get("categoryId");
                 String categoryName = categoryMap.get("categoryName");
-                String issueTypeId = categoryMap.get("issueTypeId");
+                String requestType = categoryMap.get("requestType");
                 String groupName = categoryMap.get("groupName");
 
                 if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
@@ -202,7 +198,7 @@ public class CategoryDefServlet extends HttpServlet
                         Category category = categoryController.getRecordFromAOTableById(categoryId);
                         CategoryObject categoryObject = new CategoryObject();
                         categoryObject.setCategoryName(categoryName);
-                        categoryObject.setIssueTypeId(issueTypeId);
+                        categoryObject.setRequestType(requestType);
                         categoryObject.setGroupName(groupName);
                         categoryController.updateRecordInAOTable(category, categoryObject);
                     }
@@ -211,7 +207,7 @@ public class CategoryDefServlet extends HttpServlet
                     if (null != categoryName && !categoryName.equalsIgnoreCase("")) {
                         CategoryObject categoryObject = new CategoryObject();
                         categoryObject.setCategoryName(categoryName);
-                        categoryObject.setIssueTypeId(issueTypeId);
+                        categoryObject.setRequestType(requestType);
                         categoryObject.setGroupName(groupName);
                         Category category = categoryController.createRecordInAOTable(categoryObject);
                         categoryIdList.add(String.valueOf(category.getID()));
@@ -252,15 +248,6 @@ public class CategoryDefServlet extends HttpServlet
         }
         //Delete Category
         categoryController.deleteRecordFromAOTable(category);
-    }
-
-    private Map<String, IssueType> getIssueTypes () {
-        Map<String, IssueType> issueTypeMap = new HashMap<>();
-        Collection<IssueType> issueTypeList = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
-        for (IssueType issueType : issueTypeList) {
-            issueTypeMap.put(issueType.getId(), issueType);
-        }
-        return issueTypeMap;
     }
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException

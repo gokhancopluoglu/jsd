@@ -88,7 +88,7 @@ public class CategoryControllerImpl implements CategoryController{
         try {
             if (category != null) {
                 category.setCategoryName(categoryObject.getCategoryName());
-                category.setIssueTypeId(categoryObject.getIssueTypeId());
+                category.setRequestType(categoryObject.getRequestType());
                 category.setGroupName(categoryObject.getGroupName());
                 category.save();
             } else {
@@ -126,7 +126,7 @@ public class CategoryControllerImpl implements CategoryController{
     private Category setAOValuesAndReturnAsObject(CategoryObject categoryObject, Category categoryRecord) {
         try {
             categoryRecord.setCategoryName(categoryObject.getCategoryName());
-            categoryRecord.setIssueTypeId(categoryObject.getIssueTypeId());
+            categoryRecord.setRequestType(categoryObject.getRequestType());
             categoryRecord.setGroupName(categoryObject.getGroupName());
             categoryRecord.save();
         } catch (Exception e) {

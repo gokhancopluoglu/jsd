@@ -10,7 +10,7 @@
                     <div class="tablesorter-header-inner">Category Name</div>
                 </th>
                 <th id="categoryName" class="sorter-true">
-                    <div class="tablesorter-header-inner">Issue Type</div>
+                    <div class="tablesorter-header-inner">Request Type</div>
                 </th>
                 <th id="categoryName" class="sorter-true">
                     <div class="tablesorter-header-inner">Group</div>
@@ -28,7 +28,7 @@
                     <tr>
                         #set ($categoryId = $categoryTableRow.get('categoryId'))
                         #set ($categoryName = $categoryTableRow.get('categoryName'))
-                        #set ($issueTypeId = $categoryTableRow.get('issueTypeId'))
+                        #set ($requestType = $categoryTableRow.get('requestType'))
                         #set ($groupName = $categoryTableRow.get('groupName'))
 
                         <td style="display: none;">
@@ -38,15 +38,7 @@
                             <input class="text long-field" type="text" name="categoryName$counter" id="categoryName$counter" value="#if($categoryName)$categoryName#end"/>
                         </td>
                         <td >
-                            <select class="select" id="issueTypeId$counter" name="issueTypeId$counter" title="Issue Type">
-                                #foreach($it in $issueTypes.keySet())
-                                    #if($it == $issueTypeId)
-                                        <option selected value="$it">$issueTypes.get($it).getName()</option>
-                                    #else
-                                        <option value="$it">$issueTypes.get($it).getName()</option>
-                                    #end
-                                #end
-                            </select>
+                            <input class="text long-field" type="text" name="requestType$counter" id="requestType$counter" value="#if($requestType)$requestType#end"/>
                         </td>
                         <td>
                             <select id="groupName$counter" name="groupName$counter" class="single-group-picker">
@@ -88,15 +80,7 @@
                         <input class="text long-field" type="text" name="categoryName$counter" id="categoryName$counter" value=""/>
                     </td>
                     <td >
-                        <select class="select" id="issueTypeId$counter" name="issueTypeId$counter" title="Issue Type">
-                            #foreach($it in $issueTypes.keySet())
-                                #if($it == $issueTypeId)
-                                    <option selected value="$it">$issueTypes.get($it).getName()</option>
-                                #else
-                                    <option value="$it">$issueTypes.get($it).getName()</option>
-                                #end
-                            #end
-                        </select>
+                        <input class="text long-field" type="text" name="requestType$counter" id="requestType$counter" value="#if($requestType)$requestType#end"/>
                     </td>
                     <td>
                         <select id="groupName$counter" name="groupName$counter" class="single-group-picker">
@@ -164,12 +148,12 @@
                             arrayOfThisRow.push(inputval1);
                             var inputval2 = inputs[1].value;
                             arrayOfThisRow.push(inputval2);
+                            var inputval3 = inputs[2].value;
+                            arrayOfThisRow.push(inputval3);
                         }
 
                         var selectval1 = selects[0].value;
                         arrayOfThisRow.push(selectval1);
-                        var selectval2 = selects[1].value;
-                        arrayOfThisRow.push(selectval2);
 
                         var myJsonString = JSON.stringify(arrayOfThisRow);
                         myTableArray.push(myJsonString);
@@ -221,12 +205,12 @@
                         arrayOfThisRow.push(inputval1);
                         var inputval2 = inputs[1].value;
                         arrayOfThisRow.push(inputval2);
+                        var inputval3 = inputs[2].value;
+                        arrayOfThisRow.push(inputval3);
                     }
 
                     var selectval1 = selects[0].value;
                     arrayOfThisRow.push(selectval1);
-                    var selectval2 = selects[1].value;
-                    arrayOfThisRow.push(selectval2);
 
                     var myJsonString = JSON.stringify(arrayOfThisRow);
                     myTableArray.push(myJsonString);
@@ -276,12 +260,12 @@
                         arrayOfThisRow.push(inputval1);
                         var inputval2 = inputs[1].value;
                         arrayOfThisRow.push(inputval2);
+                        var inputval3 = inputs[2].value;
+                        arrayOfThisRow.push(inputval3);
                     }
 
                     var selectval1 = selects[0].value;
                     arrayOfThisRow.push(selectval1);
-                    var selectval2 = selects[1].value;
-                    arrayOfThisRow.push(selectval2);
 
                     var myJsonString = JSON.stringify(arrayOfThisRow);
                     myTableArray.push(myJsonString);

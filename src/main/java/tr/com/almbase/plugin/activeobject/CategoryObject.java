@@ -5,7 +5,7 @@ package tr.com.almbase.plugin.activeobject;
  */
 public class CategoryObject {
     String categoryName;
-    String issueTypeId;
+    String requestType;
     String groupName;
 
     public String getCategoryName() {
@@ -16,19 +16,19 @@ public class CategoryObject {
         this.categoryName = categoryName;
     }
 
-    public String getIssueTypeId() {
-        return issueTypeId;
-    }
-
     public String getGroupName() {
         return groupName;
     }
 
-    public void setIssueTypeId(String issueTypeId) {
-        this.issueTypeId = issueTypeId;
-    }
-
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
     }
 }
