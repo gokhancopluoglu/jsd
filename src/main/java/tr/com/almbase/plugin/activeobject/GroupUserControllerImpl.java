@@ -21,21 +21,6 @@ public class GroupUserControllerImpl implements GroupUserController{
         this.activeObjects = activeObjects;
     }
 
-    public GroupUser getRecordFromAOTableByIssueType(String issueType) {
-        GroupUser groupUser = null;
-        try {
-            GroupUser[] tempGroupUser = activeObjects.find(GroupUser.class, "ISSUE_TYPE = ?", issueType);
-            if (null != tempGroupUser && tempGroupUser.length > 0)
-                groupUser = tempGroupUser[0];
-        } catch (Exception e) {
-            StringWriter stack = new StringWriter();
-            e.printStackTrace(new PrintWriter(stack));
-            log.error(stack.toString());
-            log.error("Couldn't find any record!");
-        }
-        return groupUser;
-    }
-
     public GroupUser getRecordFromAOTableByGroupName(String groupName) {
         GroupUser groupUser = null;
         try {
@@ -128,22 +113,6 @@ public class GroupUserControllerImpl implements GroupUserController{
         return returnGroupUser;
     }
 
-    public GroupUser updateRecordInAOTable(GroupUser groupUser, GroupUserObject groupUserObject) {
-        try {
-            if (groupUser != null) {
-                groupUser.setUserName(groupUserObject.getUserName());
-                groupUser.save();
-            } else {
-                log.error("An error occured while creating empty object!");
-            }
-        } catch (Exception e) {
-            StringWriter stack = new StringWriter();
-            e.printStackTrace(new PrintWriter(stack));
-            log.error(stack.toString());
-        }
-        return groupUser;
-    }
-
     public void deleteRecordFromAOTable(GroupUser groupUser) {
         try {
             activeObjects.delete(groupUser);
@@ -156,7 +125,6 @@ public class GroupUserControllerImpl implements GroupUserController{
 
     private GroupUser setAOValuesAndReturnAsObject(GroupUserObject groupUserObject, GroupUser groupUserRecord) {
         try {
-            groupUserRecord.setIssueType(groupUserObject.getIssueType());
             groupUserRecord.setGroupName(groupUserObject.getGroupName());
             groupUserRecord.setUserName(groupUserObject.getUserName());
             groupUserRecord.save();

@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <title>Issue Type Group Definition Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	<h3 class="formtitle">Issue Type Group Definition Screen</h3>
+	</td>
+	<div class="content-container">
+        <div class="content-body">
+            <form action="issuetypegroupdefservlet" method="get" id="admin-form" class="aui">
+                <fieldset class="group">
+                    <div class="field-group">
+                        <legend><span>Issue Type</span></legend>
+                        <select class="select" id="issueType" name="issueType" title="Issue Type">
+                            <option value="None">None</option>
+                            #foreach($it in $issueTypes.keySet())
+                                #if($it == $issueTypeId)
+                                    <option selected value="$it">$issueTypes.get($it).getName()</option>
+                                #else
+                                    <option value="$it">$issueTypes.get($it).getName()</option>
+                                #end
+                            #end
+                        </select>
+                    </div>
+                    <div id="issueTypeGroupDetail"></div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    
+   <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+                callIssueTypeChangeFunction();
+            });
+
+            callIssueTypeChangeFunction();
+
+            function callIssueTypeChangeFunction()
+            {
+                var url = "issuetypegroupdefservlet";
+
+                $("#issueType").change(function() {
+                    jQuery.ajax({
+                        type: "GET",
+                        url : url,
+                        data : {
+                            'issuetypechanged' : 'yes',
+                            'selectedIssueType' : AJS.$("#issueType").val()
+                        },
+                        success : function(data) {
+                            console.log(data);
+                            AJS.$("#issueTypeGroupDetail").html(data);
+                        },
+                        error : function(response) {
+                            AJS.$("#issueTypeGroupDetail").html("");
+                        }
+                    });
+                });
+            }
+        });
+   </script>
+</body>
+
+</html>

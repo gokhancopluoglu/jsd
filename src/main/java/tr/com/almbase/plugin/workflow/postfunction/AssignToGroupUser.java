@@ -23,6 +23,8 @@ public class AssignToGroupUser extends AbstractJiraFunctionProvider
     private static final Logger log = LoggerFactory.getLogger(AssignToGroupUser.class);
     private GroupUserController groupUserController;
 
+    public static final String GROUP_NAME = "groupName";
+
     public AssignToGroupUser(GroupUserController groupUserController)
     {
         this.groupUserController = groupUserController;
@@ -30,9 +32,10 @@ public class AssignToGroupUser extends AbstractJiraFunctionProvider
 
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException
     {
+        String groupName = (String) args.get(GROUP_NAME);
         MutableIssue issue = getIssue(transientVars);
         try {
-            GroupUser groupUser = groupUserController.getRecordFromAOTableByIssueType(String.valueOf(issue.getIssueType().getId()));
+            GroupUser groupUser = groupUserController.getRecordFromAOTableByGroupName(groupName);
             if (null != groupUser) {
                 String userKey = groupUser.getUserName();
                 if (null != userKey && !userKey.equalsIgnoreCase("")) {

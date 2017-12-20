@@ -3,16 +3,16 @@ package tr.com.almbase.plugin.activeobject;
 /**
  * Created by kivanc.ahat@almbase.com on 08/12/2017.
  */
-public class GroupUserObject {
+public class IssueTypeGroupObject {
+    String issueType;
     String groupName;
-    String userName;
 
-    public String getUserName() {
-        return userName;
+    public String getIssueType() {
+        return issueType;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setIssueType(String issueType) {
+        this.issueType = issueType;
     }
 
     public String getGroupName() {

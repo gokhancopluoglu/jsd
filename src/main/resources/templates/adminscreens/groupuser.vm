@@ -15,43 +15,50 @@
             <form action="groupuserdefservlet" method="get" id="admin-form" class="aui">
                 <fieldset class="group">
                     <div class="field-group">
-                        <legend><span>Issue Type</span></legend>
-                        <select class="select" id="issueType" name="issueType" title="Issue Type">
-                            <option value="None">None</option>
-                            #foreach($it in $issueTypes.keySet())
-                                #if($it == $issueTypeId)
-                                    <option selected value="$it">$issueTypes.get($it).getName()</option>
-                                #else
-                                    <option value="$it">$issueTypes.get($it).getName()</option>
-                                #end
-                            #end
+                        <legend><span>Group Name</span></legend>
+                        <select id="groupName" name="groupName" class="single-group-picker">
+                            <option selected="selected" value="#if($groupName)$groupName#end">#if($groupName)$groupName#end</option>
                         </select>
+                        <script type="text/javascript">
+                            new AJS.SingleSelect({
+                              element : AJS.$("#groupName"),
+                              submitInputVal: true,
+                              showDropdownButton: false,
+                              errorMessage: AJS.format("There is no such group \'\'{0}\'\'.", "'{0}'"),
+                              ajaxOptions : {
+                                  url : contextPath + "/rest/api/2/groups/picker",
+                                  query : true,
+                                  data: {showAvatar: true},
+                                  formatResponse : JIRA.GroupPickerUtil.formatResponse
+                              }
+                            });
+                        </script>
                     </div>
                     <div id="groupUserDetail"></div>
                 </fieldset>
             </form>
         </div>
     </div>
-    
+
    <script type="text/javascript">
         jQuery(document).ready(function($) {
             JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
-                callIssueTypeChangeFunction();
+                callGroupNameChangeFunction();
             });
 
-            callIssueTypeChangeFunction();
+            callGroupNameChangeFunction();
 
-            function callIssueTypeChangeFunction()
+            function callGroupNameChangeFunction()
             {
                 var url = "groupuserdefservlet";
 
-                $("#issueType").change(function() {
+                $("#groupName").change(function() {
                     jQuery.ajax({
                         type: "GET",
                         url : url,
                         data : {
-                            'issuetypechanged' : 'yes',
-                            'selectedIssueType' : AJS.$("#issueType").val()
+                            'groupnamechanged' : 'yes',
+                            'selectedGroupName' : AJS.$("#groupName").val()
                         },
                         success : function(data) {
                             console.log(data);

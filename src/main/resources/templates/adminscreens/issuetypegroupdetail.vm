@@ -1,23 +1,23 @@
 <div class="field-group">
-    <label for="userName">User Name</label>
-    <select id="userName" name="userName" class="single-user-picker">
-        <option selected="selected" value="#if($userName)$userName#end">#if($userDisplayName)$userDisplayName#end</option>
+    <legend><span>Group Name</span></legend>
+    <select id="groupName" name="groupName" class="single-group-picker">
+        <option selected="selected" value="#if($groupName)$groupName#end">#if($groupName)$groupName#end</option>
     </select>
+    <script type="text/javascript">
+        new AJS.SingleSelect({
+          element : AJS.$("#groupName"),
+          submitInputVal: true,
+          showDropdownButton: false,
+          errorMessage: AJS.format("There is no such group \'\'{0}\'\'.", "'{0}'"),
+          ajaxOptions : {
+              url : contextPath + "/rest/api/2/groups/picker",
+              query : true,
+              data: {showAvatar: true},
+              formatResponse : JIRA.GroupPickerUtil.formatResponse
+          }
+        });
+    </script>
 </div>
-<script type="text/javascript">
-    new AJS.SingleSelect({
-      element : AJS.$("#userName"),
-      submitInputVal: true,
-      showDropdownButton: false,
-      errorMessage: AJS.format("There is no such user \'\'{0}\'\'.", "'{0}'"),
-      ajaxOptions : {
-        url : contextPath + "/rest/api/2/user/picker",
-        query : true,
-        data: {showAvatar: true},
-        formatResponse : JIRA.UserPickerUtil.formatResponse
-      }
-    });
-</script>
 
 <div class="field-group">
     <input class="aui-button" type="submit" value="Save" id="saveButton" style="float: left;">
@@ -30,7 +30,7 @@
 		<span class="aui-icon icon-success"></span>
 	</p>
 </div>
-<input type="hidden" name="selectedGroupName" id="selectedGroupName" value="#if($selectedGroupName)$selectedGroupName#end">
+<input type="hidden" name="selectedIssueType" id="selectedIssueType" value="#if($selectedIssueType)$selectedIssueType#end">
 <input type="hidden" name="recordExists" id="recordExists" value="#if($recordExists)$recordExists#end">
 
 <script type="text/javascript">
@@ -46,17 +46,17 @@
     AJS.$("#saveButton").click(function(event) {
         event.preventDefault();
 
-        var url = "groupuserdefservlet";
+        var url = "issuetypegroupdefservlet";
         var actionType = "save";
-        var selectedGroupName = AJS.$("#selectedGroupName").val() == "null" ? "" : AJS.$("#selectedGroupName").val();
-        var userName = AJS.$("#userName").val() == "null" ? "" : AJS.$("#userName").val();
+        var selectedIssueType = AJS.$("#selectedIssueType").val() == "null" ? "" : AJS.$("#selectedIssueType").val();
+        var groupName = AJS.$("#groupName").val() == "null" ? "" : AJS.$("#groupName").val();
 
         jQuery.ajax({
             type : "POST",
             url : url,
             data : {
-                'selectedGroupName' : selectedGroupName,
-                'selectedUserName' : userName,
+                'selectedIssueType' : selectedIssueType,
+                'selectedGroupName' : groupName,
                 'actionType' : actionType
             },
             success : function(data) {
@@ -83,14 +83,14 @@
     AJS.$("#deleteButton").click(function(event) {
         event.preventDefault();
 
-        var url = "groupuserdefservlet";
+        var url = "issuetypegroupdefservlet";
         var actionType = "delete";
 
         jQuery.ajax({
             type : "POST",
             url : url,
             data : {
-                'selectedGroupName' : AJS.$("#selectedGroupName").val(),
+                'selectedIssueType' : AJS.$("#selectedIssueType").val(),
                 'actionType' : actionType
             },
             success : function(data) {

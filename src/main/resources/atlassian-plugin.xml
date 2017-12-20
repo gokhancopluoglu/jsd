@@ -26,6 +26,7 @@
     <entity>tr.com.almbase.plugin.activeobject.Category</entity>
     <entity>tr.com.almbase.plugin.activeobject.CategoryItem</entity>
     <entity>tr.com.almbase.plugin.activeobject.SubCategory</entity>
+    <entity>tr.com.almbase.plugin.activeobject.IssueTypeGroup</entity>
     <entity>tr.com.almbase.plugin.activeobject.GroupUser</entity>
   </ao>
 
@@ -44,6 +45,9 @@
   </component>
   <component key="SubCategoryControllerImpl" class="tr.com.almbase.plugin.activeobject.SubCategoryControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.SubCategoryController</interface>
+  </component>
+  <component key="IssueTypeGroupControllerImpl" class="tr.com.almbase.plugin.activeobject.IssueTypeGroupControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.IssueTypeGroupController</interface>
   </component>
   <component key="GroupUserControllerImpl" class="tr.com.almbase.plugin.activeobject.GroupUserControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.GroupUserController</interface>
@@ -84,7 +88,12 @@
     <link linkId="businessRuleDefinitionLink">/plugins/servlet/businessruledefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="125">
+  <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="125">
+    <label key="Issue Type Group Definition"/>
+    <link linkId="issueTypeGroupDefinitionLink">/plugins/servlet/issuetypegroupdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="126">
     <label key="Group User Definition"/>
     <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
@@ -106,6 +115,10 @@
     <description key="business-rule-def-servlet.description">The Business Rule Definition Servlet Plugin</description>
     <url-pattern>/businessruledefservlet</url-pattern>
   </servlet>
+  <servlet name="Issue Type Group Def Servlet" i18n-name-key="issue-type-group-def-servlet.name" key="issue-type-group-def-servlet" class="tr.com.almbase.plugin.servlet.IssueTypeGroupDefServlet">
+    <description key="issue-type-group-def-servlet.description">The Issue Type Group Definition Servlet Plugin</description>
+    <url-pattern>/issuetypegroupdefservlet</url-pattern>
+  </servlet>
   <servlet name="Group User Def Servlet" i18n-name-key="group-user-def-servlet.name" key="group-user-def-servlet" class="tr.com.almbase.plugin.servlet.GroupUserDefServlet">
     <description key="group-user-def-servlet.description">The Group User Definition Servlet Plugin</description>
     <url-pattern>/groupuserdefservlet</url-pattern>
@@ -117,10 +130,18 @@
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-business-rule.vm"/>
   </workflow-function>
 
+  <workflow-function key="assign-to-issue-type-group" name="Assign To Issue Type Group Default User" i18n-name-key="assign-to-issue-type-group.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToIssueTypeGroupFactory">
+    <description key="assign-to-issue-type-group.description">The Assign To Issue Type Group Default User Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToIssueTypeGroup</function-class>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-issue-type-group.vm"/>
+  </workflow-function>
+
   <workflow-function key="assign-to-group-user" name="Assign To Group User" i18n-name-key="assign-to-group-user.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUserFactory">
     <description key="assign-to-group-user.description">The Assign To Group User Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUser</function-class>
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-group-user.vm"/>
+    <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
+    <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
   </workflow-function>
 
 </atlassian-plugin>
