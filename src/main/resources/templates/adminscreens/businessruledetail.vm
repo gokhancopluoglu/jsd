@@ -30,6 +30,19 @@
               #end
             </select>
         </div>
+        <div class="field-group">
+            <legend><span>Issue Type</span></legend>
+            <select class="select" id="issueType" name="issueType" title="Issue Type">
+                <option value="None">None</option>
+                #foreach($it in $issueTypes.keySet())
+                    #if($it == $selectedIssueType)
+                        <option selected value="$it">$issueTypes.get($it).getName()</option>
+                    #else
+                        <option value="$it">$issueTypes.get($it).getName()</option>
+                    #end
+                #end
+            </select>
+        </div>
         <br>
         <div class="field-group">
             <label for="userName">User Name</label>
@@ -63,6 +76,7 @@
     <input type="hidden" name="selectedCategoryId" id="selectedCategoryId"  value="#if($selectedCategoryId)$selectedCategoryId#end">
     <input type="hidden" name="selectedSubCategoryId" id="selectedSubCategoryId"  value="#if($selectedSubCategoryId)$selectedSubCategoryId#end">
     <input type="hidden" name="selectedCategoryItemId" id="selectedCategoryItemId"  value="#if($selectedCategoryItemId)$selectedCategoryItemId#end">
+    <input type="hidden" name="selectedIssueType" id="selectedIssueType"  value="#if($selectedIssueType)$selectedIssueType#end">
     <input type="hidden" name="recordExists" id="recordExists" value="#if($recordExists)$recordExists#end">
 
     <div class="aui-message success" id="settingsSaved" style="visibility: hidden">
@@ -87,10 +101,12 @@
         JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
             callSubCategoryChangeFunction();
             callCategoryItemChangeFunction();
+            callIssueTypeChangeFunction();
         });
 
         callSubCategoryChangeFunction();
         callCategoryItemChangeFunction();
+        callIssueTypeChangeFunction();
 
         function callSubCategoryChangeFunction()
         {
@@ -139,6 +155,32 @@
                     }
                 });
             });
+        };
+
+        function callIssueTypeChangeFunction()
+        {
+            var url = "businessruledefservlet";
+
+            $("#issueType").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'issuetypechanged' : 'yes',
+                        'selectedCategoryId' : AJS.$("#selectedCategoryId").val(),
+                        'selectedSubCategoryId' : AJS.$("#selectedSubCategoryId").val(),
+                        'selectedCategoryItemId' : AJS.$("#selectedCategoryItemId").val(),
+                        'selectedIssueType' : AJS.$("#issueType").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#businessRuleDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#businessRuleDetail").html("");
+                    }
+                });
+            });
         }
     });
 
@@ -150,6 +192,7 @@
         var selectedCategoryId = AJS.$("#selectedCategoryId").val() == "null" ? "" : AJS.$("#selectedCategoryId").val();
         var selectedSubCategoryId = AJS.$("#selectedSubCategoryId").val() == "null" ? "" : AJS.$("#selectedSubCategoryId").val();
         var selectedCategoryItemId = AJS.$("#selectedCategoryItemId").val() == "null" ? "" : AJS.$("#selectedCategoryItemId").val();
+        var selectedIssueType = AJS.$("#selectedIssueType").val() == "null" ? "" : AJS.$("#selectedIssueType").val();
         var userName = AJS.$("#userName").val() == "null" ? "" : AJS.$("#userName").val();
 
         jQuery.ajax({
@@ -159,6 +202,7 @@
                 'selectedCategoryId' : selectedCategoryId,
                 'selectedSubCategoryId' : selectedSubCategoryId,
                 'selectedCategoryItemId' : selectedCategoryItemId,
+                'selectedIssueType' : selectedIssueType,
                 'selectedUserName' : userName,
                 'actionType' : actionType
             },
@@ -190,6 +234,7 @@
         var selectedCategoryId = AJS.$("#selectedCategoryId").val() == "null" ? "" : AJS.$("#selectedCategoryId").val();
         var selectedSubCategoryId = AJS.$("#selectedSubCategoryId").val() == "null" ? "" : AJS.$("#selectedSubCategoryId").val();
         var selectedCategoryItemId = AJS.$("#selectedCategoryItemId").val() == "null" ? "" : AJS.$("#selectedCategoryItemId").val();
+        var selectedIssueType = AJS.$("#selectedIssueType").val() == "null" ? "" : AJS.$("#selectedIssueType").val();
         var userName = AJS.$("#userName").val() == "null" ? "" : AJS.$("#userName").val();
         var actionType = "delete";
 
@@ -200,6 +245,7 @@
                 'selectedCategoryId' : selectedCategoryId,
                 'selectedSubCategoryId' : selectedSubCategoryId,
                 'selectedCategoryItemId' : selectedCategoryItemId,
+                'selectedIssueType' : selectedIssueType,
                 'selectedUserName' : userName,
                 'actionType' : actionType
             },

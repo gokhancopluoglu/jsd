@@ -1,6 +1,7 @@
 package tr.com.almbase.plugin.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.auth.LoginUriProvider;
@@ -74,10 +75,12 @@ public class BusinessRuleDefServlet extends HttpServlet
                 String initial = req.getParameter("initial") == null ? "" : req.getParameter("initial").trim();
                 String subcategorychanged = req.getParameter("subcategorychanged") == null ? "" : req.getParameter("subcategorychanged").trim();
                 String categoryitemchanged = req.getParameter("categoryitemchanged") == null ? "" : req.getParameter("categoryitemchanged").trim();
+                String issuetypechanged = req.getParameter("issuetypechanged") == null ? "" : req.getParameter("issuetypechanged").trim();
 
                 String selectedCategoryId = req.getParameter("selectedCategoryId") == null ? "" : req.getParameter("selectedCategoryId").trim();
                 String selectedSubCategoryId = req.getParameter("selectedSubCategoryId") == null ? "" : req.getParameter("selectedSubCategoryId").trim();
                 String selectedCategoryItemId = req.getParameter("selectedCategoryItemId") == null ? "" : req.getParameter("selectedCategoryItemId").trim();
+                String selectedIssueType = req.getParameter("selectedIssueType") == null ? "" : req.getParameter("selectedIssueType").trim();
 
                 String recordExists = "";
                 if (initial.equalsIgnoreCase("yes")) {
@@ -104,7 +107,9 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
                     context.put("selectedCategoryItemId", selectedCategoryItemId);
+                    context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
+                    context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
                     templateRenderer.render(BUSINESS_RULE_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
@@ -132,8 +137,10 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
                     context.put("selectedCategoryItemId", selectedCategoryItemId);
+                    context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
+                    context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
                     templateRenderer.render(BUSINESS_RULE_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
@@ -141,7 +148,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     String userName = "";
                     String userDisplayName = "";
                     if (isCategorySelected(req) && isSubCategorySelected(req) & isCategoryItemSelected(req)) {
-                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByCategoryItemId(selectedCategoryItemId);
+                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByCategoryItemId(selectedCategoryItemId, selectedCategoryId, selectedSubCategoryId);
                         if (null != businessRule) {
                             String userKey = businessRule.getUserName();
                             if (null != userKey) {
@@ -159,8 +166,39 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
                     context.put("selectedCategoryItemId", selectedCategoryItemId);
+                    context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
+                    context.put("issueTypes", getIssueTypes());
+                    context.put("userName", userName);
+                    context.put("userDisplayName", userDisplayName);
+                    templateRenderer.render(BUSINESS_RULE_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
+                } else if (issuetypechanged.equalsIgnoreCase("yes")) {
+                    String userName = "";
+                    String userDisplayName = "";
+                    if (isCategorySelected(req) && isSubCategorySelected(req)) {
+                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(selectedIssueType, selectedCategoryId, selectedSubCategoryId);
+                        if (null != businessRule) {
+                            String userKey = businessRule.getUserName();
+                            if (null != userKey) {
+                                ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                if (null != applicationUser) {
+                                    userName = applicationUser.getName();
+                                    userDisplayName = applicationUser.getDisplayName();
+                                    recordExists = "yes";
+                                }
+                            }
+                        }
+                    }
+
+                    context.put("recordExists", recordExists);
+                    context.put("selectedCategoryId", selectedCategoryId);
+                    context.put("selectedSubCategoryId", selectedSubCategoryId);
+                    context.put("selectedCategoryItemId", selectedCategoryItemId);
+                    context.put("selectedIssueType", selectedIssueType);
+                    context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
+                    context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
+                    context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
                     templateRenderer.render(BUSINESS_RULE_DETAIL_DEF_TEMPLATE, context, resp.getWriter());
@@ -195,6 +233,7 @@ public class BusinessRuleDefServlet extends HttpServlet
             String selectedCategoryId = req.getParameter("selectedCategoryId") == null ? "" : req.getParameter("selectedCategoryId").trim();
             String selectedSubCategoryId = req.getParameter("selectedSubCategoryId") == null ? "" : req.getParameter("selectedSubCategoryId").trim();
             String selectedCategoryItemId = req.getParameter("selectedCategoryItemId") == null ? "" : req.getParameter("selectedCategoryItemId").trim();
+            String selectedIssueType = req.getParameter("selectedIssueType") == null ? "" : req.getParameter("selectedIssueType").trim();
             String selectedUserName = req.getParameter("selectedUserName") == null ? "" : req.getParameter("selectedUserName").trim();
 
             String actionType = req.getParameter("actionType");
@@ -208,6 +247,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                         businessRuleObject.setCategoryId(selectedCategoryId);
                         businessRuleObject.setSubCategoryId(selectedSubCategoryId);
                         businessRuleObject.setCategoryItemId(selectedCategoryItemId);
+                        businessRuleObject.setIssueType(selectedIssueType);
                         businessRuleController.createRecordInAOTable(businessRuleObject);
                     }
                 }
@@ -215,7 +255,9 @@ public class BusinessRuleDefServlet extends HttpServlet
                 if (null != selectedCategoryId && !selectedCategoryId.equalsIgnoreCase("") && null != selectedUserName && !selectedUserName.equalsIgnoreCase("")) {
                     BusinessRule foundAO = null;
                     if (null != selectedCategoryItemId && !selectedCategoryItemId.equalsIgnoreCase("")) {
-                        foundAO = businessRuleController.getRecordFromAOTableByCategoryItemId(selectedCategoryItemId);
+                        foundAO = businessRuleController.getRecordFromAOTableByCategoryItemId(selectedCategoryItemId, selectedCategoryId, selectedSubCategoryId);
+                    } else if (null != selectedIssueType && !selectedIssueType.equalsIgnoreCase("")) {
+                        foundAO = businessRuleController.getRecordFromAOTableByIssueType(selectedIssueType, selectedCategoryId, selectedSubCategoryId);
                     } else if (null != selectedSubCategoryId && !selectedSubCategoryId.equalsIgnoreCase("")) {
                         BusinessRule [] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(selectedSubCategoryId);
                         if (null != businessRules && businessRules.length == 1) {
@@ -299,6 +341,15 @@ public class BusinessRuleDefServlet extends HttpServlet
         }
 
         return categoryItemList;
+    }
+
+    private Map<String, IssueType> getIssueTypes () {
+        Map<String, IssueType> issueTypeMap = new HashMap<>();
+        Collection<IssueType> issueTypeList = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+        for (IssueType issueType : issueTypeList) {
+            issueTypeMap.put(issueType.getId(), issueType);
+        }
+        return issueTypeMap;
     }
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException

@@ -51,6 +51,21 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         return businessRule;
     }
 
+    public BusinessRule getRecordFromAOTableByIssueType(String issueType, String selectedCategoryId, String selectedSubCategoryId) {
+        BusinessRule businessRule = null;
+        try {
+            BusinessRule[] tempBusinessRule = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ?", issueType, selectedCategoryId, selectedSubCategoryId);
+            if (null != tempBusinessRule && tempBusinessRule.length > 0)
+                businessRule = tempBusinessRule[0];
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return businessRule;
+    }
+
     public BusinessRule[] getRecordFromAOTableByCategoryId(String categoryId) {
         BusinessRule[] businessRules = null;
         try {
@@ -77,10 +92,10 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         return businessRules;
     }
 
-    public BusinessRule getRecordFromAOTableByCategoryItemId(String categoryItemId) {
+    public BusinessRule getRecordFromAOTableByCategoryItemId(String categoryItemId, String selectedCategoryId, String selectedSubCategoryId) {
         BusinessRule businessRule = null;
         try {
-            BusinessRule[] tempBusinessRule = activeObjects.find(BusinessRule.class, "CATEGORY_ITEM_ID = ?", categoryItemId);
+            BusinessRule[] tempBusinessRule = activeObjects.find(BusinessRule.class, "CATEGORY_ITEM_ID = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ?", categoryItemId, selectedCategoryId, selectedSubCategoryId);
             if (null != tempBusinessRule && tempBusinessRule.length > 0)
                 businessRule = tempBusinessRule[0];
         } catch (Exception e) {
@@ -110,7 +125,9 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         try {
             BusinessRule foundAO = null;
             if (null != businessRuleObject.getCategoryItemId() && !businessRuleObject.getCategoryItemId().equalsIgnoreCase("")) {
-                foundAO = getRecordFromAOTableByCategoryItemId(businessRuleObject.getCategoryItemId());
+                foundAO = getRecordFromAOTableByCategoryItemId(businessRuleObject.getCategoryItemId(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId());
+            } else if (null != businessRuleObject.getIssueType() && !businessRuleObject.getIssueType().equalsIgnoreCase("")) {
+                foundAO = getRecordFromAOTableByIssueType(businessRuleObject.getIssueType(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId());
             } else if (null != businessRuleObject.getSubCategoryId() && !businessRuleObject.getSubCategoryId().equalsIgnoreCase("")) {
                 BusinessRule [] businessRules = getRecordFromAOTableBySubCategoryId(businessRuleObject.getSubCategoryId());
                 if (null != businessRules && businessRules.length == 1) {
@@ -159,6 +176,7 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                 businessRule.setSubCategoryId(businessRuleObject.getSubCategoryId());
                 businessRule.setCategoryItemId(businessRuleObject.getCategoryItemId());
                 businessRule.setUserName(businessRuleObject.getUserName());
+                businessRule.setIssueType(businessRuleObject.getIssueType());
                 businessRule.save();
             } else {
                 log.error("An error occured while creating empty object!");
@@ -187,6 +205,7 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
             businessRuleRecord.setSubCategoryId(businessRuleObject.getSubCategoryId());
             businessRuleRecord.setCategoryItemId(businessRuleObject.getCategoryItemId());
             businessRuleRecord.setUserName(businessRuleObject.getUserName());
+            businessRuleRecord.setIssueType(businessRuleObject.getIssueType());
             businessRuleRecord.save();
         } catch (Exception e) {
             StringWriter stack = new StringWriter();

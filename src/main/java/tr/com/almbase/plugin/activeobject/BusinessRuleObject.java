@@ -7,6 +7,7 @@ public class BusinessRuleObject {
     String categoryId;
     String subCategoryId;
     String categoryItemId;
+    String issueType;
     String userName;
 
     public String getCategoryId() {
@@ -17,9 +18,7 @@ public class BusinessRuleObject {
         return subCategoryId;
     }
 
-    public String getCategoryItemId() {
-        return categoryItemId;
-    }
+    public String getCategoryItemId() {return categoryItemId;}
 
     public String getUserName() {
         return userName;
@@ -39,5 +38,13 @@ public class BusinessRuleObject {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public void setIssueType(String issueType) {
+        this.issueType = issueType;
+    }
+
+    public String getIssueType() {
+        return issueType;
     }
 }

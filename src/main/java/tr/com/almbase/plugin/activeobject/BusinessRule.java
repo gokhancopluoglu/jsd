@@ -15,6 +15,8 @@ public interface BusinessRule extends Entity {
     void setSubCategoryId(String subCategoryId);
     String getCategoryItemId();
     void setCategoryItemId(String categoryItemId);
+    void setIssueType(String issueType);
+    String getIssueType();
     String getUserName();
     void setUserName(String userName);
 }

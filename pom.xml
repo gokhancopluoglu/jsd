@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>tr.com.almbase.plugin</groupId>
     <artifactId>cardif-jsd-engine</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <organization>
         <name>ALMBASE Teknoloji A.S.</name>
         <url>http://www.almbase.com/</url>

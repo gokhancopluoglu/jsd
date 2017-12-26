@@ -47,6 +47,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             CustomField subCategoryCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.SUB_CATEGORY_CF_ID);
             CustomField categoryItemCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.CATEGORY_ITEM_CF_ID);
 
+
             String categoryCFVal = (String)issue.getCustomFieldValue(categoryCF);
             if (null != categoryCFVal) {
                 if (categoryCFVal.contains("<value>") && categoryCFVal.contains("</value>")) {
@@ -71,6 +72,9 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             }
             log.debug("Category Item Val" + categoryItemCFVal);
 
+            String issueTypeId = issue.getIssueType().getId();
+            log.debug("Issue Type Val" + issueTypeId);
+
             ApplicationUser user = null;
             if (null != categoryCFVal && !categoryCFVal.equalsIgnoreCase("")) {
                 if (null != subCategoryCFVal && !subCategoryCFVal.equalsIgnoreCase("")) {
@@ -78,7 +82,16 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                         log.debug("Category Item is not null");
                         CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemCFVal);
                         if (null != categoryItem) {
-                            BusinessRule businessRule = businessRuleController.getRecordFromAOTableByCategoryItemId(String.valueOf(categoryItem.getID()));
+                            String categoryId = "";
+                            String subCategoryId = "";
+                            String categoryItemId = String.valueOf(categoryItem.getID());;
+                            Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
+                            if (null != category)
+                                categoryId = String.valueOf(category.getID());
+                            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
+                            if (null != subCategory)
+                                subCategoryId = String.valueOf(subCategory.getID());
+                            BusinessRule businessRule = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId, categoryId, subCategoryId);
                             if (null != businessRule) {
                                 log.debug("Business rule is not null. User : " + businessRule.getUserName());
                                 user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
@@ -87,6 +100,23 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                             }
                         } else {
                             log.debug("Category Item ao is null");
+                        }
+                    } else if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
+                        log.debug("Issue Type is not null");
+                        String categoryId = "";
+                        String subCategoryId = "";
+                        Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
+                        if (null != category)
+                            categoryId = String.valueOf(category.getID());
+                        SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
+                        if (null != subCategory)
+                            subCategoryId = String.valueOf(subCategory.getID());
+                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId);
+                        if (null != businessRule) {
+                            log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                            user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        } else {
+                            log.debug("There is no any record by category item");
                         }
                     } else {
                         log.debug("Category Item is null");
