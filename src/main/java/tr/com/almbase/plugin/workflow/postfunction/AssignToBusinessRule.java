@@ -84,7 +84,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                         if (null != categoryItem) {
                             String categoryId = "";
                             String subCategoryId = "";
-                            String categoryItemId = String.valueOf(categoryItem.getID());;
+                            String categoryItemId = String.valueOf(categoryItem.getID());
                             Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
                             if (null != category)
                                 categoryId = String.valueOf(category.getID());
@@ -101,6 +101,28 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                         } else {
                             log.debug("Category Item ao is null");
                         }
+
+                        if (null == user) {
+                            if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
+                                log.debug("Issue Type is not null");
+                                String categoryId = "";
+                                String subCategoryId = "";
+                                Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
+                                if (null != category)
+                                    categoryId = String.valueOf(category.getID());
+                                SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
+                                if (null != subCategory)
+                                    subCategoryId = String.valueOf(subCategory.getID());
+                                BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId);
+                                if (null != businessRule) {
+                                    log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                                    user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                                } else {
+                                    log.debug("There is no any record by category item");
+                                }
+                            }
+                        }
+
                     } else if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
                         log.debug("Issue Type is not null");
                         String categoryId = "";
