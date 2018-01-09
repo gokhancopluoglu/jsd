@@ -249,7 +249,7 @@ public class CategoryItemDefServlet extends HttpServlet
         //Delete Business Rule
         BusinessRule [] businessRules = businessRuleController.getAllEntriesFromAOTable();
         for (BusinessRule businessRule : businessRules) {
-            if (businessRule.getCategoryItemId().equalsIgnoreCase(String.valueOf(categoryItem.getID()))) {
+            if (businessRule != null && businessRule.getCategoryItemId() != null && businessRule.getCategoryItemId().equalsIgnoreCase(String.valueOf(categoryItem.getID()))) {
                 businessRuleController.deleteRecordFromAOTable(businessRule);
             }
         }
