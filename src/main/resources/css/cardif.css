@@ -1,0 +1,15 @@
+#opsbar-edit-issue_container {
+  display: none;
+}
+
+#opsbar-comment-issue_container {
+  display: none;
+}
+
+a#assign-issue {
+  display: none;
+}
+
+a#assign-to-me {
+  display: none;
+}

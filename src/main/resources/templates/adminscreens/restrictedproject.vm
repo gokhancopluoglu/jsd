@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <title>Restricted Project Definition Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	<h3 class="formtitle">Restricted Project Definition Screen</h3>
+	</td>
+	<div class="content-container">
+        <div class="content-body">
+            <form action="restrictedprojectdefservlet" method="get" id="admin-form" class="aui">
+                <fieldset class="group">
+                    <div class="field-group">
+                        <legend><span>Project</span></legend>
+                        <select class="select" id="project" name="project" title="Project">
+                            <option value="None">None</option>
+                            #foreach($p in $projectList)
+                                #if($p.getKey() == $selectedProjectKey)
+                                    <option selected value="$p.getKey()">$p.getName()</option>
+                                #else
+                                    <option value="$p.getKey()">$p.getName()</option>
+                                #end
+                            #end
+                        </select>
+                    </div>
+                    <br></br>
+                    <div id="restrictedProjectDetail"></div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    
+   <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+                callProjectChangeFunction();
+            });
+
+            callProjectChangeFunction();
+
+            function callProjectChangeFunction()
+            {
+                var url = "restrictedprojectdefservlet";
+
+                $("#project").change(function() {
+                    jQuery.ajax({
+                        type: "GET",
+                        url : url,
+                        data : {
+                            'initial' : 'yes',
+                            'selectedProjectKey' : AJS.$("#project").val()
+                        },
+                        success : function(data) {
+                            console.log(data);
+                            AJS.$("#restrictedProjectDetail").html(data);
+                        },
+                        error : function(response) {
+                            AJS.$("#restrictedProjectDetail").html("");
+                        }
+                    });
+                });
+            }
+        });
+   </script>
+</body>
+
+</html>

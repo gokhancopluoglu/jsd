@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <base href="${baseurl}">
+    <title>Message Title</title>
+</head>
+<body class="jira">
+
+<div>
+<div style="background-color: #366799;">
+<table style="background-color: #366799;" border="0" width="100%" cellspacing="0" cellpadding="0" align="center" bgcolor="#366799">
+<tbody>
+<tr>
+<td style="padding: 30px 20px 40px;">
+<table border="0" width="700" cellspacing="0" cellpadding="0" align="center">
+<tbody>
+<tr>
+<td class="flexibleContainerBox" align="right" valign="middle">&nbsp;</td>
+</tr>
+<tr>
+<td class="x_email-content-main x_mobile-expand" style="padding: 0 15px 0 40px; border-collapse: collapse; border: 0; background-color: #ffffff;" bgcolor="#FFFFFF">
+<table class="x_page-title-pattern" style="border-collapse: collapse;" border="0" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td class="x_page-title-pattern-header-container" style="vertical-align: top; padding: 0px; border-collapse: collapse; padding-right: 5px; font-size: 20px; line-height: 30px;"><br />
+<div class="x_page-title-pattern-header" style="font-family: Arial,sans-serif; padding: 0; font-size: 20px; line-height: 30px; display: inline-block;">
+<h2 style="color: #2f3d4d; margin: 0px;">Kayıt Grubunuza Atanmıştır</h2>
+</div>
+<!-- [if (gte mso 9)|(IE)]>
+															       </td><td width="30%">
+															       <![endif]--><br /><!-- [if (gte mso 9)|(IE)]>
+															       </td>
+															       </tr>
+															       </table>
+															       <![endif]--></td>
+</tr>
+<tr>
+<td class="x_page-title-pattern-first-line" style="padding: 0px; border-collapse: collapse; font-family: Arial,sans-serif; font-size: 14px; padding-left: 0;"><!-- [if (gte mso 9)|(IE)]>
+															       <table width="100px">
+															       <tr>
+															       <td width="40px" valign="top">
+															       <![endif]--> <a style="color: #687886; text-decoration: none; font-weight: bold; font-family: Arial,sans-serif;" href="$!baseurl/browse/$!project.key" target="_blank" rel="noopener">$!issue.getProjectObject().getKey() - $!issue.getProjectObject().getName()</a> | <a style="color: #687886; text-decoration: none; font-weight: bold; font-family: Arial,sans-serif;" href="#" target="_blank" rel="noopener"> <!-- [if (gte mso 9)|(IE)]>
+														       </td><td width="16px" valign="top">
+														       <![endif]--></a>
+<div style="display: inline-block;"><img style="width: 16px; height: 16px; vertical-align: text-bottom;" src="$!baseurl/secure/viewavatar?size=xsmall&amp;avatarId=$!issue.issueType.avatar.id&amp;avatarType=issuetype" /></div>
+<!-- [if (gte mso 9)|(IE)]>
+															       </td><td width="100px" valign="top">
+															       <![endif]--> <a style="color: #687886; text-decoration: none; font-weight: bold; font-family: Arial,sans-serif;" href="$!baseurl/browse/$!issue.key">$!issue.key</a> <!-- [if (gte mso 9)|(IE)]>
+															       </td>
+															       </tr>
+															       </table>
+															       <![endif]--></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+<table style="background: white;" border="0" width="100%" cellspacing="0" cellpadding="0" align="center">
+<tbody><!--cabecera-->
+<tr>
+<td id="x_contenido_mail" style="text-align: left; padding: 40px 40px 10px 40px;">
+<h3 style="color: #687886; font-size: 25px; margin: 0px; font-family: Arial,sans-serif;">$!issue.summary</h3>
+</td>
+<td style="text-align: right; color: #adafbb; padding: 40px 40px 10px 40px;"><a style="color: #adafbb; text-decoration: none; vertical-align: top; font-size: 14px; margin-left: 5px; font-family: Arial,sans-serif;" href="$!baseurl/secure/ViewProfile.jspa?name=$!issue.creatorId">Oluşturan : $!issue.creator.displayName</a> <!-- [if (gte mso 9)|(IE)]>
+															       </td>
+															       </tr>
+															       </table>
+															       <![endif]--></td>
+</tr>
+<tr>
+<td id="x_contenido_mail" style="text-align: left; font-family: Arial,sans-serif; padding: 0px 40px 10px 40px;" colspan="2"><hr /><span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"> <!-- [if (gte mso 9)|(IE)]>
+															       <table width="50%">
+															       <tr>
+															       <td width="12%">
+															       <![endif]--> <span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"> <strong>Kayıt Tipi:</strong> <!-- [if (gte mso 9)|(IE)]>
+														       </td><td width="2%">
+														       <![endif]--></span></span></span>
+<div style="display: inline-block;"><img style="width: 16px; height: 16px; vertical-align: text-bottom;" src="$!baseurl/secure/viewavatar?size=xsmall&amp;avatarId=$!issue.issueType.avatar.id&amp;avatarType=issuetype" /></div>
+<span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><!-- [if (gte mso 9)|(IE)]>
+																	       </td><td width="12%">
+																	       <![endif]--> <a style="color: #687886; text-decoration: none; font-family: Arial,sans-serif;" href="#"> $!issue.issueType.name</a> </span> <!-- [if (gte mso 9)|(IE)]>
+															       </td>
+															       </tr>
+															       </table>
+															       <![endif]--></span></span>
+<div><!-- [if (gte mso 9)|(IE)]>
+															       <table width="50%">
+															       <tr>
+															       <td width="12%">
+															       <![endif]--> <span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"> <strong>Öncelik:</strong> <!-- [if (gte mso 9)|(IE)]>
+														       </td><td width="2%">
+														       <![endif]--></span></span>
+<div style="display: inline-block;"><img style="width: 16px; height: 16px; vertical-align: text-bottom;" src="$!baseurl/$!issue.priority.rasterIconUrl" /></div>
+<span style="line-height: 35px; font-family: Arial, sans-serif; color: #687886; font-size: small;"><!-- [if (gte mso 9)|(IE)]>
+																	       </td><td width="12%">
+																	       <![endif]--> <a style="color: #687886; text-decoration: none; font-family: Arial,sans-serif;" href="#"> $!issue.priority.name</a> </span> <!-- [if (gte mso 9)|(IE)]>
+															       </td>
+															       </tr>
+															       </table>
+															       <![endif]--></div>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td class="x_email-content-main x_mobile-expand" style="padding: 0 15px 0 40px; border-collapse: collapse; border: 0; background-color: #ffffff;" bgcolor="#FFFFFF">
+<table id="x_actions-pattern" style="border-collapse: collapse; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px;" border="0" width="100%" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td id="x_actions-pattern-container" style="padding: 10px 0 10px 24px; border-collapse: collapse; vertical-align: middle; padding-left: 0;" valign="middle">
+<table style="border-collapse: collapse;" align="left">
+<tbody>
+<tr>
+<td class="x_actions-pattern-action-icon-container" style="padding: 0px; border-collapse: collapse; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px; vertical-align: middle;">
+<div style="display: inline-block;">
+<img id="comment-image" src="/download/resources/tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources/images/comment.png"/>
+</td>
+<td class="x_actions-pattern-action-text-container" style="padding: 0px; border-collapse: collapse; font-family: Arial,sans-serif; font-size: 14px; line-height: 20px; padding-left: 5px;"><a style="color: #adafbb; text-decoration: none;" title="Yorum Ekleyin" href="$!baseurl/browse/$!issue.key#add-comment" target="_blank" rel="noopener">Yorum Ekleyebilirsiniz</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>

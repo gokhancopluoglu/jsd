@@ -14,10 +14,16 @@
   <web-resource key="cardif-jsd-engine-resources" name="cardif-jsd-engine Web Resources">
     <dependency>com.atlassian.auiplugin:ajs</dependency>
     <dependency>com.atlassian.auiplugin:jquery-ui-other</dependency>
-    <resource type="download" name="cardif-jsd-engine.css" location="/css/cardif-jsd-engine.css"/>
+    <resource type="download" name="cardif.css" location="/css/cardif.css"/>
     <resource type="download" name="cardif-jsd-engine.js" location="/js/cardif-jsd-engine.js"/>
+    <resource type="download" name="comment.png" location="/images/comment.png"/>
     <resource type="download" name="images/" location="/images"/>
     <context>cardif-jsd-engine</context>
+  </web-resource>
+
+  <web-resource key="cardif-js-resources" name="cardif-js Web Resources">
+    <resource type="download" name="cardif.js" location="/js/cardif.js"/>
+    <context>jira.view.issue</context>
   </web-resource>
 
   <ao key="ao-module">
@@ -28,6 +34,7 @@
     <entity>tr.com.almbase.plugin.activeobject.SubCategory</entity>
     <entity>tr.com.almbase.plugin.activeobject.IssueTypeGroup</entity>
     <entity>tr.com.almbase.plugin.activeobject.GroupUser</entity>
+    <entity>tr.com.almbase.plugin.activeobject.RestrictedProject</entity>
   </ao>
 
   <component-import key="ao" name="Active Objects Service" interface="com.atlassian.activeobjects.external.ActiveObjects">
@@ -51,6 +58,9 @@
   </component>
   <component key="GroupUserControllerImpl" class="tr.com.almbase.plugin.activeobject.GroupUserControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.GroupUserController</interface>
+  </component>
+  <component key="RestrictedProjectControllerImpl" class="tr.com.almbase.plugin.activeobject.RestrictedProjectControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.RestrictedProjectController</interface>
   </component>
 
   <component-import key="PageBuilderService" interface="com.atlassian.webresource.api.assembler.PageBuilderService"/>
@@ -98,6 +108,11 @@
     <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
+  <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="126">
+    <label key="Restricted Project Definition"/>
+    <link linkId="restrictedProjectDefinitionLink">/plugins/servlet/restrictedprojectdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
 
   <servlet name="Category Def Servlet" i18n-name-key="category-def-servlet.name" key="category-def-servlet" class="tr.com.almbase.plugin.servlet.CategoryDefServlet">
     <description key="category-def-servlet.description">The Category Definition Servlet Plugin</description>
@@ -123,6 +138,10 @@
     <description key="group-user-def-servlet.description">The Group User Definition Servlet Plugin</description>
     <url-pattern>/groupuserdefservlet</url-pattern>
   </servlet>
+  <servlet name="Restricted Project Def Servlet" i18n-name-key="restricted-project-def-servlet.name" key="restricted-project-def-servlet" class="tr.com.almbase.plugin.servlet.RestrictedProjectDefServlet">
+    <description key="restricted-project-def-servlet.description">The Restricted Project Definition Servlet Plugin</description>
+    <url-pattern>/restrictedprojectdefservlet</url-pattern>
+  </servlet>
 
   <workflow-function key="assign-to-business-rule" name="Assign To Business Rule" i18n-name-key="assign-to-business-rule.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRuleFactory">
     <description key="assign-to-business-rule.description">The Assign To Business Rule Plugin</description>
@@ -143,5 +162,36 @@
     <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
     <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
   </workflow-function>
+
+  <workflow-function key="send-mail-to-group-members" name="Send Mail To Group Members" i18n-name-key="send-mail-to-group-members.name" class="tr.com.almbase.plugin.workflow.postfunction.SendMailToGroupMembersFactory">
+    <description key="send-mail-to-group-members.description">The Send Mail To Group Members Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.SendMailToGroupMembers</function-class>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/send-mail-to-group-members.vm"/>
+    <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
+    <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
+  </workflow-function>
+
+  <web-item name="Hide Edit" i18n-name-key="tr.com.almbase.plugin.hide.edit.name" key="hide-edit" section="operations-top-level" weight="1">
+    <description key="tr.com.almbase.plugin.hide.edit.description">The Hide Edit</description>
+    <tooltip key="admin.issue.operations.plugin.edit.issue.name"/>
+    <styleClass>issueaction-edit-issue</styleClass>
+    <label key="tr.com.almbase.plugin.hide.edit.label"/>
+    <link linkId="hide-edit-link">/secure/EditIssue!default.jspa?id=${issue.id}</link>
+    <condition class="tr.com.almbase.plugin.webfragment.conditions.HasEditPermissionCondition"/>
+    <param name="iconClass" value="jira-icon-edit"/>
+  </web-item>
+
+  <web-item name="Hide Assign" i18n-name-key="tr.com.almbase.plugin.hide.assign.name" key="hide-assign" section="operations-top-level" weight="2">
+    <description key="tr.com.almbase.plugin.hide.assign.description">The Hide Assign</description>
+    <tooltip key="admin.issue.operations.plugin.assign.issue.name"/>
+    <styleClass>issueaction-assign-issue</styleClass>
+    <label key="tr.com.almbase.plugin.hide.assign.label"/>
+    <link linkId="hide-assign-link">/secure/AssignIssue!default.jspa?id=${issue.id}</link>
+    <condition class="tr.com.almbase.plugin.webfragment.conditions.HasAssignPermissionCondition"/>
+  </web-item>
+
+  <rest name="Permission Restricted Projects" i18n-name-key="permission-restricted-projects.name" key="permission-restricted-projects" path="/project" version="1.0">
+    <description key="permission-restricted-projects.description">The Permission Restricted Projects Plugin</description>
+  </rest>
 
 </atlassian-plugin>
