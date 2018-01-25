@@ -14,7 +14,7 @@ import java.util.Properties;
 public class Constants {
     private static Date lastUpdateDate;
     private static Properties properties;
-    private static final String PROPERTIES_FILE_PATH = "/pluginconfigLocal.properties";
+    private static final String PROPERTIES_FILE_PATH = "/pluginconfig.properties";
 
     public static final String CATEGORY_CF_ID = getPropertyValue(getProperties(), "category.cf.id");
     public static final String SUB_CATEGORY_CF_ID = getPropertyValue(getProperties(), "sub.category.cf.id");
