@@ -116,90 +116,92 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                 }
             }
 
-            if (null == user && !categoryComponentId.equalsIgnoreCase("")) {
-                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
-                if (null != businessRules) {
-                    List<String> userNames = new ArrayList<>();
-                    for (BusinessRule br : businessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+            if (null == user) {
+                if (!categoryComponentId.equalsIgnoreCase("")) {
+                    BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
+                    if (null != businessRules) {
+                        List<String> userNames = new ArrayList<>();
+                        for (BusinessRule br : businessRules) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
-                    }
-                    if (userNames.size() == 1) {
-                        BusinessRule businessRule = businessRules[0];
+                        if (userNames.size() == 1) {
+                            BusinessRule businessRule = businessRules[0];
 
-                        if (null != businessRule.getIssueType() && !businessRule.getIssueType().equalsIgnoreCase("")) {
-                            log.debug("Business rule is not null. But defined another issue type");
+                            if (null != businessRule.getIssueType() && !businessRule.getIssueType().equalsIgnoreCase("")) {
+                                log.debug("Business rule is not null. But defined another issue type");
+                            } else {
+                                log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                                user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                                log.debug("Business rule will run by category component division");
+                            }
                         } else {
+                            log.debug("More than one business rule by category component");
+                        }
+                    } else {
+                        log.debug("There is no any record by category component");
+                    }
+                } else if (!categoryItemId.equalsIgnoreCase("")) {
+                    BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
+                    if (null != businessRules) {
+                        List<String> userNames = new ArrayList<>();
+                        for (BusinessRule br : businessRules) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
+                        }
+                        if (userNames.size() == 1) {
+                            BusinessRule businessRule = businessRules[0];
                             log.debug("Business rule is not null. User : " + businessRule.getUserName());
                             user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                            log.debug("Business rule will run by category component division");
+                            log.debug("Business rule will run by category item division");
+                        } else {
+                            log.debug("More than one business rule by category item");
                         }
                     } else {
-                        log.debug("More than one business rule by category component");
+                        log.debug("There is no any record by category item");
                     }
-                } else {
-                    log.debug("There is no any record by category component");
-                }
-            } else if (!categoryItemId.equalsIgnoreCase("")) {
-                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
-                if (null != businessRules) {
-                    List<String> userNames = new ArrayList<>();
-                    for (BusinessRule br : businessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                } else if (!subCategoryId.equalsIgnoreCase("")) {
+                    BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
+                    if (null != businessRules) {
+                        List<String> userNames = new ArrayList<>();
+                        for (BusinessRule br : businessRules) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
-                    }
-                    if (userNames.size() == 1) {
-                        BusinessRule businessRule = businessRules[0];
-                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                        log.debug("Business rule will run by category item division");
-                    } else {
-                        log.debug("More than one business rule by category item");
-                    }
-                } else {
-                    log.debug("There is no any record by category item");
-                }
-            } else if (!subCategoryId.equalsIgnoreCase("")) {
-                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
-                if (null != businessRules) {
-                    List<String> userNames = new ArrayList<>();
-                    for (BusinessRule br : businessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                        if (userNames.size() == 1) {
+                            BusinessRule businessRule = businessRules[0];
+                            log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                            user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                            log.debug("Business rule will run by sub category division");
+                        } else {
+                            log.debug("More than one business rule by sub category");
                         }
-                    }
-                    if (userNames.size() == 1) {
-                        BusinessRule businessRule = businessRules[0];
-                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                        log.debug("Business rule will run by sub category division");
                     } else {
-                        log.debug("More than one business rule by sub category");
+                        log.debug("There is no any record by sub category");
                     }
-                } else {
-                    log.debug("There is no any record by sub category");
-                }
-            } else if (!categoryId.equalsIgnoreCase("")) {
-                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(categoryId);
-                if (null != businessRules) {
-                    List<String> userNames = new ArrayList<>();
-                    for (BusinessRule br : businessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                } else if (!categoryId.equalsIgnoreCase("")) {
+                    BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(categoryId);
+                    if (null != businessRules) {
+                        List<String> userNames = new ArrayList<>();
+                        for (BusinessRule br : businessRules) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
-                    }
-                    if (userNames.size() == 1) {
-                        BusinessRule businessRule = businessRules[0];
-                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                        log.debug("Business rule will run by category division");
+                        if (userNames.size() == 1) {
+                            BusinessRule businessRule = businessRules[0];
+                            log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                            user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                            log.debug("Business rule will run by category division");
+                        } else {
+                            log.debug("More than one business rule by category");
+                        }
                     } else {
-                        log.debug("More than one business rule by category");
+                        log.debug("There is no any record by category");
                     }
-                } else {
-                    log.debug("There is no any record by category");
                 }
             }
 
