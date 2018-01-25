@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kivanc.ahat@almbase.com
@@ -109,22 +111,46 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
             if (null != issueType && !issueType.equalsIgnoreCase("")) {
                 if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
-                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 } else if (null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
-                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 } else if (null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
-                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 } else if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
-                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 }

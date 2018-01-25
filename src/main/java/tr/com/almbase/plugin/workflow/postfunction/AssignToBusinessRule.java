@@ -14,6 +14,8 @@ import tr.com.almbase.plugin.util.Constants;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,7 +119,13 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             if (null == user && !categoryComponentId.equalsIgnoreCase("")) {
                 BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
                 if (null != businessRules) {
-                    if (businessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : businessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
 
                         if (null != businessRule.getIssueType() && !businessRule.getIssueType().equalsIgnoreCase("")) {
@@ -136,7 +144,13 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             } else if (!categoryItemId.equalsIgnoreCase("")) {
                 BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
                 if (null != businessRules) {
-                    if (businessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : businessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
                         user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
@@ -150,7 +164,13 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             } else if (!subCategoryId.equalsIgnoreCase("")) {
                 BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
                 if (null != businessRules) {
-                    if (businessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : businessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
                         user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
@@ -164,7 +184,13 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             } else if (!categoryId.equalsIgnoreCase("")) {
                 BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(categoryId);
                 if (null != businessRules) {
-                    if (businessRules.length == 1) {
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : businessRules) {
+                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                            userNames.add(br.getUserName().trim());
+                        }
+                    }
+                    if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
                         user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
