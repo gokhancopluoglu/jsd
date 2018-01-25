@@ -1,7 +1,7 @@
 package tr.com.almbase.plugin.activeobject;
 
 public interface CategoryItemController {
-	CategoryItem getRecordFromAOTableByName(String categoryItemName);
+	CategoryItem getRecordFromAOTableByName(String categoryItemName, String categoryId, String subCategoryId);
 	CategoryItem getRecordFromAOTableById(String categoryItemId);
 	CategoryItem[] getRecordFromAOTableBySubCategoryId(String subCategoryId);
 	CategoryItem[] getAllEntriesFromAOTable();

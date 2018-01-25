@@ -95,13 +95,13 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
             String categoryId = category == null ? "" : String.valueOf(category.getID());
             log.debug("categoryId : " + categoryId);
-            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
+            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal, categoryId);
             String subCategoryId = subCategory == null ? "" : String.valueOf(subCategory.getID());
             log.debug("subCategoryId : " + subCategoryId);
-            CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemCFVal);
+            CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemCFVal, categoryId, subCategoryId);
             String categoryItemId = categoryItem == null ? "" : String.valueOf(categoryItem.getID());
             log.debug("categoryItemId : " + categoryItemId);
-            CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableByName(categoryComponentCFVal);
+            CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableByName(categoryComponentCFVal, categoryId, subCategoryId, categoryItemId);
             String categoryComponentId = categoryComponent == null ? "" : String.valueOf(categoryComponent.getID());
             log.debug("categoryComponentId : " + categoryComponentId);
 

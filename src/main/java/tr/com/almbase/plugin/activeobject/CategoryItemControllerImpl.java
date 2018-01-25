@@ -21,10 +21,10 @@ public class CategoryItemControllerImpl implements CategoryItemController{
         this.activeObjects = activeObjects;
     }
 
-    public CategoryItem getRecordFromAOTableByName(String categoryItemName) {
+    public CategoryItem getRecordFromAOTableByName(String categoryItemName, String categoryId, String subCategoryId) {
         CategoryItem categoryItem = null;
         try {
-            CategoryItem[] tempCategoryItem = activeObjects.find(CategoryItem.class, "CATEGORY_ITEM_NAME = ?", categoryItemName);
+            CategoryItem[] tempCategoryItem = activeObjects.find(CategoryItem.class, "CATEGORY_ITEM_NAME = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ?", categoryItemName, categoryId, subCategoryId);
             if (null != tempCategoryItem && tempCategoryItem.length > 0)
                 categoryItem = tempCategoryItem[0];
         } catch (Exception e) {

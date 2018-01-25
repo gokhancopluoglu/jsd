@@ -21,10 +21,10 @@ public class CategoryComponentControllerImpl implements CategoryComponentControl
         this.activeObjects = activeObjects;
     }
 
-    public CategoryComponent getRecordFromAOTableByName(String categoryComponentName) {
+    public CategoryComponent getRecordFromAOTableByName(String categoryComponentName, String categoryId, String subCategoryId, String categoryItemId) {
         CategoryComponent categoryComponent = null;
         try {
-            CategoryComponent[] tempCategoryComponent = activeObjects.find(CategoryComponent.class, "CATEGORY_COMPONENT_NAME = ?", categoryComponentName);
+            CategoryComponent[] tempCategoryComponent = activeObjects.find(CategoryComponent.class, "CATEGORY_COMPONENT_NAME = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ? AND CATEGORY_ITEM_ID = ?", categoryComponentName, categoryId, subCategoryId, categoryItemId);
             if (null != tempCategoryComponent && tempCategoryComponent.length > 0)
                 categoryComponent = tempCategoryComponent[0];
         } catch (Exception e) {

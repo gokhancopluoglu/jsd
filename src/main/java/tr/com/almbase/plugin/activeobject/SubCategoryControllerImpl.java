@@ -21,10 +21,10 @@ public class SubCategoryControllerImpl implements SubCategoryController{
         this.activeObjects = activeObjects;
     }
 
-    public SubCategory getRecordFromAOTableByName(String subCategoryName) {
+    public SubCategory getRecordFromAOTableByName(String subCategoryName, String categoryId) {
         SubCategory subCategory = null;
         try {
-            SubCategory[] tempSubCategory = activeObjects.find(SubCategory.class, "SUB_CATEGORY_NAME = ?", subCategoryName);
+            SubCategory[] tempSubCategory = activeObjects.find(SubCategory.class, "SUB_CATEGORY_NAME = ? AND CATEGORY_ID = ?", subCategoryName, categoryId);
             if (null != tempSubCategory && tempSubCategory.length > 0)
                 subCategory = tempSubCategory[0];
         } catch (Exception e) {
