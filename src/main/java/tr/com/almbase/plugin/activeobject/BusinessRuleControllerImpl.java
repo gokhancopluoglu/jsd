@@ -120,7 +120,8 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
-                } else if (null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                }
+                if (null == businessRule && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
@@ -131,7 +132,8 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
-                } else if (null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                }
+                if (null == businessRule && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
@@ -142,7 +144,8 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
-                } else if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                }
+                if (null == businessRule && null != categoryId && !categoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
