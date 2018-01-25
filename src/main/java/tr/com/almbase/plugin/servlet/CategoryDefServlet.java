@@ -39,6 +39,7 @@ public class CategoryDefServlet extends HttpServlet
     private BusinessRuleController businessRuleController;
     private CategoryItemController categoryItemController;
     private SubCategoryController subCategoryController;
+    private CategoryComponentController categoryComponentController;
 
     public CategoryDefServlet(TemplateRenderer templateRenderer,
                               JiraAuthenticationContext jiraAuthenticationContext,
@@ -46,7 +47,8 @@ public class CategoryDefServlet extends HttpServlet
                               CategoryController categoryController,
                               BusinessRuleController businessRuleController,
                               CategoryItemController categoryItemController,
-                              SubCategoryController subCategoryController)
+                              SubCategoryController subCategoryController,
+                              CategoryComponentController categoryComponentController)
     {
         super();
         this.templateRenderer = templateRenderer;
@@ -56,6 +58,7 @@ public class CategoryDefServlet extends HttpServlet
         this.businessRuleController = businessRuleController;
         this.categoryItemController = categoryItemController;
         this.subCategoryController = subCategoryController;
+        this.categoryComponentController = categoryComponentController;
     }
 
     @Override
@@ -232,6 +235,15 @@ public class CategoryDefServlet extends HttpServlet
                 businessRuleController.deleteRecordFromAOTable(businessRule);
             }
         }
+
+        //Delete Category Component
+        CategoryComponent [] categoryComponents = categoryComponentController.getAllEntriesFromAOTable();
+        for (CategoryComponent categoryComponent : categoryComponents) {
+            if (categoryComponent.getCategoryId().equalsIgnoreCase(String.valueOf(category.getID()))) {
+                categoryComponentController.deleteRecordFromAOTable(categoryComponent);
+            }
+        }
+
         //Delete Category Item
         CategoryItem [] categoryItems = categoryItemController.getAllEntriesFromAOTable();
         for (CategoryItem categoryItem : categoryItems) {
@@ -239,6 +251,7 @@ public class CategoryDefServlet extends HttpServlet
                 categoryItemController.deleteRecordFromAOTable(categoryItem);
             }
         }
+
         //Delete Sub Category
         SubCategory [] subCategories = subCategoryController.getAllEntriesFromAOTable();
         for (SubCategory subCategory : subCategories) {
@@ -246,6 +259,7 @@ public class CategoryDefServlet extends HttpServlet
                 subCategoryController.deleteRecordFromAOTable(subCategory);
             }
         }
+
         //Delete Category
         categoryController.deleteRecordFromAOTable(category);
     }

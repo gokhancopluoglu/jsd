@@ -19,4 +19,6 @@ public interface BusinessRule extends Entity {
     String getIssueType();
     String getUserName();
     void setUserName(String userName);
+    String getCategoryComponentId();
+    void setCategoryComponentId(String categoryComponentId);
 }

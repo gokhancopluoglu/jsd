@@ -7,6 +7,7 @@ public class BusinessRuleObject {
     String categoryId;
     String subCategoryId;
     String categoryItemId;
+    String categoryComponentId;
     String issueType;
     String userName;
 
@@ -46,5 +47,13 @@ public class BusinessRuleObject {
 
     public String getIssueType() {
         return issueType;
+    }
+
+    public String getCategoryComponentId() {
+        return categoryComponentId;
+    }
+
+    public void setCategoryComponentId(String categoryComponentId) {
+        this.categoryComponentId = categoryComponentId;
     }
 }

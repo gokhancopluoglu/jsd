@@ -27,16 +27,19 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
     private BusinessRuleController businessRuleController;
     private CategoryItemController categoryItemController;
     private SubCategoryController subCategoryController;
+    private CategoryComponentController categoryComponentController;
 
     public AssignToBusinessRule(CategoryController categoryController,
                                 BusinessRuleController businessRuleController,
                                 CategoryItemController categoryItemController,
-                                SubCategoryController subCategoryController)
+                                SubCategoryController subCategoryController,
+                                CategoryComponentController categoryComponentController)
     {
         this.categoryController = categoryController;
         this.businessRuleController = businessRuleController;
         this.categoryItemController = categoryItemController;
         this.subCategoryController = subCategoryController;
+        this.categoryComponentController = categoryComponentController;
     }
 
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException
@@ -46,7 +49,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
             CustomField categoryCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.CATEGORY_CF_ID);
             CustomField subCategoryCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.SUB_CATEGORY_CF_ID);
             CustomField categoryItemCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.CATEGORY_ITEM_CF_ID);
-
+            CustomField categoryComponentCF = ComponentAccessor.getCustomFieldManager().getCustomFieldObject(Constants.CATEGORY_COMPONENT_CF_ID);
 
             String categoryCFVal = (String)issue.getCustomFieldValue(categoryCF);
             if (null != categoryCFVal) {
@@ -54,6 +57,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     categoryCFVal = categoryCFVal.substring(categoryCFVal.indexOf("<value>") + 7, categoryCFVal.indexOf("</value>"));
                 }
             }
+            categoryCFVal = categoryCFVal == null ? "" : categoryCFVal;
             log.debug("Category Val" + categoryCFVal);
 
             String subCategoryCFVal = (String)issue.getCustomFieldValue(subCategoryCF);
@@ -62,6 +66,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     subCategoryCFVal = subCategoryCFVal.substring(subCategoryCFVal.indexOf("<value>") + 7, subCategoryCFVal.indexOf("</value>"));
                 }
             }
+            subCategoryCFVal = subCategoryCFVal == null ? "" : subCategoryCFVal;
             log.debug("Sub Category Val" + subCategoryCFVal);
 
             String categoryItemCFVal = (String)issue.getCustomFieldValue(categoryItemCF);
@@ -70,125 +75,113 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     categoryItemCFVal = categoryItemCFVal.substring(categoryItemCFVal.indexOf("<value>") + 7, categoryItemCFVal.indexOf("</value>"));
                 }
             }
+            categoryItemCFVal = categoryItemCFVal == null ? "" : categoryItemCFVal;
             log.debug("Category Item Val" + categoryItemCFVal);
+
+            String categoryComponentCFVal = (String)issue.getCustomFieldValue(categoryComponentCF);
+            if (null != categoryComponentCFVal) {
+                if (categoryComponentCFVal.contains("<value>") && categoryComponentCFVal.contains("</value>")) {
+                    categoryComponentCFVal = categoryComponentCFVal.substring(categoryComponentCFVal.indexOf("<value>") + 7, categoryComponentCFVal.indexOf("</value>"));
+                }
+            }
+            categoryComponentCFVal = categoryComponentCFVal == null ? "" : categoryComponentCFVal;
+            log.debug("Category Component Val" + categoryComponentCFVal);
 
             String issueTypeId = issue.getIssueType().getId();
             log.debug("Issue Type Val" + issueTypeId);
+            Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
+            String categoryId = category == null ? "" : String.valueOf(category.getID());
+            log.debug("categoryId : " + categoryId);
+            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
+            String subCategoryId = subCategory == null ? "" : String.valueOf(subCategory.getID());
+            log.debug("subCategoryId : " + subCategoryId);
+            CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemCFVal);
+            String categoryItemId = categoryItem == null ? "" : String.valueOf(categoryItem.getID());
+            log.debug("categoryItemId : " + categoryItemId);
+            CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableByName(categoryComponentCFVal);
+            String categoryComponentId = categoryComponent == null ? "" : String.valueOf(categoryComponent.getID());
+            log.debug("categoryComponentId : " + categoryComponentId);
 
             ApplicationUser user = null;
-            if (null != categoryCFVal && !categoryCFVal.equalsIgnoreCase("")) {
-                if (null != subCategoryCFVal && !subCategoryCFVal.equalsIgnoreCase("")) {
-                    if (null != categoryItemCFVal && !categoryItemCFVal.equalsIgnoreCase("")) {
-                        log.debug("Category Item is not null");
-                        CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemCFVal);
-                        if (null != categoryItem) {
-                            String categoryId = "";
-                            String subCategoryId = "";
-                            String categoryItemId = String.valueOf(categoryItem.getID());
-                            Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
-                            if (null != category)
-                                categoryId = String.valueOf(category.getID());
-                            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
-                            if (null != subCategory)
-                                subCategoryId = String.valueOf(subCategory.getID());
-                            BusinessRule businessRule = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId, categoryId, subCategoryId);
-                            if (null != businessRule) {
-                                log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                                user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                            } else {
-                                log.debug("There is no any record by category item");
-                            }
+            if (!issueTypeId.equalsIgnoreCase("")) {
+                BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId, categoryItemId, categoryComponentId);
+                if (null != businessRule) {
+                    log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                    user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                    log.debug("Business rule will run by issue type division");
+                } else {
+                    log.debug("There is no any record by issue type");
+                }
+            }
+
+            if (null == user && !categoryComponentId.equalsIgnoreCase("")) {
+                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
+                if (null != businessRules) {
+                    if (businessRules.length == 1) {
+                        BusinessRule businessRule = businessRules[0];
+
+                        if (null != businessRule.getIssueType() && !businessRule.getIssueType().equalsIgnoreCase("")) {
+                            log.debug("Business rule is not null. But defined another issue type");
                         } else {
-                            log.debug("Category Item ao is null");
-                        }
-
-                        if (null == user) {
-                            if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
-                                log.debug("Issue Type is not null");
-                                String categoryId = "";
-                                String subCategoryId = "";
-                                Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
-                                if (null != category)
-                                    categoryId = String.valueOf(category.getID());
-                                SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
-                                if (null != subCategory)
-                                    subCategoryId = String.valueOf(subCategory.getID());
-                                BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId);
-                                if (null != businessRule) {
-                                    log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                                    user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                                } else {
-                                    log.debug("There is no any record by category item");
-                                }
-                            }
-                        }
-
-                    } else if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
-                        log.debug("Issue Type is not null");
-                        String categoryId = "";
-                        String subCategoryId = "";
-                        Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
-                        if (null != category)
-                            categoryId = String.valueOf(category.getID());
-                        SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
-                        if (null != subCategory)
-                            subCategoryId = String.valueOf(subCategory.getID());
-                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId);
-                        if (null != businessRule) {
                             log.debug("Business rule is not null. User : " + businessRule.getUserName());
                             user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                        } else {
-                            log.debug("There is no any record by category item");
+                            log.debug("Business rule will run by category component division");
                         }
                     } else {
-                        log.debug("Category Item is null");
-                        SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryCFVal);
-                        if (null != subCategory) {
-                            BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(String.valueOf(subCategory.getID()));
-                            if (null != businessRules) {
-                                if (businessRules.length == 1) {
-                                    BusinessRule businessRule = businessRules[0];
-                                    log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                                    user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                                } else {
-                                    log.debug("More than one business rule by sub category");
-                                }
-                            } else {
-                                log.debug("There is no any record by sub category");
-                            }
-                        } else {
-                            log.debug("Sub Category ao is null");
-                        }
+                        log.debug("More than one business rule by category component");
                     }
                 } else {
-                    log.debug("Sub Category is null");
-                    Category category = categoryController.getRecordFromAOTableByName(categoryCFVal);
-                    if (null != category) {
-                        BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(String.valueOf(category.getID()));
-                        if (null != businessRules) {
-                            if (businessRules.length == 1) {
-                                BusinessRule businessRule = businessRules[0];
-                                log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                                user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
-                            }  else {
-                                log.debug("More than one business rule by category");
-                            }
-                        }  else {
-                            log.debug("There is no any record by category");
-                        }
-                    } else {
-                        log.debug("Category ao is null");
-                    }
+                    log.debug("There is no any record by category component");
                 }
+            } else if (!categoryItemId.equalsIgnoreCase("")) {
+                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
+                if (null != businessRules) {
+                    if (businessRules.length == 1) {
+                        BusinessRule businessRule = businessRules[0];
+                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        log.debug("Business rule will run by category item division");
+                    } else {
+                        log.debug("More than one business rule by category item");
+                    }
+                } else {
+                    log.debug("There is no any record by category item");
+                }
+            } else if (!subCategoryId.equalsIgnoreCase("")) {
+                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
+                if (null != businessRules) {
+                    if (businessRules.length == 1) {
+                        BusinessRule businessRule = businessRules[0];
+                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        log.debug("Business rule will run by sub category division");
+                    } else {
+                        log.debug("More than one business rule by sub category");
+                    }
+                } else {
+                    log.debug("There is no any record by sub category");
+                }
+            } else if (!categoryId.equalsIgnoreCase("")) {
+                BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(categoryId);
+                if (null != businessRules) {
+                    if (businessRules.length == 1) {
+                        BusinessRule businessRule = businessRules[0];
+                        log.debug("Business rule is not null. User : " + businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        log.debug("Business rule will run by category division");
+                    } else {
+                        log.debug("More than one business rule by category");
+                    }
+                } else {
+                    log.debug("There is no any record by category");
+                }
+            }
 
-                if (null != user) {
-                    issue.setAssignee(user);
-                    log.debug("Issue assigned to " + user.getName());
-                } else {
-                    log.debug("User is null");
-                }
+            if (null != user) {
+                issue.setAssignee(user);
+                log.debug("Issue assigned to " + user.getName());
             } else {
-                log.debug("Category is null");
+                log.debug("User is null");
             }
         }
         catch (Exception e) {

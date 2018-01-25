@@ -51,21 +51,6 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         return businessRule;
     }
 
-    public BusinessRule getRecordFromAOTableByIssueType(String issueType, String selectedCategoryId, String selectedSubCategoryId) {
-        BusinessRule businessRule = null;
-        try {
-            BusinessRule[] tempBusinessRule = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ?", issueType, selectedCategoryId, selectedSubCategoryId);
-            if (null != tempBusinessRule && tempBusinessRule.length > 0)
-                businessRule = tempBusinessRule[0];
-        } catch (Exception e) {
-            StringWriter stack = new StringWriter();
-            e.printStackTrace(new PrintWriter(stack));
-            log.error(stack.toString());
-            log.error("Couldn't find any record!");
-        }
-        return businessRule;
-    }
-
     public BusinessRule[] getRecordFromAOTableByCategoryId(String categoryId) {
         BusinessRule[] businessRules = null;
         try {
@@ -92,12 +77,58 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         return businessRules;
     }
 
-    public BusinessRule getRecordFromAOTableByCategoryItemId(String categoryItemId, String selectedCategoryId, String selectedSubCategoryId) {
+    public BusinessRule [] getRecordFromAOTableByCategoryItemId(String categoryItemId) {
+        BusinessRule [] businessRules = null;
+        try {
+            businessRules = activeObjects.find(BusinessRule.class, "CATEGORY_ITEM_ID = ?", categoryItemId);
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return businessRules;
+    }
+
+    public BusinessRule [] getRecordFromAOTableByCategoryComponentId(String categoryComponentId) {
+        BusinessRule [] businessRules = null;
+        try {
+            businessRules = activeObjects.find(BusinessRule.class, "CATEGORY_COMPONENT_ID = ?", categoryComponentId);
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return businessRules;
+    }
+
+    public BusinessRule getRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId) {
         BusinessRule businessRule = null;
         try {
-            BusinessRule[] tempBusinessRule = activeObjects.find(BusinessRule.class, "CATEGORY_ITEM_ID = ? AND CATEGORY_ID = ? AND SUB_CATEGORY_ID = ?", categoryItemId, selectedCategoryId, selectedSubCategoryId);
-            if (null != tempBusinessRule && tempBusinessRule.length > 0)
-                businessRule = tempBusinessRule[0];
+            if (null != issueType && !issueType.equalsIgnoreCase("")) {
+                if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
+                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
+                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
+                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
+                    if (null != tempBusinessRules && tempBusinessRules.length == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                }
+            }
         } catch (Exception e) {
             StringWriter stack = new StringWriter();
             e.printStackTrace(new PrintWriter(stack));
@@ -124,10 +155,21 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         BusinessRule returnBusinessRule = null;
         try {
             BusinessRule foundAO = null;
-            if (null != businessRuleObject.getCategoryItemId() && !businessRuleObject.getCategoryItemId().equalsIgnoreCase("")) {
-                foundAO = getRecordFromAOTableByCategoryItemId(businessRuleObject.getCategoryItemId(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId());
-            } else if (null != businessRuleObject.getIssueType() && !businessRuleObject.getIssueType().equalsIgnoreCase("")) {
-                foundAO = getRecordFromAOTableByIssueType(businessRuleObject.getIssueType(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId());
+             if (null != businessRuleObject.getIssueType() && !businessRuleObject.getIssueType().equalsIgnoreCase("")) {
+                 BusinessRule businessRule = getRecordFromAOTableByIssueType(businessRuleObject.getIssueType(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId(), businessRuleObject.getCategoryItemId(), businessRuleObject.getCategoryComponentId());
+                 if (null != businessRule) {
+                     foundAO = businessRule;
+                 }
+            } else if (null != businessRuleObject.getCategoryComponentId() && !businessRuleObject.getCategoryComponentId().equalsIgnoreCase("")) {
+                BusinessRule [] businessRules = getRecordFromAOTableByCategoryComponentId(businessRuleObject.getCategoryComponentId());
+                if (null != businessRules && businessRules.length == 1) {
+                    foundAO = businessRules[0];
+                }
+            } else if (null != businessRuleObject.getCategoryItemId() && !businessRuleObject.getCategoryItemId().equalsIgnoreCase("")) {
+                BusinessRule [] businessRules = getRecordFromAOTableByCategoryItemId(businessRuleObject.getCategoryItemId());
+                if (null != businessRules && businessRules.length == 1) {
+                    foundAO = businessRules[0];
+                }
             } else if (null != businessRuleObject.getSubCategoryId() && !businessRuleObject.getSubCategoryId().equalsIgnoreCase("")) {
                 BusinessRule [] businessRules = getRecordFromAOTableBySubCategoryId(businessRuleObject.getSubCategoryId());
                 if (null != businessRules && businessRules.length == 1) {
@@ -206,6 +248,7 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
             businessRuleRecord.setCategoryItemId(businessRuleObject.getCategoryItemId());
             businessRuleRecord.setUserName(businessRuleObject.getUserName());
             businessRuleRecord.setIssueType(businessRuleObject.getIssueType());
+            businessRuleRecord.setCategoryComponentId(businessRuleObject.getCategoryComponentId());
             businessRuleRecord.save();
         } catch (Exception e) {
             StringWriter stack = new StringWriter();

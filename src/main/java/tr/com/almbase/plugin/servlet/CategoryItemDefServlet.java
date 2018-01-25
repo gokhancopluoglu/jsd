@@ -39,6 +39,7 @@ public class CategoryItemDefServlet extends HttpServlet
     private BusinessRuleController businessRuleController;
     private CategoryItemController categoryItemController;
     private SubCategoryController subCategoryController;
+    private CategoryComponentController categoryComponentController;
 
     public CategoryItemDefServlet(TemplateRenderer templateRenderer,
                                   JiraAuthenticationContext jiraAuthenticationContext,
@@ -46,7 +47,8 @@ public class CategoryItemDefServlet extends HttpServlet
                                   CategoryController categoryController,
                                   BusinessRuleController businessRuleController,
                                   CategoryItemController categoryItemController,
-                                  SubCategoryController subCategoryController)
+                                  SubCategoryController subCategoryController,
+                                  CategoryComponentController categoryComponentController)
     {
         super();
         this.templateRenderer = templateRenderer;
@@ -56,6 +58,7 @@ public class CategoryItemDefServlet extends HttpServlet
         this.businessRuleController = businessRuleController;
         this.categoryItemController = categoryItemController;
         this.subCategoryController = subCategoryController;
+        this.categoryComponentController = categoryComponentController;
     }
 
     @Override
@@ -253,6 +256,15 @@ public class CategoryItemDefServlet extends HttpServlet
                 businessRuleController.deleteRecordFromAOTable(businessRule);
             }
         }
+
+        //Delete Category Component
+        CategoryComponent [] categoryComponents = categoryComponentController.getAllEntriesFromAOTable();
+        for (CategoryComponent categoryComponent : categoryComponents) {
+            if (categoryComponent.getCategoryItemId().equalsIgnoreCase(String.valueOf(categoryItem.getID()))) {
+                categoryComponentController.deleteRecordFromAOTable(categoryComponent);
+            }
+        }
+
         //Delete Category Item
         categoryItemController.deleteRecordFromAOTable(categoryItem);
     }

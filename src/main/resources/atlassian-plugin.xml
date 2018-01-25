@@ -30,8 +30,9 @@
     <description>The module configuring the Active Objects service used by this plugin</description>
     <entity>tr.com.almbase.plugin.activeobject.BusinessRule</entity>
     <entity>tr.com.almbase.plugin.activeobject.Category</entity>
-    <entity>tr.com.almbase.plugin.activeobject.CategoryItem</entity>
     <entity>tr.com.almbase.plugin.activeobject.SubCategory</entity>
+    <entity>tr.com.almbase.plugin.activeobject.CategoryItem</entity>
+    <entity>tr.com.almbase.plugin.activeobject.CategoryComponent</entity>
     <entity>tr.com.almbase.plugin.activeobject.IssueTypeGroup</entity>
     <entity>tr.com.almbase.plugin.activeobject.GroupUser</entity>
     <entity>tr.com.almbase.plugin.activeobject.RestrictedProject</entity>
@@ -52,6 +53,9 @@
   </component>
   <component key="SubCategoryControllerImpl" class="tr.com.almbase.plugin.activeobject.SubCategoryControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.SubCategoryController</interface>
+  </component>
+  <component key="CategoryComponentControllerImpl" class="tr.com.almbase.plugin.activeobject.CategoryComponentControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.CategoryComponentController</interface>
   </component>
   <component key="IssueTypeGroupControllerImpl" class="tr.com.almbase.plugin.activeobject.IssueTypeGroupControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.IssueTypeGroupController</interface>
@@ -93,22 +97,27 @@
     <link linkId="categoryItemDefinitionLink">/plugins/servlet/categoryitemdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="124">
+  <web-item key="categoryComponentDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Component Definition" weight="124">
+    <label key="Category Component Definition"/>
+    <link linkId="categoryComponentDefinitionLink">/plugins/servlet/categorycomponentdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="125">
     <label key="Business Rule Definition"/>
     <link linkId="businessRuleDefinitionLink">/plugins/servlet/businessruledefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="125">
+  <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="126">
     <label key="Issue Type Group Definition"/>
     <link linkId="issueTypeGroupDefinitionLink">/plugins/servlet/issuetypegroupdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="126">
+  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="127">
     <label key="Group User Definition"/>
     <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="126">
+  <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="128">
     <label key="Restricted Project Definition"/>
     <link linkId="restrictedProjectDefinitionLink">/plugins/servlet/restrictedprojectdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
@@ -125,6 +134,10 @@
   <servlet name="Category Item Def Servlet" i18n-name-key="category-item-def-servlet.name" key="category-item-def-servlet" class="tr.com.almbase.plugin.servlet.CategoryItemDefServlet">
     <description key="category-item-def-servlet.description">The Category Item Definition Servlet Plugin</description>
     <url-pattern>/categoryitemdefservlet</url-pattern>
+  </servlet>
+  <servlet name="Category Component Def Servlet" i18n-name-key="category-component-def-servlet.name" key="category-component-def-servlet" class="tr.com.almbase.plugin.servlet.CategoryComponentDefServlet">
+    <description key="category-component-def-servlet.description">The Category Component Definition Servlet Plugin</description>
+    <url-pattern>/categorycomponentdefservlet</url-pattern>
   </servlet>
   <servlet name="Business Rule Def Servlet" i18n-name-key="business-rule-def-servlet.name" key="business-rule-def-servlet" class="tr.com.almbase.plugin.servlet.BusinessRuleDefServlet">
     <description key="business-rule-def-servlet.description">The Business Rule Definition Servlet Plugin</description>
