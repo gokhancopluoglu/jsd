@@ -105,6 +105,32 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         return businessRules;
     }
 
+    public BusinessRule [] getAllRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId) {
+        BusinessRule [] businessRules = null;
+        try {
+            if (null != issueType && !issueType.equalsIgnoreCase("")) {
+                if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+                    businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
+                }
+                if (null == businessRules && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                    businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
+                }
+                if (null == businessRules && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                    businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
+                }
+                if (null == businessRules && null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                    businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
+                }
+            }
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return businessRules;
+    }
+
     public BusinessRule getRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId) {
         BusinessRule businessRule = null;
         try {
@@ -121,7 +147,9 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                         businessRule = tempBusinessRules[0];
                     }
                 }
-                if (null == businessRule && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                if (null == businessRule
+                        && (null == categoryComponentId || categoryComponentId.equalsIgnoreCase(""))
+                        && (null != categoryItemId && !categoryItemId.equalsIgnoreCase(""))) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
@@ -133,7 +161,9 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                         businessRule = tempBusinessRules[0];
                     }
                 }
-                if (null == businessRule && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                if (null == businessRule
+                        && (null == categoryItemId || categoryItemId.equalsIgnoreCase(""))
+                        && (null != subCategoryId && !subCategoryId.equalsIgnoreCase(""))) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
@@ -145,7 +175,9 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                         businessRule = tempBusinessRules[0];
                     }
                 }
-                if (null == businessRule && null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                if (null == businessRule
+                        && (null == subCategoryId || subCategoryId.equalsIgnoreCase(""))
+                        && null != categoryId && !categoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {

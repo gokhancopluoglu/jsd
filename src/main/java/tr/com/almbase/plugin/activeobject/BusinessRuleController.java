@@ -3,6 +3,7 @@ package tr.com.almbase.plugin.activeobject;
 public interface BusinessRuleController {
 	BusinessRule getRecordFromAOTableByUserName(String userName);
 	BusinessRule getRecordFromAOTableById(String businessRuleId);
+	BusinessRule[] getAllRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId);
 	BusinessRule getRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId);
 	BusinessRule[] getRecordFromAOTableByCategoryId(String categoryId);
 	BusinessRule[] getRecordFromAOTableBySubCategoryId(String subCategoryId);

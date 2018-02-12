@@ -100,6 +100,63 @@
             <span class="aui-icon icon-success"></span>
         </p>
     </div>
+
+    <br></br>
+    <br></br>
+    <br></br>
+
+    #set($sizeBRML = $businessRuleMapList.size())
+    if ($sizeBRML > 0)
+        <table id="businessRuleMapListTable" class="aui tablesorter">
+            <thead>
+                <tr class="tr">
+                    <th id="categoryNameTitle" class="sorter-true" style="display: none;">
+                        <div class="tablesorter-header-inner">Category Name</div>
+                    </th>
+                    <th id="subCategoryNameTitle" class="sorter-true">
+                        <div class="tablesorter-header-inner">Sub Category Name</div>
+                    </th>
+                    <th id="categoryItemNameTitle" class="sorter-true">
+                        <div class="tablesorter-header-inner">Category Item Name</div>
+                    </th>
+                    <th id="categoryComponentNameTitle" class="sorter-true">
+                        <div class="tablesorter-header-inner">Category Component Name</div>
+                    </th>
+                    <th id="issueTypeNameTitle" class="sorter-true">
+                        <div class="tablesorter-header-inner">Issue Type Name</div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                #foreach($businessRuleTableRow in $businessRuleMapList)
+                    <tr>
+                        #set ($categoryName = $businessRuleTableRow.get('categoryName'))
+                        #set ($subCategoryName = $businessRuleTableRow.get('subCategoryName'))
+                        #set ($categoryItemName = $businessRuleTableRow.get('categoryItemName'))
+                        #set ($categoryComponentName = $businessRuleTableRow.get('categoryComponentName'))
+                        #set ($issueTypeName = $businessRuleTableRow.get('issueTypeName'))
+
+                        <td style="display: none;">
+                            <input class="text"  type="text" id="cname" value="#if($categoryName)$categoryName#end" readonly/>
+                        </td>
+                        <td style="display: none;">
+                            <input class="text"  type="text" id="scname" value="#if($subCategoryName)$subCategoryName#end" readonly/>
+                        </td>
+                        <td style="display: none;">
+                            <input class="text"  type="text" id="ciname" value="#if($categoryItemName)$categoryItemName#end" readonly/>
+                        </td>
+                        <td style="display: none;">
+                            <input class="text"  type="text" id="ccname" value="#if($categoryComponentName)$categoryComponentName#end" readonly/>
+                        </td>
+                        <td style="display: none;">
+                            <input class="text"  type="text" id="itname" value="#if($issueTypeName)$issueTypeName#end" readonly/>
+                        </td>
+                    </tr>
+                #end
+            </tbody>
+        </table>
+    #end
 </div>
 
 

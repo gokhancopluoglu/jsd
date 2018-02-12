@@ -118,6 +118,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedCategoryComponentId", selectedCategoryComponentId);
                     context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
+                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -153,6 +154,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
+                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -189,6 +191,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
+                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -224,6 +227,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
+                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -255,6 +259,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
+                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -456,6 +461,58 @@ public class BusinessRuleDefServlet extends HttpServlet
             issueTypeMap.put(issueType.getId(), issueType);
         }
         return issueTypeMap;
+    }
+
+    private List<Map<String, String>> getBusinessRuleMapList (String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId, String issueTypeId) {
+        List<Map<String, String>> businessRuleMapList = new ArrayList<>();
+        BusinessRule [] businessRules = null;
+        if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
+            businessRules = businessRuleController.getAllRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId, categoryItemId, categoryComponentId);
+        }
+
+        if (null == businessRules && null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+            businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
+        }
+
+        if (null == businessRules && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+            businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
+        }
+
+        if (null == businessRules && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+            businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
+        }
+
+        if (null == businessRules && null != categoryId && !categoryId.equalsIgnoreCase("")) {
+            businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(categoryId);
+        }
+
+        if (null != businessRules) {
+            for (BusinessRule businessRule : businessRules) {
+                Map<String, String> businessRuleMap = new HashMap<>();
+                Category category = categoryController.getRecordFromAOTableById(businessRule.getCategoryId());
+                String categoryName = category == null ? "" : category.getCategoryName();
+                businessRuleMap.put("categoryName", categoryName);
+
+                SubCategory subCategory = subCategoryController.getRecordFromAOTableById(businessRule.getSubCategoryId());
+                String subCategoryName = subCategory == null ? "" : subCategory.getSubCategoryName();
+                businessRuleMap.put("subCategoryName", subCategoryName);
+
+                CategoryItem categoryItem = categoryItemController.getRecordFromAOTableById(businessRule.getCategoryItemId());
+                String categoryItemName = categoryItem == null ? "" : categoryItem.getCategoryItemName();
+                businessRuleMap.put("categoryItemName", categoryItemName);
+
+                CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableById(businessRule.getCategoryComponentId());
+                String categoryComponentName = categoryComponent == null ? "" : categoryComponent.getCategoryComponentName();
+                businessRuleMap.put("categoryComponentName", categoryComponentName);
+
+                IssueType issueType = ComponentAccessor.getConstantsManager().getIssueType(businessRule.getIssueType());
+                businessRuleMap.put("issueTypeName", issueType.getName());
+
+                businessRuleMapList.add(businessRuleMap);
+            }
+        }
+
+        return businessRuleMapList;
     }
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException
