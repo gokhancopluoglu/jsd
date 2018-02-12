@@ -118,7 +118,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedCategoryComponentId", selectedCategoryComponentId);
                     context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
-                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
+                    //context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -154,7 +154,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("selectedIssueType", selectedIssueType);
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
-                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
+                    //context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -191,7 +191,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
-                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
+                    //context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -227,7 +227,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
-                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
+                    //context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
@@ -259,7 +259,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                     context.put("subCategoryList", getSubCategoryList(req, selectedCategoryId));
                     context.put("categoryItemList", getCategoryItemList(req, selectedSubCategoryId));
                     context.put("categoryComponentList", getCategoryComponentList(req, selectedCategoryItemId));
-                    context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
+                    //context.put("businessRuleMapList", getBusinessRuleMapList(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId, selectedIssueType));
                     context.put("issueTypes", getIssueTypes());
                     context.put("userName", userName);
                     context.put("userDisplayName", userDisplayName);
