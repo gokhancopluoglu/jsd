@@ -111,15 +111,35 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
             if (null != issueType && !issueType.equalsIgnoreCase("")) {
                 if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
                     businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
+                    if (null == businessRules || (businessRules != null && businessRules.length == 0)) {
+                        log.debug("Issue Type : " + issueType + " with Category Component " + categoryComponentId +" Business rule is null!");
+                    } else {
+                        log.debug("Issue Type : " + issueType + " with Category Component " + categoryComponentId +" Business rule length is " + businessRules.length);
+                    }
                 }
                 if (null == businessRules && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
                     businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
+                    if (null == businessRules || (businessRules != null && businessRules.length == 0)) {
+                        log.debug("Issue Type : " + issueType + " with Category Item " + categoryItemId +" Business rule is null!");
+                    } else {
+                        log.debug("Issue Type : " + issueType + " with Category Item " + categoryItemId +" Business rule length is " + businessRules.length);
+                    }
                 }
                 if (null == businessRules && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
                     businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
+                    if (null == businessRules || (businessRules != null && businessRules.length == 0)) {
+                        log.debug("Issue Type : " + issueType + " with Sub Category " + subCategoryId +" Business rule is null!");
+                    } else {
+                        log.debug("Issue Type : " + issueType + " with Sub Category " + subCategoryId +" Business rule length is " + businessRules.length);
+                    }
                 }
                 if (null == businessRules && null != categoryId && !categoryId.equalsIgnoreCase("")) {
                     businessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
+                    if (null == businessRules || (businessRules != null && businessRules.length == 0)) {
+                        log.debug("Issue Type : " + issueType + " with Category " + categoryId +" Business rule is null!");
+                    } else {
+                        log.debug("Issue Type : " + issueType + " with Category " + categoryId +" Business rule length is " + businessRules.length);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -148,7 +168,6 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     }
                 }
                 if (null == businessRule
-                        && (null == categoryComponentId || categoryComponentId.equalsIgnoreCase(""))
                         && (null != categoryItemId && !categoryItemId.equalsIgnoreCase(""))) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
                     List<String> userNames = new ArrayList<>();
@@ -162,7 +181,6 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     }
                 }
                 if (null == businessRule
-                        && (null == categoryItemId || categoryItemId.equalsIgnoreCase(""))
                         && (null != subCategoryId && !subCategoryId.equalsIgnoreCase(""))) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
                     List<String> userNames = new ArrayList<>();
@@ -176,7 +194,6 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
                     }
                 }
                 if (null == businessRule
-                        && (null == subCategoryId || subCategoryId.equalsIgnoreCase(""))
                         && null != categoryId && !categoryId.equalsIgnoreCase("")) {
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
                     List<String> userNames = new ArrayList<>();
