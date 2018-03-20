@@ -14,7 +14,20 @@ import java.util.Properties;
 public class Constants {
     private static Date lastUpdateDate;
     private static Properties properties;
-    private static final String PROPERTIES_FILE_PATH = "/pluginconfig.properties";
+    private static final String PROPERTIES_FILE_PATH = "/pluginconfigLocal.properties";
+
+    public static final String REST_CREATE_ISSUE = "/rest/api/2/issue";
+    public static final String REST_GET_ISSUE = "/rest/api/2/issue/ISSUEKEY";
+    public static final String BROWSE_ISSUE = "/browse/";
+    public static final String REST_GET_ALL_PROJECTS = "/rest/api/2/project";
+    public static final String REST_GET_PROJECT = "/rest/api/2/project/PROJECTKEY";
+    public static final String REST_GET_PROJECT_COMPONENTS = "/rest/api/2/project/PROJECTKEY/components";
+    public static final String REST_GET_PROJECT_VERSIONS = "/rest/api/2/project/PROJECTKEY/versions";
+    public static final String REST_GET_ISSUE_TYPES = "/rest/api/2/issuetype";
+    public static final String REST_GET_FIELDS = "/rest/api/2/field";
+    public static final String REST_GET_SELECT_LIST = "/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys=PROJECTKEY&issuetypeIds=ISSUETYPEID";
+
+    public static final String BRANS_CUSTOMFIELD_ID = "customfield_10061";
 
     public static final String CATEGORY_CF_ID = getPropertyValue(getProperties(), "category.cf.id");
     public static final String SUB_CATEGORY_CF_ID = getPropertyValue(getProperties(), "sub.category.cf.id");

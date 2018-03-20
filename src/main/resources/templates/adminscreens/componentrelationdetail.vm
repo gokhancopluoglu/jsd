@@ -1,0 +1,112 @@
+<fieldset class="group">
+    <div class="field-group">
+        <legend><span>Remote Component</span></legend>
+        <input class="text" type="text" name="rilComponent" id="rilComponent" value="#if($rilComponentId)$rilComponentId#end"/>
+    </div>
+</fieldset>
+
+<div class="field-group">
+    <input class="aui-button" type="submit" value="Save" id="saveButton" style="float: left;">
+    <input class="aui-button" type="submit" value="Delete" id="deleteButton" style="float: left; visibility: hidden">
+    <input class="aui-button" type="submit" value="Continue" id="continueButton" style="float: left; visibility: hidden" />
+</div>
+
+<input type="hidden" name="recordExists" id="recordExists" value="#if($recordExists)$recordExists#end">
+
+<div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+    <p class="title">
+        <span class="aui-icon icon-success"></span>
+    </p>
+</div>
+
+<script type="text/javascript">
+    AJS.$(document).ready(function () {
+        var recordExistsVal = AJS.$("#recordExists").val();
+        if (recordExistsVal == "yes") {
+            AJS.$('#deleteButton').css("visibility", "visible");
+        } else {
+            AJS.$('#deleteButton').css("visibility", "hidden");
+        }
+    });
+
+    AJS.$("#saveButton").click(function(event) {
+        event.preventDefault();
+
+        var url = "componentrelationdefservlet";
+        var componentId = AJS.$("#component").val() == "null" ? "" : AJS.$("#component").val();
+        var rilComponentId = AJS.$("#rilComponent").val() == "null" ? "" : AJS.$("#rilComponent").val();
+        var actionType = "save";
+
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'componentId' : componentId,
+                'rilComponentId' : rilComponentId,
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
+
+                AJS.$("input").attr("disabled", true);
+                AJS.$("select").attr("disabled", true);
+
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
+
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
+
+    AJS.$("#deleteButton").click(function(event) {
+        event.preventDefault();
+
+        var url = "componentrelationdefservlet";
+        var componentId = AJS.$("#component").val() == "null" ? "" : AJS.$("#component").val();
+        var rilComponentId = AJS.$("#rilComponent").val() == "null" ? "" : AJS.$("#rilComponent").val();
+        var actionType = "delete";
+
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'componentId' : componentId,
+                'rilComponentId' : rilComponentId,
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
+
+                AJS.$("input").attr("disabled", true);
+                AJS.$("select").attr("disabled", true);
+
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
+
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Deleted</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
+
+    AJS.$("#continueButton").click(function(event) {
+        event.preventDefault();
+        location.reload();
+    });
+</script>

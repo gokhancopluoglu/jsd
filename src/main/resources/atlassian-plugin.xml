@@ -36,6 +36,13 @@
     <entity>tr.com.almbase.plugin.activeobject.IssueTypeGroup</entity>
     <entity>tr.com.almbase.plugin.activeobject.GroupUser</entity>
     <entity>tr.com.almbase.plugin.activeobject.RestrictedProject</entity>
+    <entity>tr.com.almbase.plugin.activeobject.RemoteIssue</entity>
+    <entity>tr.com.almbase.plugin.activeobject.ComponentRelation</entity>
+
+    <entity>tr.com.almbase.plugin.activeobject.Integration</entity>
+    <entity>tr.com.almbase.plugin.activeobject.Proxy</entity>
+    <entity>tr.com.almbase.plugin.activeobject.IssueTypeMapping</entity>
+    <entity>tr.com.almbase.plugin.activeobject.FieldMapping</entity>
   </ao>
 
   <component-import key="ao" name="Active Objects Service" interface="com.atlassian.activeobjects.external.ActiveObjects">
@@ -66,6 +73,25 @@
   <component key="RestrictedProjectControllerImpl" class="tr.com.almbase.plugin.activeobject.RestrictedProjectControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.RestrictedProjectController</interface>
   </component>
+  <component key="RemoteIssueControllerImpl" class="tr.com.almbase.plugin.activeobject.RemoteIssueControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.RemoteIssueController</interface>
+  </component>
+  <component key="ComponentRelationControllerImpl" class="tr.com.almbase.plugin.activeobject.ComponentRelationControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.ComponentRelationController</interface>
+  </component>
+
+  <component key="IntegrationControllerImpl" class="tr.com.almbase.plugin.activeobject.IntegrationControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.IntegrationController</interface>
+  </component>
+  <component key="ProxyControllerImpl" class="tr.com.almbase.plugin.activeobject.ProxyControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.ProxyController</interface>
+  </component>
+  <component key="IssueTypeMappingControllerImpl" class="tr.com.almbase.plugin.activeobject.IssueTypeMappingControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.IssueTypeMappingController</interface>
+  </component>
+  <component key="FieldMappingControllerImpl" class="tr.com.almbase.plugin.activeobject.FieldMappingControllerImpl" public="true">
+    <interface>tr.com.almbase.plugin.activeobject.FieldMappingController</interface>
+  </component>
 
   <component-import key="PageBuilderService" interface="com.atlassian.webresource.api.assembler.PageBuilderService"/>
   <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" filter=""/>
@@ -83,43 +109,48 @@
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-section>
   <web-item key="categoryDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Definition" weight="121">
-    <label key="Category Definition"/>
+    <label key="Category"/>
     <link linkId="categoryDefinitionLink">/plugins/servlet/categorydefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="subCategoryDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Sub Category Definition" weight="122">
-    <label key="Sub Category Definition"/>
+    <label key="Sub Category"/>
     <link linkId="subCategoryDefinitionLink">/plugins/servlet/subcategorydefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="categoryItemDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Item Definition" weight="123">
-    <label key="Category Item Definition"/>
+    <label key="Category Item"/>
     <link linkId="categoryItemDefinitionLink">/plugins/servlet/categoryitemdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="categoryComponentDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Category Component Definition" weight="124">
-    <label key="Category Component Definition"/>
+    <label key="Category Component"/>
     <link linkId="categoryComponentDefinitionLink">/plugins/servlet/categorycomponentdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="125">
-    <label key="Business Rule Definition"/>
+    <label key="Business Rule"/>
     <link linkId="businessRuleDefinitionLink">/plugins/servlet/businessruledefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="126">
-    <label key="Issue Type Group Definition"/>
+    <label key="Issue Type Group"/>
     <link linkId="issueTypeGroupDefinitionLink">/plugins/servlet/issuetypegroupdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="127">
-    <label key="Group User Definition"/>
+    <label key="Group User"/>
     <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
   <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="128">
-    <label key="Restricted Project Definition"/>
+    <label key="Restricted Project"/>
     <link linkId="restrictedProjectDefinitionLink">/plugins/servlet/restrictedprojectdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="componentRelationDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Component Relation Definition" weight="129">
+    <label key="Component Relation"/>
+    <link linkId="componentRelationDefinitionLink">/plugins/servlet/componentrelationdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
 
@@ -155,6 +186,63 @@
     <description key="restricted-project-def-servlet.description">The Restricted Project Definition Servlet Plugin</description>
     <url-pattern>/restrictedprojectdefservlet</url-pattern>
   </servlet>
+  <servlet name="Component Relation Def Servlet" i18n-name-key="component-relation-def-servlet.name" key="component-relation-def-servlet" class="tr.com.almbase.plugin.servlet.ComponentRelationDefServlet">
+    <description key="component-relation-def-servlet.description">The Component Relation Definition Servlet Plugin</description>
+    <url-pattern>/componentrelationdefservlet</url-pattern>
+  </servlet>
+
+  <web-section key="remote_issue_link_section" name="Remote Issue Link Settings" location="admin_plugins_menu" i18n-name-key="Remote Issue Link Settings" weight="110">
+    <label key="Remote Issue Link"/>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-section>
+  <web-item key="integrationDefinitionLink" section="admin_plugins_menu/remote_issue_link_section" name="Integration Definition" weight="111">
+    <label key="Integration Definition"/>
+    <link linkId="integrationDefinitionLink">/plugins/servlet/integrationdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="proxyDefinitionLink" section="admin_plugins_menu/remote_issue_link_section" name="Proxy Definition" weight="112">
+    <label key="Proxy Definition"/>
+    <link linkId="proxyDefinitionLink">/plugins/servlet/proxydefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="issueTypeMappingLink" section="admin_plugins_menu/remote_issue_link_section" name="Issue Type Mapping" weight="113">
+    <label key="Issue Type Mapping"/>
+    <link linkId="issueTypeMappingLink">/plugins/servlet/issuetypemappingservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="fieldMappingLink" section="admin_plugins_menu/remote_issue_link_section" name="Field Mapping" weight="114">
+    <label key="Field Mapping"/>
+    <link linkId="fieldMappingLink">/plugins/servlet/fieldmappingservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+
+  <servlet name="Integration Def Servlet" i18n-name-key="integration-def-servlet.name" key="integration-def-servlet" class="tr.com.almbase.plugin.servlet.IntegrationServlet">
+    <description key="integration-def-servlet.description">The Integration Definition Servlet Plugin</description>
+    <url-pattern>/integrationdefservlet</url-pattern>
+  </servlet>
+  <servlet name="Proxy Def Servlet" i18n-name-key="proxy-def-servlet.name" key="proxy-def-servlet" class="tr.com.almbase.plugin.servlet.ProxyServlet">
+    <description key="proxy-def-servlet.description">The Proxy Definition Servlet Plugin</description>
+    <url-pattern>/proxydefservlet</url-pattern>
+  </servlet>
+  <servlet name="Issue Type Mapping Servlet" i18n-name-key="issue-type-mapping-servlet.name" key="issue-type-mapping-servlet" class="tr.com.almbase.plugin.servlet.IssueTypeMappingServlet">
+    <description key="issue-type-mapping-servlet.description">The Issue Type Mapping Plugin</description>
+    <url-pattern>/issuetypemappingservlet</url-pattern>
+  </servlet>
+  <servlet name="Field Mapping Servlet" i18n-name-key="field-mapping-servlet.name" key="field-mapping-servlet" class="tr.com.almbase.plugin.servlet.FieldMappingServlet">
+    <description key="field-mapping-servlet.description">The Field Mapping Plugin</description>
+    <url-pattern>/fieldmappingservlet</url-pattern>
+  </servlet>
+
+  <servlet name="Remote Issue Servlet" i18n-name-key="remote-issue-servlet.name" key="remote-issue-servlet" class="tr.com.almbase.plugin.webpanel.RemoteIssueServlet">
+    <description key="remote-issue-servlet.description">The Remote Issue Servlet Plugin</description>
+    <url-pattern>/remoteissueservlet</url-pattern>
+  </servlet>
+
+  <web-panel name="Agito Link" i18n-name-key="remote-issue-link-webpanel.name" key="remote-issue-link-webpanel" location="atl.jira.view.issue.left.context" weight="200">
+    <resource name="view" type="velocity" location="templates/webpanels/remote-issue-link.vm"/>
+    <condition class="tr.com.almbase.plugin.condition.RILWebPanelCondition"></condition>
+  </web-panel>
+
 
   <workflow-function key="assign-to-business-rule" name="Assign To Business Rule" i18n-name-key="assign-to-business-rule.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRuleFactory">
     <description key="assign-to-business-rule.description">The Assign To Business Rule Plugin</description>
@@ -182,6 +270,15 @@
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/send-mail-to-group-members.vm"/>
     <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
     <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
+  </workflow-function>
+
+  <workflow-function key="create-issue-on-remote-system" name="Create Issue On Remote System" i18n-name-key="create-issue-on-remote-system.name" class="tr.com.almbase.plugin.workflow.postfunction.CreateIssueOnRemoteSystemFactory">
+    <description key="create-issue-on-remote-system.description">The Create Issue On Remote System Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.CreateIssueOnRemoteSystem</function-class>
+    <orderable>true</orderable>
+    <unique>true</unique>
+    <deletable>true</deletable>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/create-issue-on-remote-system.vm"/>
   </workflow-function>
 
   <web-item name="Hide Edit" i18n-name-key="tr.com.almbase.plugin.hide.edit.name" key="hide-edit" section="operations-top-level" weight="1">

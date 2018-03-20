@@ -1,0 +1,351 @@
+#if ($selectedIntegrationId != "")
+<div id="fieldMappingDetail">
+    <form class="aui">
+        <fieldset class="group">
+            <div class="field-group">
+                <legend><span>Issue Type Mapping</span></legend>
+                <select class="select" name="issueTypeMappingSelect" id="issueTypeMappingSelect">
+                    <option value="" id="none"></option>
+                    #foreach($issueTypeMappingRow in $issueTypeMappingList)
+                      #set ($issueTypeMappingId = $issueTypeMappingRow.get('issueTypeMappingId'))
+                      #set ($issueTypeMappingName = $issueTypeMappingRow.get('issueTypeMappingName'))
+                      #if($issueTypeMappingId == $selectedIssueTypeMappingId)
+                          <option selected value="$issueTypeMappingId">$issueTypeMappingName</option>
+                      #else
+                          <option value="$issueTypeMappingId">$issueTypeMappingName</option>
+                      #end
+                    #end
+                </select>
+            </div>
+        </fieldset>
+
+        #if ($fieldMappingFieldsAvail == "yes")
+        <fieldset class="group">
+            <table id="fieldTable" class="aui tablesorter">
+                <thead>
+                    <tr class="tr">
+                        <th id="localFieldName" class="sorter-true">
+                            <div class="tablesorter-header-inner">Local Field</div>
+                        </th>
+                        <th id="remoteFieldName" class="sorter-true">
+                            <div class="tablesorter-header-inner">Remote Field</div>
+                        </th>
+                        <th id="order" class="sorter-false">
+                            <div class="tablesorter-header-inner"></div>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    #set ($counter = 1)
+                    #set ($size = $fieldMappingList.size())
+                    #if ($size > 0)
+                        #foreach($fieldMappingRow in $fieldMappingList)
+                            <tr>
+                                #set ($localFieldId = $fieldMappingRow.get('localFieldId'))
+                                #set ($localFieldName = $fieldMappingRow.get('localFieldName'))
+                                #set ($remoteFieldId = $fieldMappingRow.get('remoteFieldId'))
+                                #set ($remoteFieldName = $fieldMappingRow.get('remoteFieldName'))
+                                <td >
+                                    <label>#if($localFieldName)$localFieldName#end</label>
+                                    <input class="text" type="hidden" name="localFieldId$counter" id="localFieldId$counter" value="#if($localFieldId)$localFieldId#end"></input>
+                                </td>
+                                <td>
+                                    <label>#if($remoteFieldName)$remoteFieldName#end</label>
+                                    <input class="text" type="hidden" name="remoteFieldId$counter" id="remoteFieldId$counter" value="#if($remoteFieldId)$remoteFieldId#end"></input>
+                                </td>
+                                <td>
+                                    <input class="aui-button fieldmappingtabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                                </td>
+                            </tr>
+                            #set ($counter = $counter + 1)
+                        #end
+                        <tr>
+                            <td>
+                               <select class="select" name="localField" id="localField">
+                                   <option value="" id="none"></option>
+                                   #foreach($localFieldRow in $localFieldList)
+                                     #set ($localFieldId = $localFieldRow.get('localFieldId'))
+                                     #set ($localFieldName = $localFieldRow.get('localFieldName'))
+                                     <option value="$localFieldId">$localFieldName</option>
+                                   #end
+                               </select>
+                            </td>
+                            <td>
+                                <select class="select" name="remoteField$counter" id="remoteField$counter">
+                                   <option value="" id="none"></option>
+                                   #foreach($remoteFieldRow in $remoteFieldList)
+                                     #set ($remoteFieldId = $remoteFieldRow.get('remoteFieldId'))
+                                     #set ($remoteFieldName = $remoteFieldRow.get('remoteFieldName'))
+                                     <option value="$remoteFieldId">$remoteFieldName</option>
+                                   #end
+                                </select>
+                            </td>
+                            <td>
+                                    <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                            </td>
+                        </tr>
+                    #else
+                        <tr>
+                            <td>
+                               <select class="select" name="localField" id="localField">
+                                   <option value="" id="none"></option>
+                                   #foreach($localFieldRow in $localFieldList)
+                                     #set ($localFieldId = $localFieldRow.get('localFieldId'))
+                                     #set ($localFieldName = $localFieldRow.get('localFieldName'))
+                                     <option value="$localFieldId">$localFieldName</option>
+                                   #end
+                               </select>
+                            </td>
+                            <td>
+                                <select class="select" name="remoteField" id="remoteField">
+                                   <option value="" id="none"></option>
+                                   #foreach($remoteFieldRow in $remoteFieldList)
+                                     #set ($remoteFieldId = $remoteFieldRow.get('remoteFieldId'))
+                                     #set ($remoteFieldName = $remoteFieldRow.get('remoteFieldName'))
+                                     <option value="$remoteFieldId">$remoteFieldName</option>
+                                   #end
+                                </select>
+                            </td>
+                            <td>
+                                <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                            </td>
+                        </tr>
+                    #end
+                </tbody>
+            </table>
+            <br>
+            <div class="field-group">
+                <input class="aui-button" type="submit" value="Save" id="saveButton" style="float: left;">
+            </div>
+        </fieldset>
+        #end
+    </form>
+
+    <div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+        <p class="title">
+            <span class="aui-icon icon-success"></span>
+        </p>
+    </div>
+    <input type="hidden" name="selectedIntegrationId" id="selectedIntegrationId" value="#if($selectedIntegrationId)$selectedIntegrationId#end">
+</div>
+#end
+
+<script type="text/javascript">
+
+    jQuery(document).ready(function($) {
+        JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+            callSelectionChangeFunction();
+        });
+
+        callSelectionChangeFunction();
+
+        function callSelectionChangeFunction()
+        {
+            var url = "fieldmappingservlet";
+
+            $("#issueTypeMappingSelect").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'issuetypemappingselectchanged' : 'yes',
+                        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                        'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#fieldMappingDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#fieldMappingDetail").html("");
+                    }
+                });
+            });
+        };
+    });
+
+    jQuery(document).ready(function($) {
+		$(".fieldmappingtabledelete").click(function() {
+			event.preventDefault();
+			var url = "fieldmappingservlet";
+			var deleteid = parseInt($(this).attr("id"));
+			var tableData = AJS.$('#fieldTable').html();
+
+			var myTableArray = [];
+			var table = document.getElementById('fieldTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+
+		    for (i = 1; i < rijen; i++) {
+		    	if (deleteid != i)
+		    	{
+			    	var arrayOfThisRow = [];
+			        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+			        if (inputs.length > 0) {
+                        if (inputs[0].type != "submit") {
+                            var inputval0 = inputs[0].value;
+                            arrayOfThisRow.push(inputval0);
+                            var inputval1 = inputs[1].value;
+                            arrayOfThisRow.push(inputval1);
+
+                            var myJsonString = JSON.stringify(arrayOfThisRow);
+                            myTableArray.push(myJsonString);
+                        }
+                    }
+			    }
+		    }
+
+		    var data_to_send = JSON.stringify(myTableArray);
+
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : {
+			        'tableData' : data_to_send,
+			        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                    'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+			        'deleterow' : 'yes'
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#fieldMappingDetail").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	});
+
+	jQuery(document).ready(function() {
+		AJS.$("#addRowButton").click(function(event) {
+
+			event.preventDefault();
+			var url = "fieldmappingservlet";
+
+			var tableData = AJS.$('#fieldTable').html();
+
+			var myInputTableArray = [];
+			var mySelectTableArray = [];
+			var table = document.getElementById('fieldTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+
+		    for (i = 1; i < rijen; i++) {
+		        var arrayOfThisRow = [];
+		    	var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs.length > 0) {
+                    if (inputs[0].type != "submit") {
+                        var inputval0 = inputs[0].value;
+                        arrayOfThisRow.push(inputval0);
+                        var inputval1 = inputs[1].value;
+                        arrayOfThisRow.push(inputval1);
+
+                        var myJsonString = JSON.stringify(arrayOfThisRow);
+                        myInputTableArray.push(myJsonString);
+                    }
+                }
+		    }
+
+		    for (i = 1; i < rijen; i++) {
+                var arrayOfThisRow = [];
+                var selects = table.getElementsByTagName("tr").item(i).getElementsByTagName("select");
+
+                if (selects.length > 0) {
+                    var selectval0 = selects[0].value;
+                    arrayOfThisRow.push(selectval0);
+                    var selectval1 = selects[1].value;
+                    arrayOfThisRow.push(selectval1);
+
+                    var myJsonString = JSON.stringify(arrayOfThisRow);
+                    mySelectTableArray.push(myJsonString);
+                }
+            }
+
+		    var data_to_send_input = JSON.stringify(myInputTableArray);
+		    var data_to_send_select = JSON.stringify(mySelectTableArray);
+
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : {
+			        'tableData' : data_to_send_input,
+			        'tableDataSelect' : data_to_send_select,
+			        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                    'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+			        'addnewrow' : 'yes'
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#fieldMappingDetail").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	});
+
+	jQuery(document).ready(function() {
+		AJS.$("#saveButton").click(function(event) {
+
+			event.preventDefault();
+
+			var url = "fieldmappingservlet";
+			var tableData = AJS.$('#fieldTable').html();
+
+			var myTableArray = [];
+			var table = document.getElementById('fieldTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+
+		    for (i = 1; i < rijen; i++) {
+		        var arrayOfThisRow = [];
+		    	var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs.length > 0) {
+                    if (inputs[0].type != "submit") {
+                        var inputval0 = inputs[0].value;
+                        arrayOfThisRow.push(inputval0);
+                        var inputval1 = inputs[1].value;
+                        arrayOfThisRow.push(inputval1);
+
+                        var myJsonString = JSON.stringify(arrayOfThisRow);
+                        myTableArray.push(myJsonString);
+                    }
+                }
+		    }
+
+		    var data_to_send = JSON.stringify(myTableArray);
+
+			jQuery.ajax({
+				type : "POST",
+				url : url,
+				data : {
+			        'tableData' : data_to_send,
+			        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                    'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+
+                    AJS.$("input").attr("disabled", true);
+                    AJS.$("select").attr("disabled", true);
+
+                    AJS.$('#saveButton').css("visibility", "hidden");
+                    AJS.$('#addRowButton').css("visibility", "hidden");
+                    AJS.$(".fieldmappingtabledelete").css("visibility", "hidden");
+
+                    AJS.$('#settingsSaved').css("visibility", "visible");
+                    AJS.$('#settingsSaved').css("display", "");
+                    AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                    AJS.$("#settingsSaved").delay(2000).fadeOut();
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	});
+
+</script>

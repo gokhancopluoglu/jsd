@@ -1,0 +1,72 @@
+<html>
+
+<head>
+    <title>Component Relation Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.cardif-jsd-engine:cardif-jsd-engine-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	<h3 class="formtitle">Component Relation Screen</h3>
+	</td>
+	<div class="content-container">
+        <div class="content-body">
+            <form action="componentrelationdefservlet" method="get" id="admin-form" class="aui">
+                <fieldset class="group">
+                    <div class="field-group">
+                        <legend><span>Local Component</span></legend>
+                        <select class="select" name="component" id="component">
+                          <option value="" id="none"></option>
+                          #foreach($componentRow in $componentList)
+                            #set ($componentId = $componentRow.get('componentId'))
+                            #set ($componentName = $componentRow.get('componentName'))
+                            #if($componentId == $selectedComponentId)
+                                <option selected value="$componentId">$componentId</option>
+                            #else
+                                <option value="$componentId">$componentId</option>
+                            #end
+                          #end
+                        </select>
+                    </div>
+                </fieldset>
+                <div id="componentRelationDetail"></div>
+            </form>
+        </div>
+    </div>
+
+   <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+                callComponentRelationChangeFunction();
+            });
+
+            callComponentRelationChangeFunction();
+
+            function callComponentRelationChangeFunction()
+            {
+                var url = "componentrelationdefservlet";
+
+                $("#component").change(function() {
+                    jQuery.ajax({
+                        type: "GET",
+                        url : url,
+                        data : {
+                            'initial' : 'yes',
+                            'selectedComponentId' : AJS.$("#component").val()
+                        },
+                        success : function(data) {
+                            console.log(data);
+                            AJS.$("#componentRelationDetail").html(data);
+                        },
+                        error : function(response) {
+                            AJS.$("#componentRelationDetail").html("");
+                        }
+                    });
+                });
+            };
+        });
+   </script>
+</body>
+
+</html>

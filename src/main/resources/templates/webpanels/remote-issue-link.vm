@@ -1,0 +1,23 @@
+<div id="rilWebPanelDetail"></div>
+<div id="rilWebPanelError"></div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        var issueKey = AJS.Meta.get("issue-key");
+        var url = AJS.params.baseURL;
+        url = url.concat("/plugins/servlet/remoteissueservlet?issueKey=")
+        url = url.concat(issueKey);
+        jQuery.ajax({
+            url: url,
+            type: "GET",
+            success : function(data) {
+                console.log(data);
+                AJS.$("#rilWebPanelDetail").html(data);
+            },
+            error : function(response) {
+                console.log(data);
+                AJS.$("#rilWebPanelError").html(data);
+            }
+        });
+    });
+</script>

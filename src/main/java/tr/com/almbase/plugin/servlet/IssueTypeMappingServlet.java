@@ -1,0 +1,321 @@
+package tr.com.almbase.plugin.servlet;
+
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.sal.api.auth.LoginUriProvider;
+import com.atlassian.templaterenderer.TemplateRenderer;
+import com.atlassian.webresource.api.assembler.PageBuilderService;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tr.com.almbase.plugin.activeobject.*;
+import tr.com.almbase.plugin.model.RemoteIssueTypeModel;
+import tr.com.almbase.plugin.model.RemoteProjectModel;
+import tr.com.almbase.plugin.util.Utils;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.*;
+
+/**
+ * Created by kivanc.ahat@almbase.com on 07/03/2018.
+ */
+public class IssueTypeMappingServlet extends HttpServlet {
+    private static final Logger log = LoggerFactory.getLogger(IssueTypeMappingServlet.class);
+    private static final String ISSUE_TYPE_MAPPING_TEMPLATE = "/templates/adminscreens/issuetypemapping.vm";
+    private static final String ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE = "/templates/adminscreens/issuetypemappingdetail.vm";
+
+    private final TemplateRenderer templateRenderer;
+    private final JiraAuthenticationContext jiraAuthenticationContext;
+    private final LoginUriProvider loginUriProvider;
+    private final PageBuilderService pageBuilderService;
+    private final UserManager userManager;
+
+    private final IntegrationController integrationController;
+    private final IssueTypeMappingController issueTypeMappingController;
+
+    public IssueTypeMappingServlet(TemplateRenderer templateRenderer,
+                                           JiraAuthenticationContext jiraAuthenticationContext,
+                                           LoginUriProvider loginUriProvider,
+                                           PageBuilderService pageBuilderService,
+                                           UserManager userManager,
+                                           IntegrationController integrationController,
+                                           IssueTypeMappingController issueTypeMappingController)
+    {
+        super();
+        this.templateRenderer = templateRenderer;
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
+        this.loginUriProvider = loginUriProvider;
+        this.pageBuilderService = pageBuilderService;
+        this.userManager = userManager;
+        this.integrationController = integrationController;
+        this.issueTypeMappingController = issueTypeMappingController;
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        Map<String, Object> context = Maps.newHashMap();
+
+        ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
+        Collection<ApplicationUser> administrators = ComponentAccessor.getUserUtil().getJiraAdministrators();
+
+        if (null == jiraAuthenticationContext.getLoggedInUser() && !administrators.contains(user))
+        {
+            redirectToLogin(req, resp);
+        } else {
+            String initial = req.getParameter("initial") == null ? "" : req.getParameter("initial").trim();
+            String issueTypeMappingSelectChanged = req.getParameter("issuetypemappingselectchanged") == null ? "" : req.getParameter("issuetypemappingselectchanged").trim();
+
+            String selectedIntegrationId = req.getParameter("selectedIntegrationId") == null ? "" : req.getParameter("selectedIntegrationId").trim();
+            String issueTypeMappingSelectId = req.getParameter("issueTypeMappingSelectId") == null ? "" : req.getParameter("issueTypeMappingSelectId").trim();
+
+            if (initial.equalsIgnoreCase("yes")) {
+                context.put("selectedIntegrationId", selectedIntegrationId);
+                context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
+                context.put("issueTypeMappingNameAvail", "no");
+                context.put("issueTypeMappingFieldsAvail", "no");
+                context.put("recordExists", "no");
+                templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
+            } else if (issueTypeMappingSelectChanged.equalsIgnoreCase("yes")) {
+
+                if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
+                    context.put("issueTypeMappingNameAvail", "yes");
+                    context.put("issueTypeMappingFieldsAvail", "yes");
+                    context.put("recordExists", "no");
+                    context.put("selectedIssueTypeMappingId", "New");
+                } else {
+                    if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+
+                        if (null != issueTypeMapping) {
+                            context.put("selectedLocalProjectId", issueTypeMapping.getLocalProjectId());
+                            context.put("selectedLocalIssueTypeId", issueTypeMapping.getLocalIssueTypeId());
+                            context.put("selectedRemoteProjectId", issueTypeMapping.getRemoteProjectId());
+                            context.put("selectedRemoteIssueTypeId", issueTypeMapping.getRemoteIssueTypeId());
+                            context.put("selectedIssueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
+
+                            context.put("issueTypeMappingNameAvail", "no");
+                            context.put("issueTypeMappingFieldsAvail", "yes");
+                            context.put("recordExists", "yes");
+                        }
+                    } else {
+                        context.put("issueTypeMappingNameAvail", "no");
+                        context.put("issueTypeMappingFieldsAvail", "no");
+                        context.put("recordExists", "no");
+                    }
+                }
+
+                context.put("selectedIntegrationId", selectedIntegrationId);
+
+                context.put("localProjectList", getLocalProjectList());
+                context.put("localIssueTypeList", getLocalIssueTypeList());
+                context.put("remoteProjectList", getRemoteProjectList(selectedIntegrationId));
+                context.put("remoteIssueTypeList", getRemoteIssueTypeList(selectedIntegrationId));
+                context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
+
+                templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
+            } else {
+                context.put("integrationList", getIntegrationList());
+                templateRenderer.render(ISSUE_TYPE_MAPPING_TEMPLATE, context, resp.getWriter());
+            }
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+
+        ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
+        Collection<ApplicationUser> administrators = ComponentAccessor.getUserUtil().getJiraAdministrators();
+        if (null == jiraAuthenticationContext.getLoggedInUser() && !administrators.contains(user))
+        {
+            redirectToLogin(req, resp);
+        } else {
+            try {
+                String actionType = req.getParameter("actionType");
+                String selectedIntegrationId = req.getParameter("selectedIntegrationId");
+                String issueTypeMappingSelectId = req.getParameter("issueTypeMappingSelectId");
+                String issueTypeMappingName = req.getParameter("issueTypeMappingName");
+                String localProject = req.getParameter("localProject");
+                String localIssueType = req.getParameter("localIssueType");
+                String remoteProject = req.getParameter("remoteProject");
+                String remoteIssueType = req.getParameter("remoteIssueType");
+
+                if (actionType.equalsIgnoreCase("save")) {
+                    if (null != selectedIntegrationId) {
+                        if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                            if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
+                                IssueTypeMappingObject issueTypeMappingObject = new IssueTypeMappingObject();
+                                issueTypeMappingObject.setIntegrationId(selectedIntegrationId);
+                                issueTypeMappingObject.setName(issueTypeMappingName);
+                                issueTypeMappingObject.setLocalProjectId(localProject);
+                                issueTypeMappingObject.setLocalIssueTypeId(localIssueType);
+                                issueTypeMappingObject.setRemoteProjectId(remoteProject);
+                                issueTypeMappingObject.setRemoteIssueTypeId(remoteIssueType);
+                                issueTypeMappingController.createRecordInAOTable(issueTypeMappingObject);
+                            } else {
+                                IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+                                if (null != issueTypeMapping) {
+                                    IssueTypeMappingObject issueTypeMappingObject = new IssueTypeMappingObject();
+                                    issueTypeMappingObject.setIntegrationId(issueTypeMapping.getIntegrationId());
+                                    issueTypeMappingObject.setName(issueTypeMapping.getName());
+                                    issueTypeMappingObject.setLocalProjectId(localProject);
+                                    issueTypeMappingObject.setLocalIssueTypeId(localIssueType);
+                                    issueTypeMappingObject.setRemoteProjectId(remoteProject);
+                                    issueTypeMappingObject.setRemoteIssueTypeId(remoteIssueType);
+                                    issueTypeMappingController.updateRecordFromAOTable(issueTypeMapping, issueTypeMappingObject);
+                                }
+                            }
+                        }
+                    }
+                } else if (actionType.equalsIgnoreCase("delete")) {
+                    if (null != selectedIntegrationId) {
+                        if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                            IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+                            issueTypeMappingController.deleteRecordFromAOTable(issueTypeMapping);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                StringWriter stack = new StringWriter();
+                e.printStackTrace(new PrintWriter(stack));
+                log.error(stack.toString());
+                throw new ServletException(e.getMessage());
+            }
+        }
+    }
+
+    private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException
+    {
+        resp.sendRedirect(loginUriProvider.getLoginUri(URI.create(req.getRequestURL().toString())).toASCIIString());
+    }
+
+    private List<Map<String, String>> getIntegrationList () {
+        List<Map<String, String>> integrationList = new ArrayList<>();
+        try {
+            Integration[] integrations = integrationController.getAllEntriesFromAOTable();
+            Arrays.sort(integrations, Comparator.comparing(Integration::getName));
+            for (Integration integration : integrations) {
+                Map<String, String> integrationMap = new HashMap<>();
+                integrationMap.put("integrationId", String.valueOf(integration.getID()));
+                integrationMap.put("integrationName", integration.getName());
+                integrationList.add(integrationMap);
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return integrationList;
+    }
+
+    private List<Map<String, String>> getIssueTypeMappingList (String integrationId) {
+        List<Map<String, String>> issueTypeMappingList = new ArrayList<>();
+        try {
+            IssueTypeMapping[] issueTypeMappings = issueTypeMappingController.getRecordFromAOTableByIntegrationId(integrationId);
+
+            for (IssueTypeMapping issueTypeMapping : issueTypeMappings) {
+                Map<String, String> issueTypeMappingMap = new HashMap<>();
+                issueTypeMappingMap.put("issueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
+                issueTypeMappingMap.put("issueTypeMappingName", issueTypeMapping.getName());
+                issueTypeMappingList.add(issueTypeMappingMap);
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return issueTypeMappingList;
+    }
+
+    private List<Map<String, String>> getLocalProjectList () {
+        List<Map<String, String>> localProjectList = new ArrayList<>();
+        try {
+            List<Project> projects = ComponentAccessor.getProjectManager().getProjectObjects();
+
+            for (Project project : projects){
+                Map<String, String> localProjectMap = new HashMap<>();
+                localProjectMap.put("localProjectId", String.valueOf(project.getId()));
+                localProjectMap.put("localProjectName", project.getName());
+                localProjectList.add(localProjectMap);
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return localProjectList;
+    }
+
+    private List<Map<String, String>> getLocalIssueTypeList () {
+        List<Map<String, String>> localIssueTypeList = new ArrayList<>();
+        try {
+            Collection<IssueType> issueTypes = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+
+            for (IssueType issueType : issueTypes){
+                Map<String, String> localIssueTypeMap = new HashMap<>();
+                localIssueTypeMap.put("localIssueTypeId", String.valueOf(issueType.getId()));
+                localIssueTypeMap.put("localIssueTypeName", issueType.getName());
+                localIssueTypeList.add(localIssueTypeMap);
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return localIssueTypeList;
+    }
+
+    private List<Map<String, String>> getRemoteProjectList (String integrationId) {
+        List<Map<String, String>> remoteProjectList = new ArrayList<>();
+        try {
+            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
+            if (null != integration) {
+                IntegrationObject integrationObject = new IntegrationObject(integration);
+
+                List<RemoteProjectModel> remoteProjects = Utils.getRemoteProjects(integrationObject);
+
+                for (RemoteProjectModel remoteProject : remoteProjects) {
+                    Map<String, String> remoteProjectMap = new HashMap<>();
+                    remoteProjectMap.put("remoteProjectId", remoteProject.getProjectId());
+                    remoteProjectMap.put("remoteProjectName", remoteProject.getProjectName());
+                    remoteProjectList.add(remoteProjectMap);
+                }
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return remoteProjectList;
+    }
+
+    private List<Map<String, String>> getRemoteIssueTypeList (String integrationId) {
+        List<Map<String, String>> remoteIssueTypeList = new ArrayList<>();
+        try {
+            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
+            if (null != integration) {
+                IntegrationObject integrationObject = new IntegrationObject(integration);
+
+                List<RemoteIssueTypeModel> remoteIssueTypes = Utils.getRemoteIssueTypes(integrationObject);
+
+                for (RemoteIssueTypeModel remoteIssueType : remoteIssueTypes) {
+                    Map<String, String> remoteIssueTypeMap = new HashMap<>();
+                    remoteIssueTypeMap.put("remoteIssueTypeId", remoteIssueType.getIssueTypeId());
+                    remoteIssueTypeMap.put("remoteIssueTypeName", remoteIssueType.getIssueTypeName());
+                    remoteIssueTypeList.add(remoteIssueTypeMap);
+                }
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return remoteIssueTypeList;
+    }
+}

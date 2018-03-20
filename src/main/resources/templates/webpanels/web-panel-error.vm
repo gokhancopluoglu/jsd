@@ -1,0 +1,6 @@
+<div class="aui-message error" id="not-auth" style="margin-top: 1%;">
+<p class="title">
+<span class="aui-icon icon-error"></span>
+<label><strong>$errorinfo</strong></label>
+</p>
+</div>

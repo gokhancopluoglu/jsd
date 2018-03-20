@@ -1,0 +1,280 @@
+#set($size = $integrationList.size())
+<form class="aui">
+    <table id="integrationTable" class="aui tablesorter">
+        <thead>
+            <tr class="tr">
+                <th id="integrationId" class="sorter-true" style="display: none;">
+                    <div class="tablesorter-header-inner">ID</div>
+                </th>
+                <th id="integrationName" class="sorter-true">
+                    <div class="tablesorter-header-inner">Integration Name</div>
+                </th>
+                <th id="remoteUrl" class="sorter-true">
+                    <div class="tablesorter-header-inner">Remote URL</div>
+                </th>
+                <th id="remoteUsername" class="sorter-true">
+                    <div class="tablesorter-header-inner">Remote Username</div>
+                </th>
+                <th id="remotePassword" class="sorter-true">
+                    <div class="tablesorter-header-inner">Remote Password</div>
+                </th>
+                <th id="order" class="sorter-false">
+                    <div class="tablesorter-header-inner"></div>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            #set ($counter = 1)
+            #if ($size > 0)
+                #foreach($integrationTableRow in $integrationList)
+                    <tr>
+                        #set ($integrationId = $integrationTableRow.get('integrationId'))
+                        #set ($name = $integrationTableRow.get('name'))
+                        #set ($url = $integrationTableRow.get('url'))
+                        #set ($username = $integrationTableRow.get('username'))
+                        #set ($password = $integrationTableRow.get('password'))
+
+                        <td style="display: none;">
+                            <input class="text"  type="text" name="integrationId$counter" id="integrationId$counter" value="#if($integrationId)$integrationId#end"/>
+                        </td>
+                        <td>
+                            <input class="text" type="text" name="name$counter" id="name$counter" value="#if($name)$name#end"/>
+                        </td>
+                        <td>
+                            <input class="text long-field" type="text" name="url$counter" id="url$counter" value="#if($url)$url#end"/>
+                        </td>
+                        <td>
+                            <input class="text" type="text" name="username$counter" id="username$counter" value="#if($username)$username#end"/>
+                        </td>
+                        <td>
+                            <input class="password" type="password" name="password$counter" id="password$counter" value="#if($password)$password#end"/>
+                        </td>
+                        <td>
+                            <input class="aui-button jiraintegrationtabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                        </td>
+                    </tr>
+                    #set ($counter = $counter + 1)
+                #end
+                <tr>
+                    <td>
+                        <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                        <input class="aui-button" type="submit" value="Save" id="submitButton" style="float: left;">
+                    </td>
+                </tr>
+            #else
+                <tr>
+                   <td style="display: none;">
+                       <input class="text"  type="text" name="integrationId$counter" id="integrationId$counter" value=""/>
+                   </td>
+                   <td>
+                       <input class="text" type="text" name="name$counter" id="name$counter" value=""/>
+                   </td>
+                   <td>
+                       <input class="text long-field" type="text" name="url$counter" id="url$counter" value=""/>
+                   </td>
+                   <td>
+                       <input class="text" type="text" name="username$counter" id="username$counter" value=""/>
+                   </td>
+                   <td>
+                       <input class="password" type="password" name="password$counter" id="password$counter" value=""/>
+                   </td>
+                   <td>
+                       <input class="aui-button jiraintegrationtabledelete" type="submit" value="Delete" id="$counter" style="float: left;">
+                   </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="aui-button" type="submit" value="Add Row" id="addRowButton" style="float: left;">
+                        <input class="aui-button" type="submit" value="Save" id="submitButton">
+                    </td>
+                </tr>
+            #end
+        </tbody>
+    </table>
+</form>
+
+<div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+  	<p class="title">
+		<span class="aui-icon icon-success"></span>
+	</p>
+</div>
+
+
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		$(".jiraintegrationtabledelete").click(function() {
+			event.preventDefault();
+			var url = "integrationdefservlet";
+			var deleteid = parseInt($(this).attr("id"));
+			var tableData = AJS.$('#integrationTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('integrationTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	if (deleteid != i)
+		    	{
+			    	var arrayOfThisRow = [];
+			        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+			        if (inputs.length > 0) {
+                        if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                            var inputval0 = inputs[0].value;
+                            arrayOfThisRow.push(inputval0);
+                            var inputval1 = inputs[1].value;
+                            arrayOfThisRow.push(inputval1);
+                            var inputval2 = inputs[2].value;
+                            arrayOfThisRow.push(inputval2);
+                            var inputval3 = inputs[3].value;
+                            arrayOfThisRow.push(inputval3);
+                            var inputval4 = inputs[4].value;
+                            arrayOfThisRow.push(inputval4);
+
+                            var myJsonString = JSON.stringify(arrayOfThisRow);
+                            myTableArray.push(myJsonString);
+                        }
+                    }
+			    }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'deleterow' : 'yes'
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#integrationTable").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+
+	jQuery(document).ready(function() {
+		AJS.$("#addRowButton").click(function(event) {
+
+			event.preventDefault();
+			var url = "integrationdefservlet";
+			
+			var tableData = AJS.$('#integrationTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('integrationTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	var arrayOfThisRow = [];
+		        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs.length > 0) {
+                    if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                        var inputval0 = inputs[0].value;
+                        arrayOfThisRow.push(inputval0);
+                        var inputval1 = inputs[1].value;
+                        arrayOfThisRow.push(inputval1);
+                        var inputval2 = inputs[2].value;
+                        arrayOfThisRow.push(inputval2);
+                        var inputval3 = inputs[3].value;
+                        arrayOfThisRow.push(inputval3);
+                        var inputval4 = inputs[4].value;
+                        arrayOfThisRow.push(inputval4);
+
+                        var myJsonString = JSON.stringify(arrayOfThisRow);
+                        myTableArray.push(myJsonString);
+                    }
+                }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "GET",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send,
+			        'addnewrow' : 'yes'
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+					AJS.$("#integrationTable").html(data);
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+		
+	jQuery(document).ready(function() {
+		AJS.$("#submitButton").click(function(event) {
+
+			event.preventDefault();
+						
+			var url = "integrationdefservlet";
+			var tableData = AJS.$('#integrationTable').html();
+			
+			var myTableArray = [];
+			var table = document.getElementById('integrationTable');
+		    var rijen = table.getElementsByTagName("tr").length;
+		    		
+		    for (i = 1; i < rijen; i++) {
+		    	var arrayOfThisRow = [];
+		        var inputs = table.getElementsByTagName("tr").item(i).getElementsByTagName("input");
+
+                if (inputs.length > 0) {
+                    if (inputs[0].id != "addRowButton" && inputs[1].id != "submitButton") {
+                        var inputval0 = inputs[0].value;
+                        arrayOfThisRow.push(inputval0);
+                        var inputval1 = inputs[1].value;
+                        arrayOfThisRow.push(inputval1);
+                        var inputval2 = inputs[2].value;
+                        arrayOfThisRow.push(inputval2);
+                        var inputval3 = inputs[3].value;
+                        arrayOfThisRow.push(inputval3);
+                        var inputval4 = inputs[4].value;
+                        arrayOfThisRow.push(inputval4);
+
+                        var myJsonString = JSON.stringify(arrayOfThisRow);
+                        myTableArray.push(myJsonString);
+                    }
+                }
+		    }
+		    
+		    var data_to_send = JSON.stringify(myTableArray);
+		    
+			jQuery.ajax({
+				type : "POST",
+				url : url,
+				data : { 
+			        'tableData' : data_to_send
+			    },
+				success : function(data) {
+					console.log('dom', self, data);
+
+                    AJS.$("input").attr("disabled", true);
+
+                    AJS.$('#submitButton').css("visibility", "hidden");
+                    AJS.$('#addRowButton').css("visibility", "hidden");
+                    AJS.$(".jiraintegrationtabledelete").css("visibility", "hidden");
+
+                    AJS.$('#settingsSaved').css("visibility", "visible");
+                    AJS.$('#settingsSaved').css("display", "");
+                    AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                    AJS.$("#settingsSaved").delay(2000).fadeOut();
+				},
+				error : function() {
+					console.log('error', arguments);
+				}
+			});
+		});
+	}); 
+</script>

@@ -1,0 +1,276 @@
+#if ($selectedIntegrationId != "")
+<div id="issueTypeMappingDetail">
+    <form class="aui">
+        <fieldset class="group">
+            <div class="field-group">
+                <legend><span>Issue Type Mapping</span></legend>
+                <select class="select" name="issueTypeMappingSelect" id="issueTypeMappingSelect">
+                    <option value="" id="none"></option>
+                    #if("New" == $selectedIssueTypeMappingId)
+                        <option selected value="New" id="New">New Definition</option>
+                    #else
+                        <option value="New" id="New">New Definition</option>
+                    #end
+                    #foreach($issueTypeMappingRow in $issueTypeMappingList)
+                      #set ($issueTypeMappingId = $issueTypeMappingRow.get('issueTypeMappingId'))
+                      #set ($issueTypeMappingName = $issueTypeMappingRow.get('issueTypeMappingName'))
+                      #if($issueTypeMappingId == $selectedIssueTypeMappingId)
+                          <option selected value="$issueTypeMappingId">$issueTypeMappingName</option>
+                      #else
+                          <option value="$issueTypeMappingId">$issueTypeMappingName</option>
+                      #end
+                    #end
+                </select>
+            </div>
+        </fieldset>
+
+        #if ($issueTypeMappingNameAvail == "yes")
+            <fieldset class="group">
+                <div class="field-group">
+                    <label for="issueTypeMappingNameLabel">
+                        <span class="aui-icon icon-required">Required</span>
+                        <span>New Mapping Name</span>
+                    </label>
+                    <input class="text" type="text" name="issueTypeMappingName" id="issueTypeMappingName" value="#if($issueTypeMappingName)$issueTypeMappingName#end"/>
+                </div>
+            </fieldset>
+        #end
+
+        #if ($issueTypeMappingFieldsAvail == "yes")
+            <fieldset>
+                <div class="field-group">
+                    <div class="aui-item">
+                        <label>Local Configuration</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="field-group">
+                    <div class="aui-group">
+                        <div class="aui-item">
+                            <select class="select" name="localProject" id="localProject">
+                              <option value="" id="none"></option>
+                              #foreach($localProjectRow in $localProjectList)
+                                  #set ($localProjectId = $localProjectRow.get('localProjectId'))
+                                  #set ($localProjectName = $localProjectRow.get('localProjectName'))
+                                  #if($localProjectId == $selectedLocalProjectId)
+                                      <option selected value="$localProjectId">$localProjectName</option>
+                                  #else
+                                      <option value="$localProjectId">$localProjectName</option>
+                                  #end
+                              #end
+                            </select>
+                        </div>
+                        <div class="aui-item">
+                            <select class="select" name="localIssueType" id="localIssueType">
+                              <option value="" id="none"></option>
+                              #foreach($localIssueTypeRow in $localIssueTypeList)
+                                  #set ($localIssueTypeId = $localIssueTypeRow.get('localIssueTypeId'))
+                                  #set ($localIssueTypeName = $localIssueTypeRow.get('localIssueTypeName'))
+                                  #if($localIssueTypeId == $selectedLocalIssueTypeId)
+                                      <option selected value="$localIssueTypeId">$localIssueTypeName</option>
+                                  #else
+                                      <option value="$localIssueTypeId">$localIssueTypeName</option>
+                                  #end
+                              #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="field-group">
+                    <div class="aui-item">
+                        <label>Remote Configuration</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="field-group">
+                    <div class="aui-group">
+                        <div class="aui-item">
+                            <select class="select" name="remoteProject" id="remoteProject">
+                              <option value="" id="none"></option>
+                              #foreach($remoteProjectRow in $remoteProjectList)
+                                  #set ($remoteProjectId = $remoteProjectRow.get('remoteProjectId'))
+                                  #set ($remoteProjectName = $remoteProjectRow.get('remoteProjectName'))
+                                  #if($remoteProjectId == $selectedRemoteProjectId)
+                                      <option selected value="$remoteProjectId">$remoteProjectName</option>
+                                  #else
+                                      <option value="$remoteProjectId">$remoteProjectName</option>
+                                  #end
+                              #end
+                            </select>
+                        </div>
+                        <div class="aui-item">
+                            <select class="select" name="remoteIssueType" id="remoteIssueType">
+                              <option value="" id="none"></option>
+                              #foreach($remoteIssueTypeRow in $remoteIssueTypeList)
+                                  #set ($remoteIssueTypeId = $remoteIssueTypeRow.get('remoteIssueTypeId'))
+                                  #set ($remoteIssueTypeName = $remoteIssueTypeRow.get('remoteIssueTypeName'))
+                                  #if($remoteIssueTypeId == $selectedRemoteIssueTypeId)
+                                      <option selected value="$remoteIssueTypeId">$remoteIssueTypeName</option>
+                                  #else
+                                      <option value="$remoteIssueTypeId">$remoteIssueTypeName</option>
+                                  #end
+                              #end
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="group">
+                <div class="field-group">
+                    <input class="aui-button" type="submit" value="Save" id="saveButton" style="float: left;">
+                    <input class="aui-button" type="submit" value="Delete" id="deleteButton" style="float: left; visibility: hidden">
+                    <input class="aui-button" type="submit" value="Continue" id="continueButton" style="float: left; visibility: hidden" />
+                </div>
+            </fieldset>
+        #end
+    </form>
+
+    <div class="aui-message success" id="settingsSaved" style="visibility: hidden">
+        <p class="title">
+            <span class="aui-icon icon-success"></span>
+        </p>
+    </div>
+    <input type="hidden" name="selectedIntegrationId" id="selectedIntegrationId" value="#if($selectedIntegrationId)$selectedIntegrationId#end">
+    <input type="hidden" name="recordExists" id="recordExits" value="#if($recordExists)$recordExists#end">
+</div>
+#end
+
+<script type="text/javascript">
+    AJS.$(document).ready(function () {
+        var recordExistsVal = AJS.$("#recordExits").val();
+        if (recordExistsVal == "yes") {
+            AJS.$('#deleteButton').css("visibility", "visible");
+        } else {
+            AJS.$('#deleteButton').css("visibility", "hidden");
+        }
+    });
+
+    jQuery(document).ready(function($) {
+        JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
+            callSelectionChangeFunction();
+        });
+
+        callSelectionChangeFunction();
+
+        function callSelectionChangeFunction()
+        {
+            var url = "issuetypemappingservlet";
+
+            $("#issueTypeMappingSelect").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'issuetypemappingselectchanged' : 'yes',
+                        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                        'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#issueTypeMappingDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#issueTypeMappingDetail").html("");
+                    }
+                });
+            });
+        };
+    });
+
+    AJS.$("#saveButton").click(function(event) {
+        event.preventDefault();
+
+        var url = "issuetypemappingservlet";
+        var actionType = "save";
+        var selectedIntegrationId = AJS.$("#selectedIntegrationId").val() == "null" ? "" : AJS.$("#selectedIntegrationId").val();
+        var issueTypeMappingSelectId = AJS.$("#issueTypeMappingSelect").val() == "null" ? "" : AJS.$("#issueTypeMappingSelect").val();
+        var issueTypeMappingName = AJS.$("#issueTypeMappingName").val() == "null" ? "" : AJS.$("#issueTypeMappingName").val();
+        var localProject = AJS.$("#localProject").val() == "null" ? "" : AJS.$("#localProject").val();
+        var localIssueType = AJS.$("#localIssueType").val() == "null" ? "" : AJS.$("#localIssueType").val();
+        var remoteProject = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
+        var remoteIssueType = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
+
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'selectedIntegrationId' : selectedIntegrationId,
+                'issueTypeMappingSelectId' : issueTypeMappingSelectId,
+                'issueTypeMappingName' : issueTypeMappingName,
+                'localProject' : localProject,
+                'localIssueType' : localIssueType,
+                'remoteProject' : remoteProject,
+                'remoteIssueType' : remoteIssueType,
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
+
+                AJS.$("input").attr("disabled", true);
+                AJS.$("select").attr("disabled", true);
+
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
+
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Saved</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
+
+    AJS.$("#deleteButton").click(function(event) {
+        event.preventDefault();
+
+        var url = "issuetypemappingservlet";
+        var actionType = "delete";
+
+        jQuery.ajax({
+            type : "POST",
+            url : url,
+            data : {
+                'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+                'actionType' : actionType
+            },
+            success : function(data) {
+                console.log('dom', self, data);
+
+                AJS.$("input").attr("disabled", true);
+                AJS.$("select").attr("disabled", true);
+
+                AJS.$('#saveButton').css("visibility", "hidden");
+                AJS.$('#deleteButton').css("visibility", "hidden");
+                AJS.$('#continueButton').css("visibility", "visible");
+                AJS.$('#continueButton').removeAttr('disabled');
+
+                AJS.$('#settingsSaved').css("visibility", "visible");
+                AJS.$('#settingsSaved').css("display", "");
+                AJS.$('#settingsSaved').html('<strong>Success!</strong><p>Definition Deleted</p>');
+                AJS.$("#settingsSaved").delay(2000).fadeOut();
+            },
+            error : function() {
+                console.log('error', arguments);
+            }
+        });
+    });
+
+    AJS.$("#continueButton").click(function(event) {
+        event.preventDefault();
+        location.reload();
+    });
+</script>

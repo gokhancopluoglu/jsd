@@ -1,0 +1,56 @@
+<div class="module toggle-wrap expanded" id = "rilWebPanelDetail">
+    #set($size = $remoteIssueLinkMapList.size())
+    #if ($size > 0)
+        <table style="width: 100%;">
+            <thead>
+                <tr class="tr">
+                    <th id="remoteIssueKeyTitle" class="sorter-true" align="left">
+                        <div class="tablesorter-header-inner">Key</div>
+                    </th>
+                    <th id="remoteIssueSummaryTitle" class="sorter-true" align="left">
+                        <div class="tablesorter-header-inner">Summary</div>
+                    </th>
+                    <th id="remoteIssueAssigneeTitle" class="sorter-true" align="left">
+                        <div class="tablesorter-header-inner">Assignee</div>
+                    </th>
+                    <th id="remoteIssueLastUpdatedTitle" class="sorter-true" align="left">
+                        <div class="tablesorter-header-inner">Last Updated</div>
+                    </th>
+                    <th id="remoteIssueStatusTitle" class="sorter-true" align="left">
+                        <div class="tablesorter-header-inner">Status</div>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                #foreach($remoteIssueLinkMap in $remoteIssueLinkMapList)
+                    #set ($issueKey = $remoteIssueLinkMap.get('issueKey'))
+                    #set ($remoteIssueKey = $remoteIssueLinkMap.get('remoteIssueKey'))
+                    #set ($remoteIssueSummary = $remoteIssueLinkMap.get('remoteIssueSummary'))
+                    #set ($remoteIssueStatus = $remoteIssueLinkMap.get('remoteIssueStatus'))
+                    #set ($remoteIssueStatusAssignee = $remoteIssueLinkMap.get('remoteIssueStatusAssignee'))
+                    #set ($remoteIssueStatusColor = $remoteIssueLinkMap.get('remoteIssueStatusColor'))
+                    #set ($lastUpdatedDate = $remoteIssueLinkMap.get('lastUpdatedDate'))
+
+                    <tr>
+                        <td style="width: 10%;">
+                            <a class="issue-link" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueKey)$remoteIssueKey#end</a>
+                        </td>
+                        <td style="width: 40%;">
+                            <a class="issue-link" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueSummary)$remoteIssueSummary#end</a>
+                        </td>
+                        <td style="width: 10%;">
+                            <span>#if($remoteIssueStatusAssignee)$remoteIssueStatusAssignee#end</span>
+                        </td>
+                        <td style="width: 20%;">
+                            <span>#if($lastUpdatedDate)$lastUpdatedDate#end</span>
+                        </td>
+                        <td style="width: 20%;">
+                            <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$remoteIssueStatusColor jira-issue-status-lozenge-indeterminate jira-issue-status-lozenge-max-width-medium" original-title>#if($remoteIssueStatus)$remoteIssueStatus#end</span>
+                        </td>
+                    </tr>
+                 #end
+            </tbody>
+         </table>
+    #end
+</div>

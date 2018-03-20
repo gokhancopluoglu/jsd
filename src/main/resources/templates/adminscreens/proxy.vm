@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <title>Proxy Definition Screen</title>
+    <meta name="decorator" content="atl.admin"> $webResourceManager.requireResource("tr.com.almbase.plugin.remote-issue-link:remote-issue-link-resources")
+
+</head>
+
+<body class="page-type-admin">
+	<td class="jiraformheader">
+	    <h3 class="formtitle">Proxy Definition Screen</h3>
+	</td>
+	<br>
+    <div id="proxyDetail"></div>
+    
+   <script type="text/javascript">
+   		jQuery(document).ready(function($) {
+            jQuery.ajax({
+                url: "proxydefservlet",
+                type: "GET",
+                data : {
+                    'initial' : 'yes'
+                },
+                success : function(data) {
+                    console.log(data);
+                    AJS.$("#proxyDetail").html(data);
+                },
+                error : function(response) {
+                    AJS.$("#proxyDetail").html("");
+                }
+            });
+		}); 
+   </script>
+</body>
+
+</html>
