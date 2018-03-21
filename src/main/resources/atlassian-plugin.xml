@@ -128,29 +128,29 @@
     <link linkId="categoryComponentDefinitionLink">/plugins/servlet/categorycomponentdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="125">
+  <web-item key="componentRelationDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Component Relation Definition" weight="125">
+    <label key="Component Relation"/>
+    <link linkId="componentRelationDefinitionLink">/plugins/servlet/componentrelationdefservlet</link>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+  </web-item>
+  <web-item key="businessRuleDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Business Rule Definition" weight="126">
     <label key="Business Rule"/>
     <link linkId="businessRuleDefinitionLink">/plugins/servlet/businessruledefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="126">
+  <web-item key="issueTypeGroupDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Issue Type Group Definition" weight="127">
     <label key="Issue Type Group"/>
     <link linkId="issueTypeGroupDefinitionLink">/plugins/servlet/issuetypegroupdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="127">
+  <web-item key="groupUserDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Group User Definition" weight="128">
     <label key="Group User"/>
     <link linkId="groupUserDefinitionLink">/plugins/servlet/groupuserdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
-  <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="128">
+  <web-item key="restrictedProjectDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Restricted Project Definition" weight="129">
     <label key="Restricted Project"/>
     <link linkId="restrictedProjectDefinitionLink">/plugins/servlet/restrictedprojectdefservlet</link>
-    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
-  </web-item>
-  <web-item key="componentRelationDefinitionLink" section="admin_plugins_menu/jsd_engine_plugin_section" name="Component Relation Definition" weight="129">
-    <label key="Component Relation"/>
-    <link linkId="componentRelationDefinitionLink">/plugins/servlet/componentrelationdefservlet</link>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
   </web-item>
 
@@ -238,7 +238,7 @@
     <url-pattern>/remoteissueservlet</url-pattern>
   </servlet>
 
-  <web-panel name="Agito Link" i18n-name-key="remote-issue-link-webpanel.name" key="remote-issue-link-webpanel" location="atl.jira.view.issue.left.context" weight="200">
+  <web-panel name="Remote Issue Link" i18n-name-key="remote-issue-link-webpanel.name" key="remote-issue-link-webpanel" location="atl.jira.view.issue.left.context" weight="200">
     <resource name="view" type="velocity" location="templates/webpanels/remote-issue-link.vm"/>
     <condition class="tr.com.almbase.plugin.condition.RILWebPanelCondition"></condition>
   </web-panel>

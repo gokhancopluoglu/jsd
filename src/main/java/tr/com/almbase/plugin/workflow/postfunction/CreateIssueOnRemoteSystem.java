@@ -39,6 +39,7 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
     private static final Logger log = LoggerFactory.getLogger(CreateIssueOnRemoteSystem.class);
 
     private final IntegrationController integrationController;
+    private final ProxyController proxyController;
     private final IssueTypeMappingController issueTypeMappingController;
     private final CustomFieldManager customFieldManager;
     private final FieldMappingController fieldMappingController;
@@ -50,6 +51,7 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
     private final CategoryItemController categoryItemController;
 
     public CreateIssueOnRemoteSystem(IntegrationController integrationController,
+                                     ProxyController proxyController,
                                      IssueTypeMappingController issueTypeMappingController,
                                      CustomFieldManager customFieldManager,
                                      FieldMappingController fieldMappingController,
@@ -60,6 +62,7 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
                                      SubCategoryController subCategoryController,
                                      CategoryController categoryController) {
         this.integrationController = integrationController;
+        this.proxyController = proxyController;
         this.issueTypeMappingController = issueTypeMappingController;
         this.customFieldManager = customFieldManager;
         this.fieldMappingController = fieldMappingController;
@@ -75,21 +78,24 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
     {
         try {
             MutableIssue issue = getIssue(transientVars);
-            ApplicationUser applicationUser = getCallerUser(transientVars, args);
-
             IssueTypeMapping issueTypeMapping = getIssueTypeMapping(issue);
 
             if (null != issueTypeMapping) {
 
                 IntegrationObject integrationObject = getIntegrationObject(issueTypeMapping.getIntegrationId());
 
-                String payload = getJSONForIssueCreate(issue, applicationUser, issueTypeMapping);
+                if (null != integrationObject) {
 
-                String remoteIssueKey = Utils.createRemoteIssue(payload, integrationObject);
+                    String payload = getJSONForIssueCreate(issue, issueTypeMapping);
 
-                RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssueKey, integrationObject);
+                    String remoteIssueKey = Utils.createRemoteIssue(payload, integrationObject);
 
-                saveRemoteIssueLink(issue, remoteIssueModel, issueTypeMapping.getIntegrationId());
+                    RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssueKey, integrationObject);
+
+                    saveRemoteIssueLink(issue, remoteIssueModel, issueTypeMapping.getIntegrationId());
+                } else {
+                    log.debug("Issue Key : " + issue.getKey() + " Integration object is null!");
+                }
             } else {
                 log.debug("Issue Key : " + issue.getKey() + " Issue Type Mapping is null!");
             }
@@ -100,10 +106,12 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         }
     }
 
-    private String getJSONForIssueCreate (Issue issue, ApplicationUser applicationUser, IssueTypeMapping issueTypeMapping) {
+    private String getJSONForIssueCreate (Issue issue, IssueTypeMapping issueTypeMapping) {
         JSONObject jsonObject = new JSONObject();
         try {
             FieldMapping[] fieldMappings = fieldMappingController.getRecordFromAOTableByIssueTypeMappingId(String.valueOf(issueTypeMapping.getID()));
+
+            IntegrationObject integrationObject = getIntegrationObject(issueTypeMapping.getIntegrationId());
 
             JSONObject fields = new JSONObject();
 
@@ -143,27 +151,39 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
                 }
 
                 if (fieldMapping.getRemoteFieldId().contains("customfield")) {
-                    CustomField customField = customFieldManager.getCustomFieldObject(fieldMapping.getLocalFieldId());
-                    if (null != customField) {
-                        String customFieldType = customField.getCustomFieldType().getKey();
-                        if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:textfield")) {
-                            String customFieldValue = (String)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
-                            fields.put(fieldMapping.getRemoteFieldId(), customFieldValue);
-                        } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:textarea")) {
-                            String customFieldValue = (String)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
-                            fields.put(fieldMapping.getRemoteFieldId(), customFieldValue);
-                        } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:datepicker")) {
-                            Date customFieldValue = (Date)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            fields.put(fieldMapping.getRemoteFieldId(), sdf.format(customFieldValue));
-                        } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:select")) {
-                            String value = getRemoteSelectCustomFieldValue(issue, issueTypeMapping, fieldMapping);
-                            if (null != value) {
-                                JSONObject customFieldObject = new JSONObject();
-                                customFieldObject.put("id", value);
-                                fields.put(fieldMapping.getRemoteFieldId(), customFieldObject);
+                    if (fieldMapping.getLocalFieldId().contains("customfield")) {
+                        CustomField customField = customFieldManager.getCustomFieldObject(fieldMapping.getLocalFieldId());
+                        if (null != customField) {
+                            String customFieldType = customField.getCustomFieldType().getKey();
+                            log.debug("Issue Key : " + issue.getKey() + "Custom Field Id : " + fieldMapping.getLocalFieldId() + " Custom Field Type : " + customFieldType);
+                            if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:textfield")) {
+                                String customFieldValue = (String) Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
+                                log.debug("Issue Key : " + issue.getKey() + "Custom Field Id : " + fieldMapping.getLocalFieldId() + " Custom Field value : " + customFieldValue);
+                                fields.put(fieldMapping.getRemoteFieldId(), customFieldValue);
+                            } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:textarea")) {
+                                String customFieldValue = (String) Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
+                                log.debug("Issue Key : " + issue.getKey() + "Custom Field Id : " + fieldMapping.getLocalFieldId() + " Custom Field value : " + customFieldValue);
+                                fields.put(fieldMapping.getRemoteFieldId(), customFieldValue);
+                            } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:datepicker")) {
+                                Date customFieldValue = (Date) Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
+                                log.debug("Issue Key : " + issue.getKey() + "Custom Field Id : " + fieldMapping.getLocalFieldId() + " Custom Field value : " + customFieldValue.toString());
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                fields.put(fieldMapping.getRemoteFieldId(), sdf.format(customFieldValue));
+                            } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:select")) {
+                                String customFieldValue = getRemoteSelectCustomFieldValue(issue, issueTypeMapping, fieldMapping, integrationObject);
+                                log.debug("Issue Key : " + issue.getKey() + "Custom Field Id : " + fieldMapping.getLocalFieldId() + " Custom Field value : " + customFieldValue);
+                                if (null != customFieldValue) {
+                                    JSONObject customFieldObject = new JSONObject();
+                                    customFieldObject.put("id", customFieldValue);
+                                    fields.put(fieldMapping.getRemoteFieldId(), customFieldObject);
+                                }
                             }
+                        } else {
+                            log.debug("Issue Key : " + issue.getKey() + " customfield is null!" + " Custom Field Id : " + fieldMapping.getLocalFieldId());
                         }
+                    } else if (fieldMapping.getLocalFieldId().equalsIgnoreCase("issuekey")) {
+                        String value = issue.getKey();
+                        fields.put(fieldMapping.getRemoteFieldId(), value);
                     }
                 }
             }
@@ -180,22 +200,53 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         String remoteComponentId = "";
         try {
             String categoryVal = (String) Utils.getCustomFieldValue(issue, Constants.CATEGORY_CF_ID);
+            log.debug("Issue Key : " + issue.getKey() + " categoryVal : " + categoryVal);
+            categoryVal = categoryVal == null ? "" : categoryVal;
             categoryVal = categoryVal.substring(categoryVal.indexOf("<value>") + 7, categoryVal.indexOf("</value>"));
+            log.debug("Issue Key : " + issue.getKey() + " categoryVal : " + categoryVal);
             Category category = categoryController.getRecordFromAOTableByName(categoryVal);
-            String subCategoryVal = (String) Utils.getCustomFieldValue(issue, Constants.SUB_CATEGORY_CF_ID);
-            subCategoryVal = subCategoryVal.substring(subCategoryVal.indexOf("<value>") + 7, subCategoryVal.indexOf("</value>"));
-            SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryVal, String.valueOf(category.getID()));
-            String categoryItemVal = (String) Utils.getCustomFieldValue(issue, Constants.CATEGORY_ITEM_CF_ID);
-            categoryItemVal = categoryItemVal.substring(categoryItemVal.indexOf("<value>") + 7, categoryItemVal.indexOf("</value>"));
-            CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemVal, String.valueOf(category.getID()), String.valueOf(subCategory.getID()));
-            String categoryComponentVal = (String) Utils.getCustomFieldValue(issue, Constants.CATEGORY_COMPONENT_CF_ID);
-            categoryComponentVal = categoryComponentVal.substring(categoryComponentVal.indexOf("<value>") + 7, categoryComponentVal.indexOf("</value>"));
-            CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableByName(categoryComponentVal, String.valueOf(category.getID()), String.valueOf(subCategory.getID()), String.valueOf(categoryItem.getID()));
+            if (null != category) {
+                String subCategoryVal = (String) Utils.getCustomFieldValue(issue, Constants.SUB_CATEGORY_CF_ID);
+                log.debug("Issue Key : " + issue.getKey() + " subCategoryVal : " + subCategoryVal);
+                subCategoryVal = subCategoryVal == null ? "" : subCategoryVal;
+                subCategoryVal = subCategoryVal.substring(subCategoryVal.indexOf("<value>") + 7, subCategoryVal.indexOf("</value>"));
+                log.debug("Issue Key : " + issue.getKey() + " subCategoryVal : " + subCategoryVal);
+                SubCategory subCategory = subCategoryController.getRecordFromAOTableByName(subCategoryVal, String.valueOf(category.getID()));
+                if (null != subCategory) {
+                    String categoryItemVal = (String) Utils.getCustomFieldValue(issue, Constants.CATEGORY_ITEM_CF_ID);
+                    log.debug("Issue Key : " + issue.getKey() + " categoryItemVal : " + categoryItemVal);
+                    categoryItemVal = categoryItemVal == null ? "" : categoryItemVal;
+                    categoryItemVal = categoryItemVal.substring(categoryItemVal.indexOf("<value>") + 7, categoryItemVal.indexOf("</value>"));
+                    log.debug("Issue Key : " + issue.getKey() + " categoryItemVal : " + categoryItemVal);
+                    CategoryItem categoryItem = categoryItemController.getRecordFromAOTableByName(categoryItemVal, String.valueOf(category.getID()), String.valueOf(subCategory.getID()));
+                    if (null != categoryItem) {
+                        String categoryComponentVal = (String) Utils.getCustomFieldValue(issue, Constants.CATEGORY_COMPONENT_CF_ID);
+                        log.debug("Issue Key : " + issue.getKey() + " categoryComponentVal : " + categoryComponentVal);
+                        categoryComponentVal = categoryComponentVal == null ? "" : categoryComponentVal;
+                        categoryComponentVal = categoryComponentVal.substring(categoryComponentVal.indexOf("<value>") + 7, categoryComponentVal.indexOf("</value>"));
+                        log.debug("Issue Key : " + issue.getKey() + " categoryComponentVal : " + categoryComponentVal);
+                        CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableByName(categoryComponentVal, String.valueOf(category.getID()), String.valueOf(subCategory.getID()), String.valueOf(categoryItem.getID()));
 
-            ComponentRelation componentRelation = componentRelationController.getRecordFromAOTableByComponentId(categoryComponent.getCategoryId());
-
-            remoteComponentId = componentRelation.getRilComponentId();
-            log.debug("Issue Key : " + issue.getKey() + " Remote Issue Component Id : " + remoteComponentId);
+                        if (null != categoryComponent) {
+                            ComponentRelation componentRelation = componentRelationController.getRecordFromAOTableByComponentId(String.valueOf(categoryComponent.getID()));
+                            if (null != componentRelation) {
+                                remoteComponentId = componentRelation.getRilComponentId();
+                                log.debug("Issue Key : " + issue.getKey() + " Remote Issue Component Id : " + remoteComponentId);
+                            } else {
+                                log.error("Issue Key : " + issue.getKey() + " componentRelation ao is null!");
+                            }
+                        } else {
+                            log.error("Issue Key : " + issue.getKey() + " categoryComponent ao is null!");
+                        }
+                    } else {
+                        log.error("Issue Key : " + issue.getKey() + " categoryItem ao is null!");
+                    }
+                } else {
+                    log.error("Issue Key : " + issue.getKey() + " subCategory ao is null!");
+                }
+            } else {
+                log.error("Issue Key : " + issue.getKey() + " category ao is null!");
+            }
         } catch (Exception e) {
             Utils.printError(e);
         }
@@ -278,6 +329,7 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         try {
             Integration integration = integrationController.getRecordFromAOTableById(integrationId);
             integrationObject = new IntegrationObject(integration);
+            integrationObject.setProxy(proxyController.getProxyRecordFromAOTable());
         } catch (Exception e) {
             Utils.printError(e);
         }
@@ -285,12 +337,11 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         return integrationObject;
     }
 
-    private RemoteCustomFieldModel getRemoteCustomFieldModel(IssueTypeMapping issueTypeMapping, String fieldId) {
+    private RemoteCustomFieldModel getRemoteCustomFieldModel(IssueTypeMapping issueTypeMapping, String remoteFieldId, IntegrationObject integrationObject) {
         RemoteCustomFieldModel remoteCustomFieldModel = null;
         try {
-            IntegrationObject integrationObject = getIntegrationObject(issueTypeMapping.getIntegrationId());
             RemoteProjectModel remoteProjectModel = Utils.getRemoteProject(issueTypeMapping.getRemoteProjectId(), integrationObject);
-            remoteCustomFieldModel = Utils.getRemoteCustomFieldModel(remoteProjectModel.getProjectKey(), issueTypeMapping.getLocalIssueTypeId(), fieldId, integrationObject);
+            remoteCustomFieldModel = Utils.getRemoteCustomFieldModel(remoteProjectModel.getProjectKey(), issueTypeMapping.getRemoteIssueTypeId(), remoteFieldId, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
         }
@@ -298,12 +349,12 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         return remoteCustomFieldModel;
     }
 
-    private String getRemoteSelectCustomFieldValue (Issue issue, IssueTypeMapping issueTypeMapping, FieldMapping fieldMapping) {
+    private String getRemoteSelectCustomFieldValue (Issue issue, IssueTypeMapping issueTypeMapping, FieldMapping fieldMapping, IntegrationObject integrationObject) {
         String remoteOptionId = null;
         try {
             String localValue = (String)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
             if (null != localValue) {
-                RemoteCustomFieldModel remoteCustomFieldModel = getRemoteCustomFieldModel(issueTypeMapping, fieldMapping.getRemoteFieldId());
+                RemoteCustomFieldModel remoteCustomFieldModel = getRemoteCustomFieldModel(issueTypeMapping, fieldMapping.getRemoteFieldId(), integrationObject);
 
                 for (int i = 0; i < remoteCustomFieldModel.getAllowedValues().size(); i++) {
                     Map<String, String> allowedValuesMap = remoteCustomFieldModel.getAllowedValues().get(i);

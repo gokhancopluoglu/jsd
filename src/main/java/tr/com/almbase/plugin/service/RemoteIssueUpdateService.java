@@ -24,6 +24,7 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
 
     private RemoteIssueController remoteIssueController;
     private IntegrationController integrationController;
+    private ProxyController proxyController;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -42,6 +43,14 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
                 log.error(e.getMessage(), e);
             }
         }
+
+        if (proxyController == null) {
+            try {
+                proxyController = (ProxyController) beanFactory.getBean("ProxyControllerImpl");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 
     @Override
@@ -55,9 +64,9 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
             if (null != remoteIssues) {
                 for (RemoteIssue remoteIssue : remoteIssues) {
-                    Integration integration = integrationController.getRecordFromAOTableById(remoteIssue.getIntegrationId());
-                    if (null != integration) {
-                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), new IntegrationObject(integration));
+                    IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());
+                    if (null != integrationObject) {
+                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), integrationObject);
 
                         if (null != remoteIssueModel) {
                             RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
@@ -84,7 +93,7 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
                             log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                         }
                     } else {
-                        log.error("Broken remote issue link : Integration is null!" + " Issue Key : " + remoteIssue.getIssueKey());
+                        log.error("Broken remote issue link : Integration Object is null!" + " Issue Key : " + remoteIssue.getIssueKey());
                     }
                 }
             } else {
@@ -94,6 +103,19 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
         catch (Exception e) {
             Utils.printError(e);
         }
+    }
+
+    private IntegrationObject getIntegrationObject(String integrationId) {
+        IntegrationObject integrationObject = null;
+        try {
+            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
+            integrationObject = new IntegrationObject(integration);
+            integrationObject.setProxy(proxyController.getProxyRecordFromAOTable());
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return integrationObject;
     }
 
     @Override

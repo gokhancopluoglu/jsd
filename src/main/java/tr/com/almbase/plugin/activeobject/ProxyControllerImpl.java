@@ -21,6 +21,22 @@ public class ProxyControllerImpl implements ProxyController {
         this.activeObjects = activeObjects;
     }
 
+    public Proxy getProxyRecordFromAOTable() {
+        Proxy proxy = null;
+        try {
+            Proxy[] proxies = getAllEntriesFromAOTable();
+            if (null != proxies && proxies.length > 0) {
+                proxy = proxies[0];
+            }
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return proxy;
+    }
+
     public Proxy[] getAllEntriesFromAOTable() {
         Proxy[] proxies = null;
         try {
@@ -81,8 +97,7 @@ public class ProxyControllerImpl implements ProxyController {
         try {
             proxyRecord.setHost(proxyObject.getHost());
             proxyRecord.setPort(proxyObject.getPort());
-            proxyRecord.setUsername(proxyObject.getUsername());
-            proxyRecord.setPassword(proxyObject.getPassword());
+            proxyRecord.setType(proxyObject.getType());
             proxyRecord.save();
         } catch (Exception e) {
             StringWriter stack = new StringWriter();

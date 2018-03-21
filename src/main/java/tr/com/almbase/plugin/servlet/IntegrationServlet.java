@@ -205,8 +205,15 @@ public class IntegrationServlet extends HttpServlet {
             integrationList.add(integrationMap);
         }
 
+        Collections.sort(integrationList, mapComparator);
         return integrationList;
     }
+
+    public Comparator<Map<String, String>> mapComparator = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("name").compareTo(m2.get("name"));
+        }
+    };
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {

@@ -11,7 +11,7 @@
     </fieldset>
     <fieldset class="group">
         <div class="field-group">
-            <label for="proxyHostLabel">
+            <label for="proxyPortLabel">
                 <span class="aui-icon icon-required">Required</span>
                 <span>Port</span>
             </label>
@@ -20,20 +20,11 @@
     </fieldset>
     <fieldset class="group">
         <div class="field-group">
-            <label for="proxyHostLabel">
+            <label for="proxyTypeLabel">
                 <span class="aui-icon icon-required">Required</span>
-                <span>Username</span>
+                <span>Type</span>
             </label>
-            <input class="text" type="text" name="proxyUsername" id="proxyUsername" value="#if($proxyUsername)$proxyUsername#end"/>
-        </div>
-    </fieldset>
-    <fieldset class="group">
-        <div class="field-group">
-            <label for="proxyHostLabel">
-                <span class="aui-icon icon-required">Required</span>
-                <span>Password</span>
-            </label>
-            <input class="password" type="password" name="proxyPassword" id="proxyPassword" value="#if($proxyPassword)$proxyPassword#end"/>
+            <input class="text" type="text" name="proxyType" id="proxyType" value="#if($proxyType)$proxyType#end"/>
         </div>
     </fieldset>
 
@@ -65,8 +56,7 @@
                 data : {
                     'proxyHost' : AJS.$("#proxyHost").val(),
                     'proxyPort' : AJS.$("#proxyPort").val(),
-                    'proxyUsername' : AJS.$("#proxyUsername").val(),
-                    'proxyPassword' : AJS.$("#proxyPassword").val()
+                    'proxyType' : AJS.$("#proxyType").val()
                 },
                 success : function(data) {
                     console.log('dom', self, data);

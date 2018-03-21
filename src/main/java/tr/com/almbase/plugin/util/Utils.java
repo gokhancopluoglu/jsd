@@ -16,9 +16,9 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
@@ -38,10 +38,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
@@ -82,114 +79,103 @@ public class Utils {
             log.debug(response.getResponse());
 
             JSONObject jsonPost = new JSONObject(response.getResponse());
-            String remoteIssueKey = jsonPost.getString("key");
-
-            return remoteIssueKey;
+            return jsonPost.getString("key");
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response createIssue (String paylod, IntegrationObject integrationObject) throws Exception {
+    private static Response createIssue (String paylod, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_CREATE_ISSUE;
-            return doPost(restUrl, paylod, credentials);
+            return doPost(restUrl, paylod, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getProject (String projectId, IntegrationObject integrationObject) throws Exception {
+    private static Response getProject (String projectId, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_PROJECT;
             restUrl = restUrl.replace("PROJECTKEY", projectId);
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getIssue (String issueKey, IntegrationObject integrationObject) throws Exception {
+    private static Response getIssue (String issueKey, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_ISSUE;
             restUrl = restUrl.replace("ISSUEKEY", issueKey);
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getSelectList (String projectKey, String issueTypeId, IntegrationObject integrationObject) throws Exception {
+    private static Response getRemoteCustomField (String projectKey, String issueTypeId, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
-            String restUrl = integrationObject.getUrl() + Constants.REST_GET_SELECT_LIST;
+            String restUrl = integrationObject.getUrl() + Constants.REST_GET_ISSUE_CREATE_METADATA;
             restUrl = restUrl.replace("PROJECTKEY", projectKey);
             restUrl = restUrl.replace("ISSUETYPEID", issueTypeId);
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getProjects (IntegrationObject integrationObject) throws Exception {
+    private static Response getProjects (IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_ALL_PROJECTS;
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getProjectComponents (String projectKey, IntegrationObject integrationObject) throws Exception {
+    private static Response getProjectComponents (String projectKey, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_PROJECT_COMPONENTS;
             restUrl = restUrl.replace("PROJECTKEY", projectKey);
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getProjectVersions (String projectKey, IntegrationObject integrationObject) throws Exception {
+    private static Response getProjectVersions (String projectKey, IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_PROJECT_VERSIONS;
             restUrl = restUrl.replace("PROJECTKEY", projectKey);
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getIssueTypes (IntegrationObject integrationObject) throws Exception {
+    private static Response getIssueTypes (IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_ISSUE_TYPES;
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
         }
     }
 
-    public static Response getFields (IntegrationObject integrationObject) throws Exception {
+    private static Response getFields (IntegrationObject integrationObject) throws Exception {
         try {
-            Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_FIELDS;
-            return doGet(restUrl, credentials);
+            return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
             throw e;
@@ -239,11 +225,11 @@ public class Utils {
                         cfVal = option.getValue();
                     } else if (issue.getCustomFieldValue(customField) instanceof GenericValue) {
                         GenericValue gv = (GenericValue)issue.getCustomFieldValue(customField);
-                        cfVal = (String)gv.getOriginalDbValue("originalkey");
+                        cfVal = gv.getOriginalDbValue("originalkey");
                     } else if (issue.getCustomFieldValue(customField) instanceof String) {
-                        cfVal = (String)issue.getCustomFieldValue(customField);
+                        cfVal = issue.getCustomFieldValue(customField);
                     } else if (issue.getCustomFieldValue(customField) instanceof Date) {
-                        cfVal = (Date)issue.getCustomFieldValue(customField);
+                        cfVal = issue.getCustomFieldValue(customField);
                     } else if (issue.getCustomFieldValue(customField) instanceof ApplicationUser) {
                         ApplicationUser user = (ApplicationUser)issue.getCustomFieldValue(customField);
                         cfVal = user.getDirectoryUser().getName();
@@ -292,158 +278,152 @@ public class Utils {
         return Locale.getDefault();
     }
 
-    public static Response doGet(String confUrl, Credentials credentials) throws Exception
-    {
+    public static Response doGet(String confUrl, IntegrationObject integrationObject) throws Exception {
+        Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
         HttpGet httpGet = new HttpGet(confUrl);
         Header header = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, httpGet, null);
         httpGet.addHeader(header);
         httpGet.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        return send(httpGet);
+        return send(httpGet, integrationObject);
     }
 
-    public static Response doPost(String confUrl, String payload, Credentials credentials) throws Exception
-    {
+    public static Response doPost(String confUrl, String payload, IntegrationObject integrationObject) throws Exception {
+        Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
         HttpPost httpPost = new HttpPost(confUrl);
         Header header = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, httpPost, null);
         httpPost.addHeader(header);
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         httpPost.setEntity(new StringEntity(payload, StandardCharsets.UTF_8.name()));
-        return send(httpPost);
+        return send(httpPost, integrationObject);
     }
 
-    public static Response doPut(String confUrl, String payload, Credentials credentials) throws Exception
-    {
+    public static Response doPut(String confUrl, String payload, IntegrationObject integrationObject) throws Exception {
+        Credentials credentials = new UsernamePasswordCredentials(integrationObject.getUsername(), integrationObject.getPassword());
         HttpPut httpPut = new HttpPut(confUrl);
         Header header = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, httpPut, null);
         httpPut.addHeader(header);
         httpPut.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         httpPut.setEntity(new StringEntity(payload, StandardCharsets.UTF_8.name()));
 
-        return send(httpPut);
+        return send(httpPut, integrationObject);
     }
 
-    private static HttpClientBuilder diableSSL(HttpClientBuilder httpClientBuilder, RequestConfig requestConfig)
-    {
-        if (requestConfig != null) {
-            httpClientBuilder = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig);
-        } else {
+    private static HttpClientBuilder getHttpClientBuilder() {
+        HttpClientBuilder httpClientBuilder = null;
+        try {
             httpClientBuilder = HttpClientBuilder.create();
-        }
+            String checkRevocation = System.getProperty("com.sun.net.ssl.checkRevocation");
+            if (checkRevocation == null || (checkRevocation.contentEquals("false"))) {
+                httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
+                SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
 
-        String checkRevocation = System.getProperty("com.sun.net.ssl.checkRevocation");
+                try {
+                    sslContextBuilder.loadTrustMaterial(KeyStore.getInstance(KeyStore.getDefaultType()),
+                            new TrustSelfSignedStrategy() {
+                                @Override
+                                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                                    return true;
+                                }
+                            });
+                    SSLContext ssLContext = sslContextBuilder.build();
 
-        if (checkRevocation == null || (checkRevocation != null && checkRevocation.contentEquals("false")))
-        {
-            httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
-            SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
-
-            try
-            {
-                sslContextBuilder.loadTrustMaterial(KeyStore.getInstance(KeyStore.getDefaultType()),
-                        new TrustSelfSignedStrategy() {
-                            @Override
-                            public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                                return true;
-                            };
-                        });
-                SSLContext ssLContext = sslContextBuilder.build();
-
-                httpClientBuilder.setSSLContext(ssLContext);
-            } catch (NoSuchAlgorithmException e1) {
-                printError(e1);
-            } catch (KeyStoreException e1) {
-                printError(e1);
-            } catch (KeyManagementException e) {
-                printError(e);
-            }
-            httpClientBuilder.setSSLHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String s, SSLSession sslSession) {
-                    return true;
+                    httpClientBuilder.setSSLContext(ssLContext);
+                } catch (Exception e) {
+                    printError(e);
                 }
-            });
+
+                httpClientBuilder.setSSLHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String s, SSLSession sslSession) {
+                        return true;
+                    }
+                });
+            }
+        } catch (Exception e) {
+            printError(e);
         }
         return httpClientBuilder;
     }
 
-    private static Response send(HttpRequestBase req) throws Exception {
-        StringBuffer buff = new StringBuffer();
-        String output;
-
+    private static Response send(HttpRequestBase httpRequestBase, IntegrationObject integrationObject) throws Exception {
         CloseableHttpResponse httpResponse = null;
-
-        RequestConfig config = null;
-        HttpClientBuilder hcb = null;
-        hcb = diableSSL(hcb, config);
-
-        CloseableHttpClient httpClient = hcb.build();
-
+        HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
+        HttpHost httpProxy = new HttpHost(integrationObject.getProxy().getHost(), Integer.parseInt(integrationObject.getProxy().getPort()), integrationObject.getProxy().getType());
+        httpClientBuilder.setProxy(httpProxy);
+        CloseableHttpClient httpClient = httpClientBuilder.build();
         try {
+            Response response = new Response();
             String responseString = "";
-            httpResponse = httpClient.execute(req);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            httpResponse = httpClient.execute(httpRequestBase);
 
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                InputStreamReader reader = new InputStreamReader(httpResponse.getEntity().getContent());
-                BufferedReader br = new BufferedReader(reader);
-                while ((output = br.readLine()) != null) {
-                    buff.append(output);
-                }
-                reader.close();
-                responseString = buff.toString();
-                JsonParser parser = new JsonParser();
-                try {
-                    JsonObject responseJSON;
-                    if (!responseString.equals("")) {
-                        try {
-                            responseJSON = (JsonObject) parser.parse(responseString);
-                        } catch (ClassCastException e) {
-                            JsonArray responseArray = (JsonArray) parser.parse(responseString);
+            if (httpResponse != null) {
+                int statusCode = httpResponse.getStatusLine().getStatusCode();
+
+                if (httpResponse.getEntity() != null) {
+                    InputStreamReader reader = new InputStreamReader(httpResponse.getEntity().getContent());
+                    BufferedReader br = new BufferedReader(reader);
+                    StringBuilder sb = new StringBuilder();
+                    String output;
+                    while ((output = br.readLine()) != null) {
+                        sb.append(output);
+                    }
+                    reader.close();
+                    responseString = sb.toString();
+                    JsonParser parser = new JsonParser();
+                    try {
+                        JsonObject responseJSON;
+                        if (!responseString.equals("")) {
+                            try {
+                                responseJSON = (JsonObject) parser.parse(responseString);
+                            } catch (ClassCastException e) {
+                                JsonArray responseArray = (JsonArray) parser.parse(responseString);
+                                responseJSON = new JsonObject();
+                                responseJSON.add("jsonArray", responseArray);
+                            }
+                        } else {
                             responseJSON = new JsonObject();
-                            responseJSON.add("jsonArray", responseArray);
+                            responseJSON.addProperty("200", "succesful but response null");
                         }
-                    } else {
-                        responseJSON = new JsonObject();
-                        responseJSON.addProperty("200", "succesful but response null");
+
+                        if (responseJSON.has("error") && statusCode > 400) {
+                            JsonObject error = responseJSON.getAsJsonObject("error");
+                            String message = "";
+                            if (error.has("message"))
+                                message = error.get("message").getAsString();
+
+                            throw new Exception(message);
+                        } else if (responseJSON.has("errorMessages")) {
+                            throw new Exception(responseString);
+                        } else if (statusCode > 400) {
+                            throw new Exception(responseString);
+                        }
+                    } catch (JsonParseException e) {
+                        // input is not in json format, shall be handled in upper
+                        if (statusCode > 400) {
+                            throw new Exception("Json Parse Exception - it couse could be authentication fail to endpoint");
+                        }
                     }
 
-                    if (responseJSON.has("error") && statusCode > 400) {
-                        JsonObject error = responseJSON.getAsJsonObject("error");
-                        String message = "";
-                        if (error.has("message"))
-                            message = error.get("message").getAsString();
-
-                        throw new Exception(message);
-                    } else if (responseJSON.has("errorMessages")) {
-                        throw new Exception(responseString);
-                    } else if (statusCode > 400) {
-                        throw new Exception(responseString);
-                    }
-                } catch (JsonParseException e) {
-                    // input is not in json format, shall be handled in upper
-                    if (statusCode > 400) {
-                        throw new Exception("Json Parse Exception - it couse could be authentication fail to endpoint");
-                    }
+                } else if (statusCode > 300) {
+                    throw new Exception(responseString);
                 }
 
-            } else if (statusCode > 300) {
-                throw new Exception(responseString);
+                response.setResponseCode(statusCode);
+                response.setResponse(responseString);
             }
 
-            Response response = new Response();
-            response.setResponseCode(statusCode);
-            response.setResponse(responseString);
             return response;
         } catch (IOException e) {
             printError(e);
-            throw new Exception("Error while reading stream: " + e.getMessage());
+            throw new Exception("Error at reading: " + e.getMessage());
         } finally {
             try {
-                httpResponse.close();
-                httpClient.close();
+                if (null != httpResponse)
+                    httpResponse.close();
+                if (null != httpClient)
+                    httpClient.close();
             } catch (Exception e2) {
-                e2.printStackTrace();
-                throw new Exception("Error while closing stream: " + e2.getMessage());
+                printError(e2);
             }
         }
     }
@@ -825,7 +805,7 @@ public class Utils {
     public static RemoteCustomFieldModel getRemoteCustomFieldModel (String projectKey, String issueTypeId, String fieldId, IntegrationObject integrationObject) {
         RemoteCustomFieldModel remoteSelectListModel = null;
         try {
-            Response response = getSelectList(projectKey, issueTypeId, integrationObject);
+            Response response = getRemoteCustomField(projectKey, issueTypeId, integrationObject);
 
             if (response.getResponseCode() == 200) {
                 printDebug(response.getResponse());

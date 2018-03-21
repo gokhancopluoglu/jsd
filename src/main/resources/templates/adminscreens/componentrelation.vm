@@ -22,9 +22,9 @@
                             #set ($componentId = $componentRow.get('componentId'))
                             #set ($componentName = $componentRow.get('componentName'))
                             #if($componentId == $selectedComponentId)
-                                <option selected value="$componentId">$componentId</option>
+                                <option selected value="$componentId">$componentName ($componentId)</option>
                             #else
-                                <option value="$componentId">$componentId</option>
+                                <option value="$componentId">$componentName ($componentId)</option>
                             #end
                           #end
                         </select>

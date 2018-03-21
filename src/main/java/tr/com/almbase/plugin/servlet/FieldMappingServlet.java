@@ -43,6 +43,7 @@ public class FieldMappingServlet extends HttpServlet {
     private final UserManager userManager;
 
     private final IntegrationController integrationController;
+    private final ProxyController proxyController;
     private final IssueTypeMappingController issueTypeMappingController;
     private final FieldMappingController fieldMappingController;
 
@@ -52,6 +53,7 @@ public class FieldMappingServlet extends HttpServlet {
                                PageBuilderService pageBuilderService,
                                UserManager userManager,
                                IntegrationController integrationController,
+                               ProxyController proxyController,
                                IssueTypeMappingController issueTypeMappingController,
                                FieldMappingController fieldMappingController)
     {
@@ -62,6 +64,7 @@ public class FieldMappingServlet extends HttpServlet {
         this.pageBuilderService = pageBuilderService;
         this.userManager = userManager;
         this.integrationController = integrationController;
+        this.proxyController = proxyController;
         this.issueTypeMappingController = issueTypeMappingController;
         this.fieldMappingController = fieldMappingController;
     }
@@ -93,8 +96,11 @@ public class FieldMappingServlet extends HttpServlet {
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
                 templateRenderer.render(FIELD_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else if (issueTypeMappingSelectChanged.equalsIgnoreCase("yes")) {
+
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
+
                 List<Map<String, String>> localFieldList = getLocalFieldList();
-                List<Map<String, String>> remoteFieldList = getRemoteFieldList(selectedIntegrationId);
+                List<Map<String, String>> remoteFieldList = getRemoteFieldList(integrationObject);
 
                 if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
                     IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
@@ -120,15 +126,18 @@ public class FieldMappingServlet extends HttpServlet {
                     context.put("remoteFieldList", adjustLocalFieldList(remoteFieldList, fieldMappingList, "remote"));
                 } else {
                     context.put("localFieldList", getLocalFieldList());
-                    context.put("remoteFieldList", getRemoteFieldList(selectedIntegrationId));
+                    context.put("remoteFieldList", getRemoteFieldList(integrationObject));
                 }
 
                 context.put("selectedIntegrationId", selectedIntegrationId);
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
                 templateRenderer.render(FIELD_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else if (addnewrow.equalsIgnoreCase("yes")) {
+
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
+
                 List<Map<String, String>> localFieldList = getLocalFieldList();
-                List<Map<String, String>> remoteFieldList = getRemoteFieldList(selectedIntegrationId);
+                List<Map<String, String>> remoteFieldList = getRemoteFieldList(integrationObject);
 
                 JsonParser parser = new JsonParser();
                 JsonArray jsonTableArray = (JsonArray) parser.parse(tableParameters);
@@ -172,8 +181,11 @@ public class FieldMappingServlet extends HttpServlet {
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
                 templateRenderer.render(FIELD_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else if (deleterow.equalsIgnoreCase("yes")) {
+
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
+
                 List<Map<String, String>> localFieldList = getLocalFieldList();
-                List<Map<String, String>> remoteFieldList = getRemoteFieldList(selectedIntegrationId);
+                List<Map<String, String>> remoteFieldList = getRemoteFieldList(integrationObject);
 
                 JsonParser parser = new JsonParser();
                 JsonArray jsonTableArray = (JsonArray) parser.parse(tableParameters);
@@ -331,16 +343,20 @@ public class FieldMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(localFieldList, mapComparatorLocalField);
         return localFieldList;
     }
 
-    private List<Map<String, String>> getRemoteFieldList (String integrationId) {
+    public Comparator<Map<String, String>> mapComparatorLocalField = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("localFieldName").compareTo(m2.get("localFieldName"));
+        }
+    };
+
+    private List<Map<String, String>> getRemoteFieldList (IntegrationObject integrationObject) {
         List<Map<String, String>> remoteFieldList = new ArrayList<>();
         try {
-            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
-            if (null != integration) {
-                IntegrationObject integrationObject = new IntegrationObject(integration);
-
+            if (null != integrationObject) {
                 List<RemoteFieldModel> remoteFields = Utils.getRemoteFields(integrationObject);
 
                 for (RemoteFieldModel remoteFieldModel : remoteFields) {
@@ -355,8 +371,15 @@ public class FieldMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(remoteFieldList, mapComparatorRemoteField);
         return remoteFieldList;
     }
+
+    public Comparator<Map<String, String>> mapComparatorRemoteField = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("remoteFieldName").compareTo(m2.get("remoteFieldName"));
+        }
+    };
 
     private String getFieldSelectedName (List<Map<String, String>> fieldList, String fieldId, String type) {
         String fieldName = "";
@@ -405,5 +428,19 @@ public class FieldMappingServlet extends HttpServlet {
         }
 
         return fieldList;
+    }
+
+    private IntegrationObject getIntegrationObject(String integrationId) {
+        IntegrationObject integrationObject = null;
+        try {
+            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
+            integrationObject = new IntegrationObject(integration);
+            integrationObject.setId(integrationId);
+            integrationObject.setProxy(proxyController.getProxyRecordFromAOTable());
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return integrationObject;
     }
 }

@@ -6,8 +6,7 @@ package tr.com.almbase.plugin.activeobject;
 public class ProxyObject {
     String host;
     String port;
-    String username;
-    String password;
+    String type;
 
     public String getHost() {
         return host;
@@ -15,14 +14,6 @@ public class ProxyObject {
 
     public String getPort() {
         return port;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setHost(String host) {
@@ -33,11 +24,11 @@ public class ProxyObject {
         this.port = port;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getType() {
+        return type;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setType(String type) {
+        this.type = type;
     }
 }

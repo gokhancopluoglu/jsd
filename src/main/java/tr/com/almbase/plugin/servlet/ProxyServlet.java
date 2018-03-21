@@ -68,8 +68,7 @@ public class ProxyServlet extends HttpServlet {
                     Proxy proxy = proxies[0];
                     context.put("proxyHost", proxy.getHost());
                     context.put("proxyPort", proxy.getPort());
-                    context.put("proxyUsername", proxy.getUsername());
-                    context.put("proxyPassword", proxy.getPassword());
+                    context.put("proxyType", proxy.getType());
                 }
                 templateRenderer.render(PROXY_DETAIL_TEMPLATE, context, resp.getWriter());
             } else {
@@ -101,8 +100,7 @@ public class ProxyServlet extends HttpServlet {
                 Map<String, String> proxyMap = new HashMap<>();
                 proxyMap.put("proxyHost", proxy.getHost());
                 proxyMap.put("proxyPort", proxy.getPort());
-                proxyMap.put("proxyUsername", proxy.getUsername());
-                proxyMap.put("proxyPassword", proxy.getPassword());
+                proxyMap.put("proxyType", proxy.getType());
 
                 proxyList.add(proxyMap);
             }
@@ -117,15 +115,13 @@ public class ProxyServlet extends HttpServlet {
         if (null != req) {
             String proxyHost = req.getParameter("proxyHost");
             String proxyPort = req.getParameter("proxyPort");
-            String proxyUsername = req.getParameter("proxyUsername");
-            String proxyPassword = req.getParameter("proxyPassword");
+            String proxyType = req.getParameter("proxyType");
 
             proxyObject = new ProxyObject();
 
             proxyObject.setHost(proxyHost);
             proxyObject.setPort(proxyPort);
-            proxyObject.setUsername(proxyUsername);
-            proxyObject.setPassword(proxyPassword);
+            proxyObject.setType(proxyType);
         }
 
         return proxyObject;

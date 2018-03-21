@@ -42,6 +42,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
     private final UserManager userManager;
 
     private final IntegrationController integrationController;
+    private final ProxyController proxyController;
     private final IssueTypeMappingController issueTypeMappingController;
 
     public IssueTypeMappingServlet(TemplateRenderer templateRenderer,
@@ -50,6 +51,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
                                            PageBuilderService pageBuilderService,
                                            UserManager userManager,
                                            IntegrationController integrationController,
+                                           ProxyController proxyController,
                                            IssueTypeMappingController issueTypeMappingController)
     {
         super();
@@ -59,6 +61,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
         this.pageBuilderService = pageBuilderService;
         this.userManager = userManager;
         this.integrationController = integrationController;
+        this.proxyController = proxyController;
         this.issueTypeMappingController = issueTypeMappingController;
     }
 
@@ -80,6 +83,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
             String selectedIntegrationId = req.getParameter("selectedIntegrationId") == null ? "" : req.getParameter("selectedIntegrationId").trim();
             String issueTypeMappingSelectId = req.getParameter("issueTypeMappingSelectId") == null ? "" : req.getParameter("issueTypeMappingSelectId").trim();
 
+
             if (initial.equalsIgnoreCase("yes")) {
                 context.put("selectedIntegrationId", selectedIntegrationId);
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
@@ -88,6 +92,8 @@ public class IssueTypeMappingServlet extends HttpServlet {
                 context.put("recordExists", "no");
                 templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else if (issueTypeMappingSelectChanged.equalsIgnoreCase("yes")) {
+
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
 
                 if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
                     context.put("issueTypeMappingNameAvail", "yes");
@@ -120,8 +126,8 @@ public class IssueTypeMappingServlet extends HttpServlet {
 
                 context.put("localProjectList", getLocalProjectList());
                 context.put("localIssueTypeList", getLocalIssueTypeList());
-                context.put("remoteProjectList", getRemoteProjectList(selectedIntegrationId));
-                context.put("remoteIssueTypeList", getRemoteIssueTypeList(selectedIntegrationId));
+                context.put("remoteProjectList", getRemoteProjectList(integrationObject));
+                context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
 
                 templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
@@ -252,8 +258,15 @@ public class IssueTypeMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(localProjectList, mapComparatorLocalProject);
         return localProjectList;
     }
+
+    public Comparator<Map<String, String>> mapComparatorLocalProject = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("localProjectName").compareTo(m2.get("localProjectName"));
+        }
+    };
 
     private List<Map<String, String>> getLocalIssueTypeList () {
         List<Map<String, String>> localIssueTypeList = new ArrayList<>();
@@ -270,16 +283,20 @@ public class IssueTypeMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(localIssueTypeList, mapComparatorLocalIssueType);
         return localIssueTypeList;
     }
 
-    private List<Map<String, String>> getRemoteProjectList (String integrationId) {
+    public Comparator<Map<String, String>> mapComparatorLocalIssueType = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("localIssueTypeName").compareTo(m2.get("localIssueTypeName"));
+        }
+    };
+
+    private List<Map<String, String>> getRemoteProjectList (IntegrationObject integrationObject) {
         List<Map<String, String>> remoteProjectList = new ArrayList<>();
         try {
-            Integration integration = integrationController.getRecordFromAOTableById(integrationId);
-            if (null != integration) {
-                IntegrationObject integrationObject = new IntegrationObject(integration);
-
+            if (null != integrationObject) {
                 List<RemoteProjectModel> remoteProjects = Utils.getRemoteProjects(integrationObject);
 
                 for (RemoteProjectModel remoteProject : remoteProjects) {
@@ -293,16 +310,34 @@ public class IssueTypeMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(remoteProjectList, mapComparatorRemoteProject);
         return remoteProjectList;
     }
 
-    private List<Map<String, String>> getRemoteIssueTypeList (String integrationId) {
-        List<Map<String, String>> remoteIssueTypeList = new ArrayList<>();
+    public Comparator<Map<String, String>> mapComparatorRemoteProject = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("remoteProjectName").compareTo(m2.get("remoteProjectName"));
+        }
+    };
+
+    private IntegrationObject getIntegrationObject(String integrationId) {
+        IntegrationObject integrationObject = null;
         try {
             Integration integration = integrationController.getRecordFromAOTableById(integrationId);
-            if (null != integration) {
-                IntegrationObject integrationObject = new IntegrationObject(integration);
+            integrationObject = new IntegrationObject(integration);
+            integrationObject.setId(integrationId);
+            integrationObject.setProxy(proxyController.getProxyRecordFromAOTable());
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
 
+        return integrationObject;
+    }
+
+    private List<Map<String, String>> getRemoteIssueTypeList (IntegrationObject integrationObject) {
+        List<Map<String, String>> remoteIssueTypeList = new ArrayList<>();
+        try {
+            if (null != integrationObject) {
                 List<RemoteIssueTypeModel> remoteIssueTypes = Utils.getRemoteIssueTypes(integrationObject);
 
                 for (RemoteIssueTypeModel remoteIssueType : remoteIssueTypes) {
@@ -316,6 +351,13 @@ public class IssueTypeMappingServlet extends HttpServlet {
             Utils.printError(e);
         }
 
+        Collections.sort(remoteIssueTypeList, mapComparatorRemoteIssueType);
         return remoteIssueTypeList;
     }
+
+    public Comparator<Map<String, String>> mapComparatorRemoteIssueType = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("remoteIssueTypeName").compareTo(m2.get("remoteIssueTypeName"));
+        }
+    };
 }

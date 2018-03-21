@@ -138,8 +138,15 @@ public class ComponentRelationDefServlet extends HttpServlet
             }
         }
 
+        Collections.sort(componentList, mapComparator);
         return componentList;
     }
+
+    public Comparator<Map<String, String>> mapComparator = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("componentName").compareTo(m2.get("componentName"));
+        }
+    };
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {
