@@ -66,10 +66,14 @@ public class Utils {
         log.error(stack.toString());
     }
 
-    public static void printDebug(Exception e) {
+    public static void printDebugError(Exception e) {
         StringWriter stack = new StringWriter();
         e.printStackTrace(new PrintWriter(stack));
         log.debug(stack.toString());
+    }
+
+    public static void printDebug(String message) {
+        log.debug(message);
     }
 
     public static String createRemoteIssue (String paylod, IntegrationObject integrationObject) throws Exception {
@@ -446,12 +450,11 @@ public class Utils {
 
     public static RemoteIssueModel getRemoteIssue(String remoteIssueKey, IntegrationObject integrationObject) {
         RemoteIssueModel remoteIssueModel = null;
-        //SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-DDThh:mm:ss.sTZD");
         try {
             Response response = getIssue(remoteIssueKey, integrationObject);
 
             if (response.getResponseCode() == 200) {
-
+                printDebug(response.getResponse());
                 remoteIssueModel = new RemoteIssueModel();
 
                 JSONObject expand = new JSONObject(response.getResponse());
@@ -459,166 +462,200 @@ public class Utils {
 
                 //Issue Key
                 if (expand.has("key")) {
-                    remoteIssueModel.setIssueKey(expand.getString("key"));
+                    if (!expand.isNull("key")) {
+                        remoteIssueModel.setIssueKey(expand.getString("key"));
+                    }
                 }
 
                 //Summary
                 if (fields.has("summary")) {
-                    remoteIssueModel.setSummary(fields.getString("summary"));
+                    if (!fields.isNull("summary")) {
+                        remoteIssueModel.setSummary(fields.getString("summary"));
+                    }
                 }
 
                 //Description
                 if (fields.has("description")) {
-                    remoteIssueModel.setDescription(fields.getString("description"));
+                    if (!fields.isNull("description")) {
+                        remoteIssueModel.setDescription(fields.getString("description"));
+                    }
                 }
 
                 //Created Date
                 if (fields.has("created")) {
-                    remoteIssueModel.setCreateDate(fields.getString("created"));
+                    if (!fields.isNull("created")) {
+                        remoteIssueModel.setCreateDate(fields.getString("created"));
+                    }
                 }
 
                 //Updated Date
                 if (fields.has("updated")) {
-                    remoteIssueModel.setUpdatedDate(fields.getString("updated"));
+                    if (!fields.isNull("updated")) {
+                        remoteIssueModel.setUpdatedDate(fields.getString("updated"));
+                    }
                 }
 
                 //Due Date
                 if (fields.has("duedate")) {
-                    remoteIssueModel.setDueDate(fields.getString("duedate"));
+                    if (!fields.isNull("duedate")) {
+                        remoteIssueModel.setDueDate(fields.getString("duedate"));
+                    }
                 }
 
                 //Project Infos
                 String projectKey = null;
                 if (fields.has("project")) {
-                    JSONObject project = fields.getJSONObject("project");
-                    if (null != project) {
-                        String projectId = project.getString("id");
-                        projectKey = project.getString("key");
-                        String projectName = project.getString("name");
-                        remoteIssueModel.setProject(new RemoteProjectModel(projectId, projectKey, projectName));
+                    if (!fields.isNull("project")) {
+                        JSONObject project = fields.getJSONObject("project");
+                        if (null != project) {
+                            String projectId = project.getString("id");
+                            projectKey = project.getString("key");
+                            String projectName = project.getString("name");
+                            remoteIssueModel.setProject(new RemoteProjectModel(projectId, projectKey, projectName));
+                        }
                     }
                 }
 
                 //Issue Type Info
                 if (fields.has("issuetype")) {
-                    JSONObject issuetype = fields.getJSONObject("issuetype");
-                    if (null != issuetype) {
-                        String issueTypeId = issuetype.getString("id");
-                        String issueTypeName = issuetype.getString("name");
-                        remoteIssueModel.setIssueType(new RemoteIssueTypeModel(issueTypeId, issueTypeName));
+                    if (!fields.isNull("issuetype")) {
+                        JSONObject issuetype = fields.getJSONObject("issuetype");
+                        if (null != issuetype) {
+                            String issueTypeId = issuetype.getString("id");
+                            String issueTypeName = issuetype.getString("name");
+                            remoteIssueModel.setIssueType(new RemoteIssueTypeModel(issueTypeId, issueTypeName));
+                        }
                     }
                 }
 
                 //Reporter
                 if (fields.has("reporter")) {
-                    JSONObject reporter = fields.getJSONObject("reporter");
-                    if (null != reporter) {
-                        String reporterName = reporter.getString("name");
-                        String reporterDisplayName = reporter.getString("displayName");
-                        Map<String, String> reporterMap = new HashMap<>();
-                        reporterMap.put("name", reporterName);
-                        reporterMap.put("displayName", reporterDisplayName);
-                        remoteIssueModel.setReporter(reporterMap);
+                    if (!fields.isNull("reporter")) {
+                        JSONObject reporter = fields.getJSONObject("reporter");
+                        if (null != reporter) {
+                            String reporterName = reporter.getString("name");
+                            String reporterDisplayName = reporter.getString("displayName");
+                            Map<String, String> reporterMap = new HashMap<>();
+                            reporterMap.put("name", reporterName);
+                            reporterMap.put("displayName", reporterDisplayName);
+                            remoteIssueModel.setReporter(reporterMap);
+                        }
                     }
                 }
 
                 //Assignee
                 if (fields.has("assignee")) {
-                    JSONObject assignee = fields.getJSONObject("assignee");
-                    if (null != assignee) {
-                        String assigneeName = assignee.getString("name");
-                        String assigneeDisplayName = assignee.getString("displayName");
-                        Map<String, String> assigneeMap = new HashMap<>();
-                        assigneeMap.put("name", assigneeName);
-                        assigneeMap.put("displayName", assigneeDisplayName);
-                        remoteIssueModel.setAssignee(assigneeMap);
+                    if (!fields.isNull("assignee")) {
+                        JSONObject assignee = fields.getJSONObject("assignee");
+                        if (null != assignee) {
+                            String assigneeName = assignee.getString("name");
+                            String assigneeDisplayName = assignee.getString("displayName");
+                            Map<String, String> assigneeMap = new HashMap<>();
+                            assigneeMap.put("name", assigneeName);
+                            assigneeMap.put("displayName", assigneeDisplayName);
+                            remoteIssueModel.setAssignee(assigneeMap);
+                        }
                     }
                 }
 
                 //Components
                 if (fields.has("components")) {
-                    JSONArray components = fields.getJSONArray("components");
-                    if (null != components) {
-                        for (int i = 0; i < components.length(); i++) {
-                            JSONObject component = components.getJSONObject(i);
-                            String id = component.getString("id");
-                            String name = component.getString("name");
+                    if (!fields.isNull("components")) {
+                        JSONArray components = fields.getJSONArray("components");
+                        if (null != components) {
+                            for (int i = 0; i < components.length(); i++) {
+                                JSONObject component = components.getJSONObject(i);
+                                String id = component.getString("id");
+                                String name = component.getString("name");
 
-                            RemoteComponentModel componentModel = new RemoteComponentModel(projectKey, id, name);
-                            remoteIssueModel.getComponents().add(componentModel);
+                                RemoteComponentModel componentModel = new RemoteComponentModel(projectKey, id, name);
+                                remoteIssueModel.getComponents().add(componentModel);
+                            }
                         }
                     }
                 }
 
                 //Status
                 if (fields.has("status")) {
-                    JSONObject status = fields.getJSONObject("status");
-                    if (null != status) {
-                        String statusName = status.getString("name");
-                        String statusId = status.getString("id");
-                        JSONObject statusCategory = status.getJSONObject("statusCategory");
-                        String statusColor = statusCategory.getString("colorName");
-                        remoteIssueModel.setStatus(new RemoteStatusModel(statusId, statusName, statusColor));
+                    if (!fields.isNull("status")) {
+                        JSONObject status = fields.getJSONObject("status");
+                        if (null != status) {
+                            String statusName = status.getString("name");
+                            String statusId = status.getString("id");
+                            JSONObject statusCategory = status.getJSONObject("statusCategory");
+                            String statusColor = statusCategory.getString("colorName");
+                            remoteIssueModel.setStatus(new RemoteStatusModel(statusId, statusName, statusColor));
+                        }
                     }
                 }
 
                 //Affected Versions
                 if (fields.has("versions")) {
-                    JSONArray versions = fields.getJSONArray("versions");
-                    if (null != versions) {
-                        for (int i = 0; i < versions.length(); i++) {
-                            JSONObject version = versions.getJSONObject(i);
-                            String id = version.getString("id");
-                            String name = version.getString("name");
+                    if (!fields.isNull("versions")) {
+                        JSONArray versions = fields.getJSONArray("versions");
+                        if (null != versions) {
+                            for (int i = 0; i < versions.length(); i++) {
+                                JSONObject version = versions.getJSONObject(i);
+                                String id = version.getString("id");
+                                String name = version.getString("name");
 
-                            RemoteVersionModel versionModel = new RemoteVersionModel(projectKey, id, name);
-                            remoteIssueModel.getAffectedVersions().add(versionModel);
+                                RemoteVersionModel versionModel = new RemoteVersionModel(projectKey, id, name);
+                                remoteIssueModel.getAffectedVersions().add(versionModel);
+                            }
                         }
                     }
                 }
 
                 //Fix Versions
                 if (fields.has("fixVersions")) {
-                    JSONArray fixVersions = fields.getJSONArray("fixVersions");
-                    if (null != fixVersions) {
-                        for (int i = 0; i < fixVersions.length(); i++) {
-                            JSONObject fixVersion = fixVersions.getJSONObject(i);
-                            String id = fixVersion.getString("id");
-                            String name = fixVersion.getString("name");
+                    if (!fields.isNull("fixVersions")) {
+                        JSONArray fixVersions = fields.getJSONArray("fixVersions");
+                        if (null != fixVersions) {
+                            for (int i = 0; i < fixVersions.length(); i++) {
+                                JSONObject fixVersion = fixVersions.getJSONObject(i);
+                                String id = fixVersion.getString("id");
+                                String name = fixVersion.getString("name");
 
-                            RemoteVersionModel versionModel = new RemoteVersionModel(projectKey, id, name);
-                            remoteIssueModel.getFixVersions().add(versionModel);
+                                RemoteVersionModel versionModel = new RemoteVersionModel(projectKey, id, name);
+                                remoteIssueModel.getFixVersions().add(versionModel);
+                            }
                         }
                     }
                 }
 
                 //Priority
                 if (fields.has("priority")) {
-                    JSONObject priority = fields.getJSONObject("priority");
-                    if (null != priority) {
-                        String priorityId = priority.getString("id");
-                        String priorityName = priority.getString("name");
-                        remoteIssueModel.setPriority(new RemotePriorityModel(priorityId, priorityName));
+                    if (!fields.isNull("priority")) {
+                        JSONObject priority = fields.getJSONObject("priority");
+                        if (null != priority) {
+                            String priorityId = priority.getString("id");
+                            String priorityName = priority.getString("name");
+                            remoteIssueModel.setPriority(new RemotePriorityModel(priorityId, priorityName));
+                        }
                     }
                 }
 
                 //Resolution
                 if (fields.has("resolution")) {
-                    JSONObject resolution = fields.getJSONObject("resolution");
-                    if (null != resolution) {
-                        String resolutionId = resolution.getString("id");
-                        String resolutionName = resolution.getString("name");
-                        remoteIssueModel.setResolution(new RemoteResolutionModel(resolutionId, resolutionName));
+                    if (!fields.isNull("resolution")) {
+                        JSONObject resolution = fields.getJSONObject("resolution");
+                        if (null != resolution) {
+                            String resolutionId = resolution.getString("id");
+                            String resolutionName = resolution.getString("name");
+                            remoteIssueModel.setResolution(new RemoteResolutionModel(resolutionId, resolutionName));
+                        }
                     }
                 }
 
                 //Labels
                 if (fields.has("labels")) {
-                    JSONArray labels = fields.getJSONArray("labels");
-                    if (null != labels) {
-                        for (int i = 0; i < labels.length(); i++) {
-                            String label = labels.getString(i);
-                            remoteIssueModel.getLabels().add(label);
+                    if (!fields.isNull("labels")) {
+                        JSONArray labels = fields.getJSONArray("labels");
+                        if (null != labels) {
+                            for (int i = 0; i < labels.length(); i++) {
+                                String label = labels.getString(i);
+                                remoteIssueModel.getLabels().add(label);
+                            }
                         }
                     }
                 }
@@ -637,6 +674,7 @@ public class Utils {
             Response response = getProjects(integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject project = array.getJSONObject(i);
@@ -661,6 +699,7 @@ public class Utils {
             Response response = getProject(projectId, integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONObject project = new JSONObject(response.getResponse());
                 projectId = project.getString("id");
                 String projectKey = project.getString("key");
@@ -683,6 +722,7 @@ public class Utils {
             Response response = getProjectComponents(projectKey, integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject component = array.getJSONObject(i);
@@ -705,6 +745,7 @@ public class Utils {
             Response response = getProjectVersions(projectKey, integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject version = array.getJSONObject(i);
@@ -727,6 +768,7 @@ public class Utils {
             Response response = getIssueTypes(integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject issueType = array.getJSONObject(i);
@@ -749,6 +791,7 @@ public class Utils {
             Response response = getFields(integrationObject);
 
             if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject field = array.getJSONObject(i);
@@ -785,7 +828,7 @@ public class Utils {
             Response response = getSelectList(projectKey, issueTypeId, integrationObject);
 
             if (response.getResponseCode() == 200) {
-
+                printDebug(response.getResponse());
                 remoteSelectListModel = new RemoteCustomFieldModel(projectKey, issueTypeId);
 
                 JSONObject expand = new JSONObject(response.getResponse());
@@ -809,7 +852,7 @@ public class Utils {
                                 }
 
                                 if (field.has("schema")) {
-                                    JSONObject fieldSchema = fieldsObject.getJSONObject("schema");
+                                    JSONObject fieldSchema = field.getJSONObject("schema");
                                     if (fieldSchema.has("custom")) {
                                         String custom = fieldSchema.getString("custom");
                                         remoteSelectListModel.setType(custom);
@@ -822,9 +865,9 @@ public class Utils {
                                                     JSONObject allowedValueObject = allowedValuesArray.getJSONObject(i);
                                                     Map<String, String> allowedValueMap = new HashMap<>();
                                                     String id = allowedValueObject.getString("id");
-                                                    String name = allowedValueObject.getString("name");
+                                                    String value = allowedValueObject.getString("value");
                                                     allowedValueMap.put("id", id);
-                                                    allowedValueMap.put("name", name);
+                                                    allowedValueMap.put("value", value);
                                                     remoteSelectListModel.getAllowedValues().add(allowedValueMap);
                                                 }
                                             }

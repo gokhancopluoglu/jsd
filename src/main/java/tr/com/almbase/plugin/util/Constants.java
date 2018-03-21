@@ -14,7 +14,7 @@ import java.util.Properties;
 public class Constants {
     private static Date lastUpdateDate;
     private static Properties properties;
-    private static final String PROPERTIES_FILE_PATH = "/pluginconfigLocal.properties";
+    private static final String PROPERTIES_FILE_PATH = "/pluginconfig.properties";
 
     public static final String REST_CREATE_ISSUE = "/rest/api/2/issue";
     public static final String REST_GET_ISSUE = "/rest/api/2/issue/ISSUEKEY";
@@ -33,6 +33,7 @@ public class Constants {
     public static final String SUB_CATEGORY_CF_ID = getPropertyValue(getProperties(), "sub.category.cf.id");
     public static final String CATEGORY_ITEM_CF_ID = getPropertyValue(getProperties(), "category.item.cf.id");
     public static final String CATEGORY_COMPONENT_CF_ID = getPropertyValue(getProperties(), "category.component.cf.id");
+    public static final String ISSUE_TYPE_MAPPING_CF_ID = getPropertyValue(getProperties(), "issue.type.mapping.cf.id");
 
     private static final Logger log = LoggerFactory.getLogger(Constants.class);
 

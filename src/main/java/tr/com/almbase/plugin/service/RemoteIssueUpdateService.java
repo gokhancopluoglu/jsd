@@ -53,33 +53,42 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
     public void run() {
         try {
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
-            for (RemoteIssue remoteIssue : remoteIssues) {
-                Integration integration = integrationController.getRecordFromAOTableById(remoteIssue.getIntegrationId());
-                if (null != integration) {
-                    RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), new IntegrationObject(integration));
+            if (null != remoteIssues) {
+                for (RemoteIssue remoteIssue : remoteIssues) {
+                    Integration integration = integrationController.getRecordFromAOTableById(remoteIssue.getIntegrationId());
+                    if (null != integration) {
+                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), new IntegrationObject(integration));
 
-                    if (null != remoteIssueModel) {
-                        RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
-                        remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
-                        remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
-                        remoteIssueObject.setRiKey(remoteIssue.getRiKey());
-                        remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
-                        remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
-                        remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
-                        remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+                        if (null != remoteIssueModel) {
+                            RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
+                            remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
+                            remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
+                            remoteIssueObject.setRiKey(remoteIssue.getRiKey());
+                            remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
+                            remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
+                            remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
+                            remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm");
-                        Calendar cal = Calendar.getInstance();
-                        String lastUpdatedDate = sdf.format(cal.getTime());
-                        remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
+                            try {
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
+                                remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
+                            } catch (Exception e) {
+                                Utils.printError(e);
+                                remoteIssueObject.setLastUpdatedDate("");
+                            }
 
-                        remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
+                            remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
+                        } else {
+                            log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                        }
                     } else {
-                        log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                        log.error("Broken remote issue link : Integration is null!" + " Issue Key : " + remoteIssue.getIssueKey());
                     }
-                }  else {
-                    log.error("Broken remote issue link : Integration is null!" + " Issue Key : " + remoteIssue.getIssueKey());
                 }
+            } else {
+                log.debug("There is not any records on Remote Issue Table!");
             }
         }
         catch (Exception e) {

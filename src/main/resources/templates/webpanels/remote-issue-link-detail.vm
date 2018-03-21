@@ -5,19 +5,19 @@
             <thead>
                 <tr class="tr">
                     <th id="remoteIssueKeyTitle" class="sorter-true" align="left">
-                        <div class="tablesorter-header-inner">Key</div>
+                        <div class="tablesorter-header-inner">Kayıt</div>
                     </th>
                     <th id="remoteIssueSummaryTitle" class="sorter-true" align="left">
-                        <div class="tablesorter-header-inner">Summary</div>
+                        <div class="tablesorter-header-inner">Özet</div>
                     </th>
                     <th id="remoteIssueAssigneeTitle" class="sorter-true" align="left">
-                        <div class="tablesorter-header-inner">Assignee</div>
+                        <div class="tablesorter-header-inner">Atanan</div>
                     </th>
                     <th id="remoteIssueLastUpdatedTitle" class="sorter-true" align="left">
-                        <div class="tablesorter-header-inner">Last Updated</div>
+                        <div class="tablesorter-header-inner">Son Güncellenme</div>
                     </th>
                     <th id="remoteIssueStatusTitle" class="sorter-true" align="left">
-                        <div class="tablesorter-header-inner">Status</div>
+                        <div class="tablesorter-header-inner">Durum</div>
                     </th>
                 </tr>
             </thead>
