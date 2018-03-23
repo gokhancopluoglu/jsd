@@ -33,7 +33,6 @@ public class Constants {
     public static final String SUB_CATEGORY_CF_ID = getPropertyValue(getProperties(), "sub.category.cf.id");
     public static final String CATEGORY_ITEM_CF_ID = getPropertyValue(getProperties(), "category.item.cf.id");
     public static final String CATEGORY_COMPONENT_CF_ID = getPropertyValue(getProperties(), "category.component.cf.id");
-    public static final String ISSUE_TYPE_MAPPING_CF_ID = getPropertyValue(getProperties(), "issue.type.mapping.cf.id");
 
     private static final Logger log = LoggerFactory.getLogger(Constants.class);
 

@@ -25,10 +25,7 @@ import tr.com.almbase.plugin.util.Response;
 import tr.com.almbase.plugin.util.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by kivanc.ahat@almbase.com on 16/11/2017.
@@ -312,17 +309,29 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
     private String getIssueTypeMappingName (Issue issue) {
         String issueTypeMappingName = null;
         try {
-            issueTypeMappingName = (String)Utils.getCustomFieldValue(issue, Constants.ISSUE_TYPE_MAPPING_CF_ID);
-            if (null != issueTypeMappingName) {
-                issueTypeMappingName = issueTypeMappingName.substring(issueTypeMappingName.indexOf("<value>") + 7, issueTypeMappingName.indexOf("</value>"));
-                issueTypeMappingName = issueTypeMappingName.trim();
-            }
+            issueTypeMappingName = (String)Utils.getCustomFieldValue(issue, getIssueTypeMappingSelectListCFID());
         } catch (Exception e) {
             Utils.printError(e);
         }
 
         return issueTypeMappingName;
     }
+
+    private String getIssueTypeMappingSelectListCFID () {
+        String customFieldId = null;
+        try {
+            List<CustomField> customFields = customFieldManager.getCustomFieldObjects();
+            for (CustomField customField : customFields) {
+                if (customField.getCustomFieldType().getKey().equalsIgnoreCase("tr.com.almbase.plugin.cardif-jsd-engine:itmsl")) {
+                    customFieldId = customField.getId();
+                }
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+        return customFieldId;
+    }
+
 
     private IntegrationObject getIntegrationObject(String integrationId) {
         IntegrationObject integrationObject = null;

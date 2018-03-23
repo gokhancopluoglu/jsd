@@ -63,7 +63,9 @@ public class IssueTypeMapSelectList extends SelectCFType {
         IssueTypeMapping [] issueTypeMappings = issueTypeMappingController.getAllEntriesFromAOTable();
 
         for (IssueTypeMapping issueTypeMapping : issueTypeMappings) {
-            this.optionsManager.createOption(fieldConfiguration, null, Long.getLong(String.valueOf(issueTypeMapping.getID())), issueTypeMapping.getName());
+            if (issue.getIssueTypeId().equalsIgnoreCase(issueTypeMapping.getLocalIssueTypeId())) {
+                this.optionsManager.createOption(fieldConfiguration, null, Long.getLong(String.valueOf(issueTypeMapping.getID())), issueTypeMapping.getName());
+            }
         }
 
         options = this.optionsManager.getOptions(fieldConfiguration);
