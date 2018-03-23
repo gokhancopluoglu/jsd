@@ -1,6 +1,18 @@
 package tr.com.almbase.plugin.condition;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.managedconfiguration.ConfigurationItemAccessLevel;
+import com.atlassian.jira.config.managedconfiguration.ManagedConfigurationItem;
+import com.atlassian.jira.config.managedconfiguration.ManagedConfigurationItemService;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.context.GlobalIssueContext;
+import com.atlassian.jira.issue.context.JiraContextNode;
+import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.fields.screen.FieldScreen;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.plugin.webfragment.conditions.AbstractIssueWebCondition;
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -12,6 +24,9 @@ import tr.com.almbase.plugin.activeobject.RemoteIssue;
 import tr.com.almbase.plugin.activeobject.RemoteIssueController;
 import tr.com.almbase.plugin.util.Utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**

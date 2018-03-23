@@ -348,8 +348,10 @@ public class Utils {
     private static Response send(HttpRequestBase httpRequestBase, IntegrationObject integrationObject) throws Exception {
         CloseableHttpResponse httpResponse = null;
         HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
-        HttpHost httpProxy = new HttpHost(integrationObject.getProxy().getHost(), Integer.parseInt(integrationObject.getProxy().getPort()), integrationObject.getProxy().getType());
-        httpClientBuilder.setProxy(httpProxy);
+        if (null != integrationObject.getProxy()) {
+            HttpHost httpProxy = new HttpHost(integrationObject.getProxy().getHost(), Integer.parseInt(integrationObject.getProxy().getPort()), integrationObject.getProxy().getType());
+            httpClientBuilder.setProxy(httpProxy);
+        }
         CloseableHttpClient httpClient = httpClientBuilder.build();
         try {
             Response response = new Response();
