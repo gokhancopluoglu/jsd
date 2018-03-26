@@ -1,14 +1,9 @@
 package tr.com.almbase.plugin.workflow.postfunction;
 
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.customfields.CustomFieldType;
-import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.issue.fields.CustomField;
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.preferences.PreferenceKeys;
 import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONObject;
 import com.atlassian.jira.workflow.WorkflowException;
@@ -17,15 +12,17 @@ import com.opensymphony.module.propertyset.PropertySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tr.com.almbase.plugin.activeobject.*;
+import tr.com.almbase.plugin.model.RemoteComponentModel;
 import tr.com.almbase.plugin.model.RemoteCustomFieldModel;
 import tr.com.almbase.plugin.model.RemoteIssueModel;
 import tr.com.almbase.plugin.model.RemoteProjectModel;
 import tr.com.almbase.plugin.util.Constants;
-import tr.com.almbase.plugin.util.Response;
 import tr.com.almbase.plugin.util.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kivanc.ahat@almbase.com on 16/11/2017.
@@ -140,11 +137,28 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
                 }
 
                 if (fieldMapping.getRemoteFieldId().equalsIgnoreCase("components")) {
-                    JSONArray componentArray = new JSONArray();
-                    JSONObject componentObject = new JSONObject();
-                    componentObject.put("id", getRemoteComponentId(issue));
-                    componentArray.put(componentObject);
-                    fields.put("components", componentArray);
+                    if (fieldMapping.getLocalFieldId().contains("customfield")) {
+                        CustomField customField = customFieldManager.getCustomFieldObject(fieldMapping.getLocalFieldId());
+                        if (null != customField) {
+                            JSONArray componentArray = new JSONArray();
+                            JSONObject componentObject = new JSONObject();
+                            String customFieldType = customField.getCustomFieldType().getKey();
+                            String remoteComponentId = null;
+                            if (customFieldType.equalsIgnoreCase("com.valiantys.jira.plugins.SQLFeed:nfeed-standard-customfield-type")) {
+                                remoteComponentId = getRemoteComponentId(issue);
+                            } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:textfield")) {
+                                remoteComponentId = (String)issue.getCustomFieldValue(customField);
+                            } else if (customFieldType.equalsIgnoreCase("com.atlassian.jira.plugin.system.customfieldtypes:select")) {
+                                remoteComponentId = getRemoteComponentValue(issue, issueTypeMapping, fieldMapping, integrationObject);
+                            }
+
+                            if (null != remoteComponentId) {
+                                componentObject.put("id", remoteComponentId);
+                                componentArray.put(componentObject);
+                                fields.put("components", componentArray);
+                            }
+                        }
+                    }
                 }
 
                 if (fieldMapping.getRemoteFieldId().contains("customfield")) {
@@ -346,24 +360,13 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         return integrationObject;
     }
 
-    private RemoteCustomFieldModel getRemoteCustomFieldModel(IssueTypeMapping issueTypeMapping, String remoteFieldId, IntegrationObject integrationObject) {
-        RemoteCustomFieldModel remoteCustomFieldModel = null;
-        try {
-            RemoteProjectModel remoteProjectModel = Utils.getRemoteProject(issueTypeMapping.getRemoteProjectId(), integrationObject);
-            remoteCustomFieldModel = Utils.getRemoteCustomFieldModel(remoteProjectModel.getProjectKey(), issueTypeMapping.getRemoteIssueTypeId(), remoteFieldId, integrationObject);
-        } catch (Exception e) {
-            Utils.printError(e);
-        }
-
-        return remoteCustomFieldModel;
-    }
-
     private String getRemoteSelectCustomFieldValue (Issue issue, IssueTypeMapping issueTypeMapping, FieldMapping fieldMapping, IntegrationObject integrationObject) {
         String remoteOptionId = null;
         try {
             String localValue = (String)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
             if (null != localValue) {
-                RemoteCustomFieldModel remoteCustomFieldModel = getRemoteCustomFieldModel(issueTypeMapping, fieldMapping.getRemoteFieldId(), integrationObject);
+                RemoteProjectModel remoteProjectModel = Utils.getRemoteProject(issueTypeMapping.getRemoteProjectId(), integrationObject);
+                RemoteCustomFieldModel remoteCustomFieldModel = Utils.getRemoteCustomFieldModel(remoteProjectModel.getProjectKey(), issueTypeMapping.getRemoteIssueTypeId(), fieldMapping.getRemoteFieldId(), integrationObject);
 
                 for (int i = 0; i < remoteCustomFieldModel.getAllowedValues().size(); i++) {
                     Map<String, String> allowedValuesMap = remoteCustomFieldModel.getAllowedValues().get(i);
@@ -381,5 +384,30 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
         }
 
         return remoteOptionId;
+    }
+
+    private String getRemoteComponentValue (Issue issue, IssueTypeMapping issueTypeMapping, FieldMapping fieldMapping, IntegrationObject integrationObject) {
+        String remoteComponentId = null;
+        try {
+            String localValue = (String)Utils.getCustomFieldValue(issue, fieldMapping.getLocalFieldId());
+            if (null != localValue) {
+                RemoteProjectModel remoteProjectModel = Utils.getRemoteProject(issueTypeMapping.getRemoteProjectId(), integrationObject);
+                List<RemoteComponentModel> remoteComponentModels = Utils.getRemoteProjectComponents(remoteProjectModel.getProjectKey(),integrationObject);
+
+                for (RemoteComponentModel remoteComponentModel : remoteComponentModels) {
+                    if (remoteComponentModel.getComponentName().equalsIgnoreCase(localValue)) {
+                        remoteComponentId = remoteComponentModel.getComponentId();
+                        break;
+                    }
+                }
+                log.debug("Issue Key : " + issue.getKey() + " remoteComponentId : " + remoteComponentId) ;
+            } else {
+                log.debug("Issue Key : " + issue.getKey() + " localValue is null!") ;
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+
+        return remoteComponentId;
     }
 }
