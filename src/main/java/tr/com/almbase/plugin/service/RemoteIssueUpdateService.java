@@ -2,6 +2,8 @@ package tr.com.almbase.plugin.service;
 
 import com.atlassian.configurable.ObjectConfiguration;
 import com.atlassian.configurable.ObjectConfigurationException;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.service.AbstractService;
 import com.atlassian.jira.service.ServiceManager;
 import com.opensymphony.module.propertyset.PropertySet;
@@ -20,19 +22,25 @@ import java.util.Calendar;
 public class RemoteIssueUpdateService extends AbstractService{
     private static final Logger log = LoggerFactory.getLogger(RemoteIssueUpdateService.class);
 
-    private RemoteIssueController remoteIssueController;
-    private IntegrationController integrationController;
-    private ProxyController proxyController;
-    private ServiceManager serviceManager;
+    private final RemoteIssueController remoteIssueController;
+    private final IntegrationController integrationController;
+    private final IssueTypeMappingController issueTypeMappingController;
+    private final ProxyController proxyController;
+    private final ServiceManager serviceManager;
+    private final IssueManager issueManager;
 
     public RemoteIssueUpdateService (RemoteIssueController remoteIssueController,
                                      IntegrationController integrationController,
+                                     IssueTypeMappingController issueTypeMappingController,
                                      ProxyController proxyController,
-                                     ServiceManager serviceManager) {
+                                     ServiceManager serviceManager,
+                                     IssueManager issueManager) {
         this.remoteIssueController = remoteIssueController;
         this.integrationController = integrationController;
+        this.issueTypeMappingController = issueTypeMappingController;
         this.proxyController = proxyController;
         this.serviceManager = serviceManager;
+        this.issueManager = issueManager;
     }
 
     @Override
@@ -52,36 +60,50 @@ public class RemoteIssueUpdateService extends AbstractService{
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
             if (null != remoteIssues) {
                 for (RemoteIssue remoteIssue : remoteIssues) {
-                    IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());
-                    if (null != integrationObject) {
-                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), integrationObject);
+                    Issue issue = issueManager.getIssueObject(remoteIssue.getIssueKey());
+                    IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordWithAllParameters(remoteIssue.getIntegrationId(),
+                            String.valueOf(issue.getProjectId()), issue.getIssueTypeId(), remoteIssue.getRiProjectId(), remoteIssue.getRiIssueTypeId());
 
-                        if (null != remoteIssueModel) {
-                            RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
-                            remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
-                            remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
-                            remoteIssueObject.setRiKey(remoteIssue.getRiKey());
-                            remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
-                            remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
-                            remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
-                            remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+                    if (null != issueTypeMapping) {
 
-                            try {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                                String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
-                                remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
-                            } catch (Exception e) {
-                                Utils.printError(e);
-                                remoteIssueObject.setLastUpdatedDate("");
+                        if (!issue.getStatusId().equalsIgnoreCase(issueTypeMapping.getLocalEndStatusId())) {
+
+                            IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());
+                            if (null != integrationObject) {
+                                RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), integrationObject);
+
+                                if (null != remoteIssueModel) {
+                                    RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
+                                    remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
+                                    remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
+                                    remoteIssueObject.setRiKey(remoteIssue.getRiKey());
+                                    remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
+                                    remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
+                                    remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
+                                    remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+
+                                    try {
+                                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+                                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                        String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
+                                        remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
+                                    } catch (Exception e) {
+                                        Utils.printError(e);
+                                        remoteIssueObject.setLastUpdatedDate("");
+                                    }
+
+                                    remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
+                                } else {
+                                    log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                                }
+                            } else {
+                                log.error("Broken remote issue link : Integration Object is null!" + " Issue Key : " + remoteIssue.getIssueKey());
                             }
-
-                            remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
                         } else {
-                            log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                            log.error("Issue is at Local Issue End Status : " + " Issue Key : " + issue.getStatus().getName());
                         }
                     } else {
-                        log.error("Broken remote issue link : Integration Object is null!" + " Issue Key : " + remoteIssue.getIssueKey());
+                        log.error("Issue Type Mapping is null!");
                     }
                 }
             } else {

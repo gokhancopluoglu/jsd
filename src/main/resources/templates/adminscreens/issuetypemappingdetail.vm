@@ -31,111 +31,129 @@
                         <span class="aui-icon icon-required">Required</span>
                         <span>New Mapping Name</span>
                     </label>
-                    <input class="text" type="text" name="issueTypeMappingName" id="issueTypeMappingName" value="#if($issueTypeMappingName)$issueTypeMappingName#end"/>
+                    <input class="text" type="text" name="issueTypeMappingName" id="issueTypeMappingName" value="#if($selectedIssueTypeMappingName)$selectedIssueTypeMappingName#end"/>
                 </div>
+                <label id="issueTypeMappingNameMessage" style="color: red"></label>
             </fieldset>
         #end
 
         #if ($issueTypeMappingFieldsAvail == "yes")
-            <fieldset>
-                <div class="field-group">
-                    <div class="aui-item">
-                        <label>Local Configuration</label>
-                    </div>
-                </div>
-            </fieldset>
+                    <table id="issueTypeMappingTable" class="aui tablesorter" style="width: 80%;">
+                        <thead>
+                            <tr class="tr">
+                                <th id="projectHeader" style="width: 12%;">
+                                    <div class="tablesorter-header-inner"></div>
+                                </th>
+                                <th id="projectHeader" style="width: 26%;">
+                                    <div class="tablesorter-header-inner">Project</div>
+                                </th>
+                                <th id="issueTypeHeader" style="width: 21%;">
+                                    <div class="tablesorter-header-inner">Issue Type</div>
+                                </th>
+                                <th id="statusHeader" style="width: 21%;">
+                                    <div class="tablesorter-header-inner">Status</div>
+                                </th>
+                            </tr>
+                        </thead>
 
-            <fieldset>
-                <div class="field-group">
-                    <div class="aui-group">
-                        <div class="aui-item">
-                            <select class="select" name="localProject" id="localProject">
-                              <option value="" id="none"></option>
-                              #foreach($localProjectRow in $localProjectList)
-                                  #set ($localProjectId = $localProjectRow.get('localProjectId'))
-                                  #set ($localProjectName = $localProjectRow.get('localProjectName'))
-                                  #if($localProjectId == $selectedLocalProjectId)
-                                      <option selected value="$localProjectId">$localProjectName</option>
-                                  #else
-                                      <option value="$localProjectId">$localProjectName</option>
-                                  #end
-                              #end
-                            </select>
-                        </div>
-                        <div class="aui-item">
-                            <select class="select" name="localIssueType" id="localIssueType">
-                              <option value="" id="none"></option>
-                              #foreach($localIssueTypeRow in $localIssueTypeList)
-                                  #set ($localIssueTypeId = $localIssueTypeRow.get('localIssueTypeId'))
-                                  #set ($localIssueTypeName = $localIssueTypeRow.get('localIssueTypeName'))
-                                  #if($localIssueTypeId == $selectedLocalIssueTypeId)
-                                      <option selected value="$localIssueTypeId">$localIssueTypeName</option>
-                                  #else
-                                      <option value="$localIssueTypeId">$localIssueTypeName</option>
-                                  #end
-                              #end
-                            </select>
-                        </div>
-                        <div class="aui-item">
-                            <select class="select" name="localEndStatus" id="localEndStatus">
-                              <option value="" id="none"></option>
-                              #foreach($localEndStatusRow in $localEndStatusList)
-                                  #set ($localEndStatusId = $localEndStatusRow.get('localEndStatusId'))
-                                  #set ($localEndStatusName = $localEndStatusRow.get('localEndStatusName'))
-                                  #if($localEndStatusId == $selectedLocalEndStatusId)
-                                      <option selected value="$localEndStatusId">$localEndStatusName</option>
-                                  #else
-                                      <option value="$localEndStatusId">$localEndStatusName</option>
-                                  #end
-                              #end
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <div class="field-group">
-                    <div class="aui-item">
-                        <label>Remote Configuration</label>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <div class="field-group">
-                    <div class="aui-group">
-                        <div class="aui-item">
-                            <select class="select" name="remoteProject" id="remoteProject">
-                              <option value="" id="none"></option>
-                              #foreach($remoteProjectRow in $remoteProjectList)
-                                  #set ($remoteProjectId = $remoteProjectRow.get('remoteProjectId'))
-                                  #set ($remoteProjectName = $remoteProjectRow.get('remoteProjectName'))
-                                  #if($remoteProjectId == $selectedRemoteProjectId)
-                                      <option selected value="$remoteProjectId">$remoteProjectName</option>
-                                  #else
-                                      <option value="$remoteProjectId">$remoteProjectName</option>
-                                  #end
-                              #end
-                            </select>
-                        </div>
-                        <div class="aui-item">
-                            <select class="select" name="remoteIssueType" id="remoteIssueType">
-                              <option value="" id="none"></option>
-                              #foreach($remoteIssueTypeRow in $remoteIssueTypeList)
-                                  #set ($remoteIssueTypeId = $remoteIssueTypeRow.get('remoteIssueTypeId'))
-                                  #set ($remoteIssueTypeName = $remoteIssueTypeRow.get('remoteIssueTypeName'))
-                                  #if($remoteIssueTypeId == $selectedRemoteIssueTypeId)
-                                      <option selected value="$remoteIssueTypeId">$remoteIssueTypeName</option>
-                                  #else
-                                      <option value="$remoteIssueTypeId">$remoteIssueTypeName</option>
-                                  #end
-                              #end
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label>Local</label>
+                                </td>
+                                <td>
+                                    <div class="aui-item">
+                                        <select class="select" name="localProject" id="localProject">
+                                          <option value="" id="none"></option>
+                                          #foreach($localProjectRow in $localProjectList)
+                                              #set ($localProjectId = $localProjectRow.get('localProjectId'))
+                                              #set ($localProjectName = $localProjectRow.get('localProjectName'))
+                                              #if($localProjectId == $selectedLocalProjectId)
+                                                  <option selected value="$localProjectId">$localProjectName</option>
+                                              #else
+                                                  <option value="$localProjectId">$localProjectName</option>
+                                              #end
+                                          #end
+                                        </select>
+                                    </div>
+                                    <label id="localProjectMessage" style="color: red"></label>
+                                </td>
+                                <td>
+                                    <div class="aui-item">
+                                        <select class="select" name="localIssueType" id="localIssueType">
+                                          <option value="" id="none"></option>
+                                          #foreach($localIssueTypeRow in $localIssueTypeList)
+                                              #set ($localIssueTypeId = $localIssueTypeRow.get('localIssueTypeId'))
+                                              #set ($localIssueTypeName = $localIssueTypeRow.get('localIssueTypeName'))
+                                              #if($localIssueTypeId == $selectedLocalIssueTypeId)
+                                                  <option selected value="$localIssueTypeId">$localIssueTypeName</option>
+                                              #else
+                                                  <option value="$localIssueTypeId">$localIssueTypeName</option>
+                                              #end
+                                          #end
+                                        </select>
+                                    </div>
+                                    <label id="localIssueTypeMessage" style="color: red"></label>
+                                </td>
+                                <td>
+                                    <div class="aui-item">
+                                        <select class="select" name="localEndStatus" id="localEndStatus">
+                                          <option value="" id="none"></option>
+                                          #foreach($localEndStatusRow in $localEndStatusList)
+                                              #set ($localEndStatusId = $localEndStatusRow.get('localEndStatusId'))
+                                              #set ($localEndStatusName = $localEndStatusRow.get('localEndStatusName'))
+                                              #if($localEndStatusId == $selectedLocalEndStatusId)
+                                                  <option selected value="$localEndStatusId">$localEndStatusName</option>
+                                              #else
+                                                  <option value="$localEndStatusId">$localEndStatusName</option>
+                                              #end
+                                          #end
+                                        </select>
+                                    </div>
+                                    <label id="localEndStatusMessage" style="color: red"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Remote</label>
+                                </td>
+                                <td>
+                                    <div class="aui-item">
+                                        <select class="select" name="remoteProject" id="remoteProject">
+                                          <option value="" id="none"></option>
+                                          #foreach($remoteProjectRow in $remoteProjectList)
+                                              #set ($remoteProjectId = $remoteProjectRow.get('remoteProjectId'))
+                                              #set ($remoteProjectName = $remoteProjectRow.get('remoteProjectName'))
+                                              #if($remoteProjectId == $selectedRemoteProjectId)
+                                                  <option selected value="$remoteProjectId">$remoteProjectName</option>
+                                              #else
+                                                  <option value="$remoteProjectId">$remoteProjectName</option>
+                                              #end
+                                          #end
+                                        </select>
+                                    </div>
+                                    <label id="remoteProjectMessage" style="color: red"></label>
+                                </td>
+                                <td>
+                                    <div class="aui-item">
+                                        <select class="select" name="remoteIssueType" id="remoteIssueType">
+                                          <option value="" id="none"></option>
+                                          #foreach($remoteIssueTypeRow in $remoteIssueTypeList)
+                                              #set ($remoteIssueTypeId = $remoteIssueTypeRow.get('remoteIssueTypeId'))
+                                              #set ($remoteIssueTypeName = $remoteIssueTypeRow.get('remoteIssueTypeName'))
+                                              #if($remoteIssueTypeId == $selectedRemoteIssueTypeId)
+                                                  <option selected value="$remoteIssueTypeId">$remoteIssueTypeName</option>
+                                              #else
+                                                  <option value="$remoteIssueTypeId">$remoteIssueTypeName</option>
+                                              #end
+                                          #end
+                                        </select>
+                                    </div>
+                                    <label id="remoteIssueTypeMessage" style="color: red"></label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
             <fieldset class="group">
                 <div class="field-group">
@@ -153,6 +171,7 @@
         </p>
     </div>
     <input type="hidden" name="selectedIntegrationId" id="selectedIntegrationId" value="#if($selectedIntegrationId)$selectedIntegrationId#end">
+    <input type="hidden" name="issueTypeMappingNameAvail" id="issueTypeMappingNameAvail" value="#if($issueTypeMappingNameAvail)$issueTypeMappingNameAvail#end">
     <input type="hidden" name="recordExists" id="recordExits" value="#if($recordExists)$recordExists#end">
 </div>
 #end
@@ -170,10 +189,12 @@
     jQuery(document).ready(function($) {
         JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
             callIssueTypeMappingSelectionChangeFunction();
+            callLocalProjectSelectionChangeFunction();
             callLocalIssueTypeSelectionChangeFunction();
         });
 
         callIssueTypeMappingSelectionChangeFunction();
+        callLocalProjectSelectionChangeFunction();
         callLocalIssueTypeSelectionChangeFunction();
 
         function callIssueTypeMappingSelectionChangeFunction()
@@ -200,16 +221,39 @@
             });
         };
 
+        function callLocalProjectSelectionChangeFunction()
+        {
+            var url = "issuetypemappingservlet";
+
+            $("#localProject").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'localprojectchanged' : 'yes',
+                        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                        'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+                        'issueTypeMappingName' : AJS.$("#issueTypeMappingName").val(),
+                        'localProjectId' : AJS.$("#localProject").val(),
+                        'remoteProjectId' : AJS.$("#remoteProject").val(),
+                        'remoteIssueTypeId' : AJS.$("#remoteIssueType").val()
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#issueTypeMappingDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#issueTypeMappingDetail").html("");
+                    }
+                });
+            });
+        };
+
         function callLocalIssueTypeSelectionChangeFunction()
         {
             var url = "issuetypemappingservlet";
 
-            var localProjectId = AJS.$("#localProject").val() == "null" ? "" : AJS.$("#localProject").val();
-            var localIssueTypeId = AJS.$("#localIssueType").val() == "null" ? "" : AJS.$("#localIssueType").val();
-            var remoteProjectId = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
-            var remoteIssueTypeId = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
-
-            $("#localEndStatus").change(function() {
+            $("#localIssueType").change(function() {
                 jQuery.ajax({
                     type: "GET",
                     url : url,
@@ -217,10 +261,11 @@
                         'localissuetypechanged' : 'yes',
                         'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
                         'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
-                        'localProjectId' : localProjectId,
-                        'localIssueTypeId' : localIssueTypeId,
-                        'remoteProjectId' : remoteProjectId,
-                        'remoteIssueTypeId' : remoteIssueTypeId
+                        'issueTypeMappingName' : AJS.$("#issueTypeMappingName").val(),
+                        'localProjectId' : AJS.$("#localProject").val(),
+                        'localIssueTypeId' : AJS.$("#localIssueType").val(),
+                        'remoteProjectId' : AJS.$("#remoteProject").val(),
+                        'remoteIssueTypeId' : AJS.$("#remoteIssueType").val()
                     },
                     success : function(data) {
                         console.log(data);
@@ -247,6 +292,64 @@
         var localEndStatusId = AJS.$("#localEndStatus").val() == "null" ? "" : AJS.$("#localEndStatus").val();
         var remoteProjectId = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
         var remoteIssueTypeId = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
+
+        var issueTypeMappingNameAvail = AJS.$("#issueTypeMappingNameAvail").val() == "null" ? "" : AJS.$("#issueTypeMappingNameAvail").val();
+        if (issueTypeMappingNameAvail == "yes") {
+            if (issueTypeMappingName == "") {
+                document.getElementById('issueTypeMappingNameMessage').style.display = "block";
+                document.getElementById('issueTypeMappingNameMessage').innerHTML = "New Mapping Name can not be empty!";
+                return;
+            } else {
+                document.getElementById('issueTypeMappingNameMessage').style.display = "none";
+                document.getElementById('issueTypeMappingNameMessage').innerHTML = "";
+            }
+        }
+
+        if (localProjectId == "") {
+            document.getElementById('localProjectMessage').style.display = "block";
+            document.getElementById('localProjectMessage').innerHTML = "Local Project can not be empty!";
+            return;
+        } else {
+            document.getElementById('localProjectMessage').style.display = "none";
+            document.getElementById('localProjectMessage').innerHTML = "";
+        }
+
+        if (localIssueTypeId == "") {
+            document.getElementById('localIssueTypeMessage').style.display = "block";
+            document.getElementById('localIssueTypeMessage').innerHTML = "Local Issue Type can not be empty!";
+            return;
+        } else {
+            document.getElementById('localIssueTypeMessage').style.display = "none";
+            document.getElementById('localIssueTypeMessage').innerHTML = "";
+        }
+
+        if (localEndStatusId == "") {
+            document.getElementById('localEndStatusMessage').style.display = "block";
+            document.getElementById('localEndStatusMessage').innerHTML = "Local End Status can not be empty!";
+            return;
+        } else {
+            document.getElementById('localEndStatusMessage').style.display = "none";
+            document.getElementById('localEndStatusMessage').innerHTML = "";
+        }
+
+        if (remoteProjectId == "") {
+            document.getElementById('remoteProjectMessage').style.display = "block";
+            document.getElementById('remoteProjectMessage').innerHTML = "Remote Project can not be empty!";
+            return;
+        } else {
+            document.getElementById('remoteProjectMessage').style.display = "none";
+            document.getElementById('remoteProjectMessage').innerHTML = "";
+        }
+
+        if (remoteIssueTypeId == "") {
+            document.getElementById('remoteIssueTypeMessage').style.display = "block";
+            document.getElementById('remoteIssueTypeMessage').innerHTML = "Remote Issue Type can not be empty!";
+            return;
+        } else {
+            document.getElementById('remoteIssueTypeMessage').style.display = "none";
+            document.getElementById('remoteIssueTypeMessage').innerHTML = "";
+        }
+
 
         jQuery.ajax({
             type : "POST",

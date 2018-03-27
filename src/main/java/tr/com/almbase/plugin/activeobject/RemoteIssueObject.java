@@ -7,6 +7,8 @@ public class RemoteIssueObject {
     String integrationId;
     String issueKey;
     String riKey;
+    String riProjectId;
+    String riIssueTypeId;
     String riSummary;
     String riStatus;
     String riStatusColor;
@@ -75,5 +77,21 @@ public class RemoteIssueObject {
 
     public void setLastUpdatedDate(String lastUpdatedDate) {
         this.lastUpdatedDate = lastUpdatedDate;
+    }
+
+    public String getRiProjectId() {
+        return riProjectId;
+    }
+
+    public String getRiIssueTypeId() {
+        return riIssueTypeId;
+    }
+
+    public void setRiProjectId(String riProjectId) {
+        this.riProjectId = riProjectId;
+    }
+
+    public void setRiIssueTypeId(String riIssueTypeId) {
+        this.riIssueTypeId = riIssueTypeId;
     }
 }

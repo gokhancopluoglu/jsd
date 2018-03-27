@@ -25,4 +25,9 @@ public interface RemoteIssue extends Entity {
     void setRiStatusColor(String riStatusColor);
     void setRiAssginee(String riAssginee);
     void setLastUpdatedDate(String lastUpdatedDate);
+
+    String getRiProjectId();
+    String getRiIssueTypeId();
+    void setRiProjectId(String riProjectId);
+    void setRiIssueTypeId(String riIssueTypeId);
 }

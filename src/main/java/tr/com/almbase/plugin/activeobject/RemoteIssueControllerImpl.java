@@ -156,6 +156,8 @@ public class RemoteIssueControllerImpl implements RemoteIssueController {
             remoteIssueRecord.setIntegrationId(remoteIssueObject.getIntegrationId());
             remoteIssueRecord.setIssueKey(remoteIssueObject.getIssueKey());
             remoteIssueRecord.setRiKey(remoteIssueObject.getRiKey());
+            remoteIssueRecord.setRiProjectId(remoteIssueObject.getRiProjectId());
+            remoteIssueRecord.setRiIssueTypeId(remoteIssueObject.getRiIssueTypeId());
             remoteIssueRecord.setRiAssginee(remoteIssueObject.getRiAssginee());
             remoteIssueRecord.setRiSummary(remoteIssueObject.getRiSummary());
             remoteIssueRecord.setRiStatus(remoteIssueObject.getRiStatus());

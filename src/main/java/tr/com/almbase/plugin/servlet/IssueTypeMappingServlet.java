@@ -1,9 +1,12 @@
 package tr.com.almbase.plugin.servlet;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.config.ConstantsManager;
+import com.atlassian.jira.issue.fields.config.manager.IssueTypeSchemeManager;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.util.UserManager;
@@ -43,6 +46,10 @@ public class IssueTypeMappingServlet extends HttpServlet {
     private final LoginUriProvider loginUriProvider;
     private final PageBuilderService pageBuilderService;
     private final UserManager userManager;
+    private final WorkflowSchemeManager workflowSchemeManager;
+    private final ProjectManager projectManager;
+    private final ConstantsManager constantsManager;
+    private final IssueTypeSchemeManager issueTypeSchemeManager;
 
     private final IntegrationController integrationController;
     private final ProxyController proxyController;
@@ -53,6 +60,10 @@ public class IssueTypeMappingServlet extends HttpServlet {
                                            LoginUriProvider loginUriProvider,
                                            PageBuilderService pageBuilderService,
                                            UserManager userManager,
+                                           WorkflowSchemeManager workflowSchemeManager,
+                                           ProjectManager projectManager,
+                                           ConstantsManager constantsManager,
+                                           IssueTypeSchemeManager issueTypeSchemeManager,
                                            IntegrationController integrationController,
                                            ProxyController proxyController,
                                            IssueTypeMappingController issueTypeMappingController)
@@ -63,6 +74,10 @@ public class IssueTypeMappingServlet extends HttpServlet {
         this.loginUriProvider = loginUriProvider;
         this.pageBuilderService = pageBuilderService;
         this.userManager = userManager;
+        this.workflowSchemeManager = workflowSchemeManager;
+        this.projectManager = projectManager;
+        this.constantsManager = constantsManager;
+        this.issueTypeSchemeManager = issueTypeSchemeManager;
         this.integrationController = integrationController;
         this.proxyController = proxyController;
         this.issueTypeMappingController = issueTypeMappingController;
@@ -82,10 +97,12 @@ public class IssueTypeMappingServlet extends HttpServlet {
         } else {
             String initial = req.getParameter("initial") == null ? "" : req.getParameter("initial").trim();
             String issueTypeMappingSelectChanged = req.getParameter("issuetypemappingselectchanged") == null ? "" : req.getParameter("issuetypemappingselectchanged").trim();
+            String localProjectChanged = req.getParameter("localprojectchanged") == null ? "" : req.getParameter("localprojectchanged").trim();
             String localIssueTypeChanged = req.getParameter("localissuetypechanged") == null ? "" : req.getParameter("localissuetypechanged").trim();
 
             String selectedIntegrationId = req.getParameter("selectedIntegrationId") == null ? "" : req.getParameter("selectedIntegrationId").trim();
             String issueTypeMappingSelectId = req.getParameter("issueTypeMappingSelectId") == null ? "" : req.getParameter("issueTypeMappingSelectId").trim();
+            String issueTypeMappingName = req.getParameter("issueTypeMappingName") == null ? "" : req.getParameter("issueTypeMappingName").trim();
             String selectedLocalProjectId = req.getParameter("localProjectId") == null ? "" : req.getParameter("localProjectId").trim();;
             String selectedLocalIssueTypeId = req.getParameter("localIssueTypeId") == null ? "" : req.getParameter("localIssueTypeId").trim();;
             String selectedRemoteProjectId = req.getParameter("remoteProjectId") == null ? "" : req.getParameter("remoteProjectId").trim();;
@@ -98,36 +115,86 @@ public class IssueTypeMappingServlet extends HttpServlet {
                 context.put("issueTypeMappingFieldsAvail", "no");
                 context.put("recordExists", "no");
                 templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
-            } else if (localIssueTypeChanged.equalsIgnoreCase("yes")) {
+            } else if (localProjectChanged.equalsIgnoreCase("yes")) {
                 IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
-                if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
-                    IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+                if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
+                    context.put("issueTypeMappingNameAvail", "yes");
+                    context.put("issueTypeMappingFieldsAvail", "yes");
+                    context.put("recordExists", "no");
+                    context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+                    context.put("selectedIssueTypeMappingName", issueTypeMappingName);
 
-                    if (null != issueTypeMapping) {
-                        context.put("selectedLocalProjectId", issueTypeMapping.getLocalProjectId());
-                        context.put("selectedLocalIssueTypeId", issueTypeMapping.getLocalIssueTypeId());
-                        context.put("selectedRemoteProjectId", issueTypeMapping.getRemoteProjectId());
-                        context.put("selectedRemoteIssueTypeId", issueTypeMapping.getRemoteIssueTypeId());
-                        context.put("selectedIssueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
-
-                        context.put("issueTypeMappingNameAvail", "no");
-                        context.put("issueTypeMappingFieldsAvail", "yes");
-                        context.put("recordExists", "yes");
-                    }
-                } else {
                     context.put("selectedLocalProjectId", selectedLocalProjectId);
-                    context.put("selectedLocalIssueTypeId", selectedLocalIssueTypeId);
                     context.put("selectedRemoteProjectId", selectedRemoteProjectId);
                     context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
+                } else {
+                    if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
 
-                    context.put("issueTypeMappingNameAvail", "no");
-                    context.put("issueTypeMappingFieldsAvail", "no");
-                    context.put("recordExists", "no");
+                        if (null != issueTypeMapping) {
+                            context.put("selectedLocalProjectId", selectedLocalProjectId);
+                            context.put("selectedRemoteProjectId", selectedRemoteProjectId);
+                            context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
+                            context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+
+                            context.put("issueTypeMappingNameAvail", "no");
+                            context.put("issueTypeMappingFieldsAvail", "yes");
+                            context.put("recordExists", "yes");
+                        }
+                    } else {
+                        context.put("issueTypeMappingNameAvail", "no");
+                        context.put("issueTypeMappingFieldsAvail", "no");
+                        context.put("recordExists", "no");
+                    }
                 }
 
                 context.put("selectedIntegrationId", selectedIntegrationId);
                 context.put("localProjectList", getLocalProjectList());
-                context.put("localIssueTypeList", getLocalIssueTypeList());
+                context.put("localIssueTypeList", getLocalIssueTypeList(selectedLocalProjectId));
+                //context.put("localEndStatusList", getLocalEndStatusList(selectedLocalProjectId, selectedLocalIssueTypeId));
+                context.put("remoteProjectList", getRemoteProjectList(integrationObject));
+                context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
+                context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
+
+                templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
+            } else if (localIssueTypeChanged.equalsIgnoreCase("yes")) {
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
+                if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
+                    context.put("issueTypeMappingNameAvail", "yes");
+                    context.put("issueTypeMappingFieldsAvail", "yes");
+                    context.put("recordExists", "no");
+                    context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+                    context.put("selectedIssueTypeMappingName", issueTypeMappingName);
+
+                    context.put("selectedLocalProjectId", selectedLocalProjectId);
+                    context.put("selectedLocalIssueTypeId", selectedLocalIssueTypeId);
+                    context.put("selectedRemoteProjectId", selectedRemoteProjectId);
+                    context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
+                } else {
+                    if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+
+                        if (null != issueTypeMapping) {
+                            context.put("selectedLocalProjectId", selectedLocalProjectId);
+                            context.put("selectedLocalIssueTypeId", selectedLocalIssueTypeId);
+                            context.put("selectedRemoteProjectId", selectedRemoteProjectId);
+                            context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
+                            context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+
+                            context.put("issueTypeMappingNameAvail", "no");
+                            context.put("issueTypeMappingFieldsAvail", "yes");
+                            context.put("recordExists", "yes");
+                        }
+                    } else {
+                        context.put("issueTypeMappingNameAvail", "no");
+                        context.put("issueTypeMappingFieldsAvail", "no");
+                        context.put("recordExists", "no");
+                    }
+                }
+
+                context.put("selectedIntegrationId", selectedIntegrationId);
+                context.put("localProjectList", getLocalProjectList());
+                context.put("localIssueTypeList", getLocalIssueTypeList(selectedLocalProjectId));
                 context.put("localEndStatusList", getLocalEndStatusList(selectedLocalProjectId, selectedLocalIssueTypeId));
                 context.put("remoteProjectList", getRemoteProjectList(integrationObject));
                 context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
@@ -154,6 +221,8 @@ public class IssueTypeMappingServlet extends HttpServlet {
                             context.put("selectedRemoteProjectId", issueTypeMapping.getRemoteProjectId());
                             context.put("selectedRemoteIssueTypeId", issueTypeMapping.getRemoteIssueTypeId());
                             context.put("selectedIssueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
+                            context.put("localIssueTypeList", getLocalIssueTypeList(issueTypeMapping.getLocalProjectId()));
+                            context.put("localEndStatusList", getLocalEndStatusList(issueTypeMapping.getLocalProjectId(), issueTypeMapping.getLocalIssueTypeId()));
 
                             context.put("issueTypeMappingNameAvail", "no");
                             context.put("issueTypeMappingFieldsAvail", "yes");
@@ -169,8 +238,6 @@ public class IssueTypeMappingServlet extends HttpServlet {
                 context.put("selectedIntegrationId", selectedIntegrationId);
 
                 context.put("localProjectList", getLocalProjectList());
-                context.put("localIssueTypeList", getLocalIssueTypeList());
-                context.put("localEndStatusList", getLocalEndStatusList(selectedLocalProjectId, selectedLocalIssueTypeId));
                 context.put("remoteProjectList", getRemoteProjectList(integrationObject));
                 context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
@@ -316,16 +383,19 @@ public class IssueTypeMappingServlet extends HttpServlet {
         }
     };
 
-    private List<Map<String, String>> getLocalIssueTypeList () {
+    private List<Map<String, String>> getLocalIssueTypeList (String localProjectId) {
         List<Map<String, String>> localIssueTypeList = new ArrayList<>();
         try {
-            Collection<IssueType> issueTypes = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+            if (!localProjectId.equalsIgnoreCase("")) {
+                Project project = projectManager.getProjectObj(Long.parseLong(localProjectId));
+                Collection<IssueType> issueTypes = issueTypeSchemeManager.getIssueTypesForProject(project);
 
-            for (IssueType issueType : issueTypes){
-                Map<String, String> localIssueTypeMap = new HashMap<>();
-                localIssueTypeMap.put("localIssueTypeId", String.valueOf(issueType.getId()));
-                localIssueTypeMap.put("localIssueTypeName", issueType.getName());
-                localIssueTypeList.add(localIssueTypeMap);
+                for (IssueType issueType : issueTypes) {
+                    Map<String, String> localIssueTypeMap = new HashMap<>();
+                    localIssueTypeMap.put("localIssueTypeId", String.valueOf(issueType.getId()));
+                    localIssueTypeMap.put("localIssueTypeName", issueType.getName());
+                    localIssueTypeList.add(localIssueTypeMap);
+                }
             }
         } catch (Exception e) {
             Utils.printError(e);
@@ -344,28 +414,26 @@ public class IssueTypeMappingServlet extends HttpServlet {
     private List<Map<String, String>> getLocalEndStatusList (String localProjectId, String localIssueTypeId) {
         List<Map<String, String>> localEndStatusList = new ArrayList<>();
         try {
+            if (!localProjectId.equalsIgnoreCase("") && !localIssueTypeId.equalsIgnoreCase("")) {
+                Project project = projectManager.getProjectObj(Long.parseLong(localProjectId));
+                IssueType issueType = constantsManager.getIssueType(localIssueTypeId);
+                String workflowName = workflowSchemeManager.getWorkflowName(project, issueType.getName());
 
-            WorkflowSchemeManager workflowSchemeManager = ComponentAccessor.getWorkflowSchemeManager();
-            Project project = ComponentAccessor.getProjectManager().getProjectObj(Long.parseLong(localProjectId));
-            IssueType issueType = ComponentAccessor.getConstantsManager().getIssueType(localIssueTypeId);
-            String workflowName = workflowSchemeManager.getWorkflowName(project, issueType.getName());
+                JiraWorkflow jiraWorkflow = ComponentAccessor.getWorkflowManager().getWorkflow(workflowName);
+                List<Status> statusList = jiraWorkflow.getLinkedStatusObjects();
 
-            JiraWorkflow jiraWorkflow = ComponentAccessor.getWorkflowManager().getWorkflow(workflowName);
-            List<Status> statusList = jiraWorkflow.getLinkedStatusObjects();
-
-            Collection<IssueType> issueTypes = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
-
-            for (Status status : statusList){
-                Map<String, String> localEndStatusMap = new HashMap<>();
-                localEndStatusMap.put("localEndStatusId", status.getId());
-                localEndStatusMap.put("localEndStatusName", status.getName());
-                localEndStatusList.add(localEndStatusMap);
+                for (Status status : statusList) {
+                    Map<String, String> localEndStatusMap = new HashMap<>();
+                    localEndStatusMap.put("localEndStatusId", status.getId());
+                    localEndStatusMap.put("localEndStatusName", status.getName());
+                    localEndStatusList.add(localEndStatusMap);
+                }
             }
         } catch (Exception e) {
             Utils.printError(e);
         }
 
-        Collections.sort(localEndStatusList, mapComparatorLocalIssueType);
+        Collections.sort(localEndStatusList, mapComparatorLocalEndStatus);
         return localEndStatusList;
     }
 
