@@ -103,6 +103,7 @@
   <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
   <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
   <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
+  <component-import key="serviceManager" interface="com.atlassian.jira.service.ServiceManager"/>
 
   <web-section key="jsd_engine_plugin_section" name="JSD Engine Plugin Settings" location="admin_plugins_menu" i18n-name-key="JSD Engine Plugin Settings" weight="120">
     <label key="Cardif JSD Engine"/>
@@ -311,5 +312,10 @@
     <resource name="column-view" type="velocity" location="templates/customfields/itmview.vm"/>
     <resource name="xml" type="velocity" location="templates/customfields/itmview.vm"/>
   </customfield-type>
+
+  <component key="test" class="tr.com.almbase.plugin.service.ServiceRefresher" public="true">
+    <description>Manages this plugin's lifecycle.</description>
+    <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
+  </component>
 
 </atlassian-plugin>

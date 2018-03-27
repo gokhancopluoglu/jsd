@@ -126,6 +126,7 @@ public class IssueTypeMappingControllerImpl implements IssueTypeMappingControlle
             issueTypeMapRecord.setName(issueTypeMapObject.getName());
             issueTypeMapRecord.setLocalProjectId(issueTypeMapObject.getLocalProjectId());
             issueTypeMapRecord.setLocalIssueTypeId(issueTypeMapObject.getLocalIssueTypeId());
+            issueTypeMapRecord.setLocalEndStatusId(issueTypeMapObject.getLocalEndStatusId());
             issueTypeMapRecord.setRemoteProjectId(issueTypeMapObject.getRemoteProjectId());
             issueTypeMapRecord.setRemoteIssueTypeId(issueTypeMapObject.getRemoteIssueTypeId());
             issueTypeMapRecord.save();

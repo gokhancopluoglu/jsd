@@ -8,6 +8,7 @@ public class IssueTypeMappingObject {
     String name;
     String localProjectId;
     String localIssueTypeId;
+    String localEndStatusId;
     String remoteProjectId;
     String remoteIssueTypeId;
 
@@ -57,5 +58,13 @@ public class IssueTypeMappingObject {
 
     public void setIntegrationId(String integrationId) {
         this.integrationId = integrationId;
+    }
+
+    public String getLocalEndStatusId() {
+        return localEndStatusId;
+    }
+
+    public void setLocalEndStatusId(String localEndStatusId) {
+        this.localEndStatusId = localEndStatusId;
     }
 }

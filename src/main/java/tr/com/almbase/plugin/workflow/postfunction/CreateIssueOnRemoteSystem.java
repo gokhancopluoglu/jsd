@@ -84,9 +84,12 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
 
                     String remoteIssueKey = Utils.createRemoteIssue(payload, integrationObject);
 
-                    RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssueKey, integrationObject);
-
-                    saveRemoteIssueLink(issue, remoteIssueModel, issueTypeMapping.getIntegrationId());
+                    if (null != remoteIssueKey) {
+                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssueKey, integrationObject);
+                        saveRemoteIssueLink(issue, remoteIssueModel, issueTypeMapping.getIntegrationId());
+                    } else {
+                        log.debug("Issue Key : " + issue.getKey() + " remoteIssueKey is null!");
+                    }
                 } else {
                     log.debug("Issue Key : " + issue.getKey() + " Integration object is null!");
                 }
@@ -152,7 +155,7 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
                                 remoteComponentId = getRemoteComponentValue(issue, issueTypeMapping, fieldMapping, integrationObject);
                             }
 
-                            if (null != remoteComponentId) {
+                            if (null != remoteComponentId && !remoteComponentId.equalsIgnoreCase("")) {
                                 componentObject.put("id", remoteComponentId);
                                 componentArray.put(componentObject);
                                 fields.put("components", componentArray);

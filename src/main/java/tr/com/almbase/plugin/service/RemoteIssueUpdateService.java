@@ -3,12 +3,10 @@ package tr.com.almbase.plugin.service;
 import com.atlassian.configurable.ObjectConfiguration;
 import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.service.AbstractService;
+import com.atlassian.jira.service.ServiceManager;
 import com.opensymphony.module.propertyset.PropertySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import tr.com.almbase.plugin.activeobject.*;
 import tr.com.almbase.plugin.model.RemoteIssueModel;
 import tr.com.almbase.plugin.util.Utils;
@@ -19,38 +17,22 @@ import java.util.Calendar;
 /**
  * Created by kivanc.ahat@almbase.com on 20/02/2018.
  */
-public class RemoteIssueUpdateService extends AbstractService implements BeanFactoryAware {
+public class RemoteIssueUpdateService extends AbstractService{
     private static final Logger log = LoggerFactory.getLogger(RemoteIssueUpdateService.class);
 
     private RemoteIssueController remoteIssueController;
     private IntegrationController integrationController;
     private ProxyController proxyController;
+    private ServiceManager serviceManager;
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        if (remoteIssueController == null) {
-            try {
-                remoteIssueController = (RemoteIssueController) beanFactory.getBean("RemoteIssueControllerImpl");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
-        if (integrationController == null) {
-            try {
-                integrationController = (IntegrationController) beanFactory.getBean("IntegrationControllerImpl");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
-        if (proxyController == null) {
-            try {
-                proxyController = (ProxyController) beanFactory.getBean("ProxyControllerImpl");
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        }
+    public RemoteIssueUpdateService (RemoteIssueController remoteIssueController,
+                                     IntegrationController integrationController,
+                                     ProxyController proxyController,
+                                     ServiceManager serviceManager) {
+        this.remoteIssueController = remoteIssueController;
+        this.integrationController = integrationController;
+        this.proxyController = proxyController;
+        this.serviceManager = serviceManager;
     }
 
     @Override
@@ -60,6 +42,12 @@ public class RemoteIssueUpdateService extends AbstractService implements BeanFac
 
     @Override
     public void run() {
+        try {
+            this.serviceManager.refreshServiceByName(this.getName());
+        } catch (Exception ex) {
+            log.error("Unable to refresh :(");
+        }
+
         try {
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
             if (null != remoteIssues) {

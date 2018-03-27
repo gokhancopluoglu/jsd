@@ -13,12 +13,14 @@ public interface IssueTypeMapping extends Entity {
     String getName();
     String getLocalProjectId();
     String getLocalIssueTypeId();
+    String getLocalEndStatusId();
     String getRemoteProjectId();
     String getRemoteIssueTypeId();
     void setIntegrationId(String integrationId);
     void setName(String name);
     void setLocalProjectId(String localProjectId);
     void setLocalIssueTypeId(String localIssueTypeId);
+    void setLocalEndStatusId(String localEndStatusId);
     void setRemoteProjectId(String remoteProjectId);
     void setRemoteIssueTypeId(String remoteIssueTypeId);
 }

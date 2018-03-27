@@ -76,6 +76,20 @@
                               #end
                             </select>
                         </div>
+                        <div class="aui-item">
+                            <select class="select" name="localEndStatus" id="localEndStatus">
+                              <option value="" id="none"></option>
+                              #foreach($localEndStatusRow in $localEndStatusList)
+                                  #set ($localEndStatusId = $localEndStatusRow.get('localEndStatusId'))
+                                  #set ($localEndStatusName = $localEndStatusRow.get('localEndStatusName'))
+                                  #if($localEndStatusId == $selectedLocalEndStatusId)
+                                      <option selected value="$localEndStatusId">$localEndStatusName</option>
+                                  #else
+                                      <option value="$localEndStatusId">$localEndStatusName</option>
+                                  #end
+                              #end
+                            </select>
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -155,12 +169,14 @@
 
     jQuery(document).ready(function($) {
         JIRA.bind(JIRA.Events.NEW_CONTENT_ADDED, function (e,context) {
-            callSelectionChangeFunction();
+            callIssueTypeMappingSelectionChangeFunction();
+            callLocalIssueTypeSelectionChangeFunction();
         });
 
-        callSelectionChangeFunction();
+        callIssueTypeMappingSelectionChangeFunction();
+        callLocalIssueTypeSelectionChangeFunction();
 
-        function callSelectionChangeFunction()
+        function callIssueTypeMappingSelectionChangeFunction()
         {
             var url = "issuetypemappingservlet";
 
@@ -183,6 +199,39 @@
                 });
             });
         };
+
+        function callLocalIssueTypeSelectionChangeFunction()
+        {
+            var url = "issuetypemappingservlet";
+
+            var localProjectId = AJS.$("#localProject").val() == "null" ? "" : AJS.$("#localProject").val();
+            var localIssueTypeId = AJS.$("#localIssueType").val() == "null" ? "" : AJS.$("#localIssueType").val();
+            var remoteProjectId = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
+            var remoteIssueTypeId = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
+
+            $("#localEndStatus").change(function() {
+                jQuery.ajax({
+                    type: "GET",
+                    url : url,
+                    data : {
+                        'localissuetypechanged' : 'yes',
+                        'selectedIntegrationId' : AJS.$("#selectedIntegrationId").val(),
+                        'issueTypeMappingSelectId' : AJS.$("#issueTypeMappingSelect").val(),
+                        'localProjectId' : localProjectId,
+                        'localIssueTypeId' : localIssueTypeId,
+                        'remoteProjectId' : remoteProjectId,
+                        'remoteIssueTypeId' : remoteIssueTypeId
+                    },
+                    success : function(data) {
+                        console.log(data);
+                        AJS.$("#issueTypeMappingDetail").html(data);
+                    },
+                    error : function(response) {
+                        AJS.$("#issueTypeMappingDetail").html("");
+                    }
+                });
+            });
+        };
     });
 
     AJS.$("#saveButton").click(function(event) {
@@ -193,10 +242,11 @@
         var selectedIntegrationId = AJS.$("#selectedIntegrationId").val() == "null" ? "" : AJS.$("#selectedIntegrationId").val();
         var issueTypeMappingSelectId = AJS.$("#issueTypeMappingSelect").val() == "null" ? "" : AJS.$("#issueTypeMappingSelect").val();
         var issueTypeMappingName = AJS.$("#issueTypeMappingName").val() == "null" ? "" : AJS.$("#issueTypeMappingName").val();
-        var localProject = AJS.$("#localProject").val() == "null" ? "" : AJS.$("#localProject").val();
-        var localIssueType = AJS.$("#localIssueType").val() == "null" ? "" : AJS.$("#localIssueType").val();
-        var remoteProject = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
-        var remoteIssueType = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
+        var localProjectId = AJS.$("#localProject").val() == "null" ? "" : AJS.$("#localProject").val();
+        var localIssueTypeId = AJS.$("#localIssueType").val() == "null" ? "" : AJS.$("#localIssueType").val();
+        var localEndStatusId = AJS.$("#localEndStatus").val() == "null" ? "" : AJS.$("#localEndStatus").val();
+        var remoteProjectId = AJS.$("#remoteProject").val() == "null" ? "" : AJS.$("#remoteProject").val();
+        var remoteIssueTypeId = AJS.$("#remoteIssueType").val() == "null" ? "" : AJS.$("#remoteIssueType").val();
 
         jQuery.ajax({
             type : "POST",
@@ -205,10 +255,11 @@
                 'selectedIntegrationId' : selectedIntegrationId,
                 'issueTypeMappingSelectId' : issueTypeMappingSelectId,
                 'issueTypeMappingName' : issueTypeMappingName,
-                'localProject' : localProject,
-                'localIssueType' : localIssueType,
-                'remoteProject' : remoteProject,
-                'remoteIssueType' : remoteIssueType,
+                'localProjectId' : localProjectId,
+                'localIssueTypeId' : localIssueTypeId,
+                'localEndStatusId' : localEndStatusId,
+                'remoteProjectId' : remoteProjectId,
+                'remoteIssueTypeId' : remoteIssueTypeId,
                 'actionType' : actionType
             },
             success : function(data) {

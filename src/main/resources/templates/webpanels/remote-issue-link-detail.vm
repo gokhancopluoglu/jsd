@@ -34,10 +34,10 @@
 
                     <tr>
                         <td style="width: 10%;">
-                            <a class="issue-link" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueKey)$remoteIssueKey#end</a>
+                            <a target="_blank" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueKey)$remoteIssueKey#end</a>
                         </td>
                         <td style="width: 40%;">
-                            <a class="issue-link" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueSummary)$remoteIssueSummary#end</a>
+                            <a target="_blank" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueSummary)$remoteIssueSummary#end</a>
                         </td>
                         <td style="width: 10%;">
                             <span>#if($remoteIssueStatusAssignee)$remoteIssueStatusAssignee#end</span>
