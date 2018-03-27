@@ -115,6 +115,47 @@ public class IssueTypeMappingServlet extends HttpServlet {
                 context.put("issueTypeMappingFieldsAvail", "no");
                 context.put("recordExists", "no");
                 templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
+            } else if (issueTypeMappingSelectChanged.equalsIgnoreCase("yes")) {
+                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
+                if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
+                    context.put("issueTypeMappingNameAvail", "yes");
+                    context.put("issueTypeMappingFieldsAvail", "yes");
+                    context.put("recordExists", "no");
+                    context.put("selectedIssueTypeMappingId", "New");
+                } else {
+                    if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
+                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
+
+                        if (null != issueTypeMapping) {
+                            context.put("selectedLocalProjectId", issueTypeMapping.getLocalProjectId());
+                            context.put("selectedLocalIssueTypeId", issueTypeMapping.getLocalIssueTypeId());
+                            context.put("selectedLocalEndStatusId", issueTypeMapping.getLocalEndStatusId());
+                            context.put("selectedRemoteProjectId", issueTypeMapping.getRemoteProjectId());
+                            context.put("selectedRemoteIssueTypeId", issueTypeMapping.getRemoteIssueTypeId());
+                            context.put("selectedIssueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
+                            context.put("selectedIssueTypeMappingName", issueTypeMapping.getName());
+                            context.put("localIssueTypeList", getLocalIssueTypeList(issueTypeMapping.getLocalProjectId()));
+                            context.put("localEndStatusList", getLocalEndStatusList(issueTypeMapping.getLocalProjectId(), issueTypeMapping.getLocalIssueTypeId()));
+
+                            context.put("issueTypeMappingNameAvail", "yes");
+                            context.put("issueTypeMappingFieldsAvail", "yes");
+                            context.put("recordExists", "yes");
+                        }
+                    } else {
+                        context.put("issueTypeMappingNameAvail", "no");
+                        context.put("issueTypeMappingFieldsAvail", "no");
+                        context.put("recordExists", "no");
+                    }
+                }
+
+                context.put("selectedIntegrationId", selectedIntegrationId);
+
+                context.put("localProjectList", getLocalProjectList());
+                context.put("remoteProjectList", getRemoteProjectList(integrationObject));
+                context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
+                context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
+
+                templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else if (localProjectChanged.equalsIgnoreCase("yes")) {
                 IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
                 if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
@@ -136,8 +177,9 @@ public class IssueTypeMappingServlet extends HttpServlet {
                             context.put("selectedRemoteProjectId", selectedRemoteProjectId);
                             context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
                             context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+                            context.put("selectedIssueTypeMappingName", issueTypeMappingName);
 
-                            context.put("issueTypeMappingNameAvail", "no");
+                            context.put("issueTypeMappingNameAvail", "yes");
                             context.put("issueTypeMappingFieldsAvail", "yes");
                             context.put("recordExists", "yes");
                         }
@@ -180,8 +222,9 @@ public class IssueTypeMappingServlet extends HttpServlet {
                             context.put("selectedRemoteProjectId", selectedRemoteProjectId);
                             context.put("selectedRemoteIssueTypeId", selectedRemoteIssueTypeId);
                             context.put("selectedIssueTypeMappingId", issueTypeMappingSelectId);
+                            context.put("selectedIssueTypeMappingName", issueTypeMappingName);
 
-                            context.put("issueTypeMappingNameAvail", "no");
+                            context.put("issueTypeMappingNameAvail", "yes");
                             context.put("issueTypeMappingFieldsAvail", "yes");
                             context.put("recordExists", "yes");
                         }
@@ -201,48 +244,6 @@ public class IssueTypeMappingServlet extends HttpServlet {
                 context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
 
                 templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
-            } else if (issueTypeMappingSelectChanged.equalsIgnoreCase("yes")) {
-
-                IntegrationObject integrationObject = getIntegrationObject(selectedIntegrationId);
-
-                if (issueTypeMappingSelectId.equalsIgnoreCase("New")) {
-                    context.put("issueTypeMappingNameAvail", "yes");
-                    context.put("issueTypeMappingFieldsAvail", "yes");
-                    context.put("recordExists", "no");
-                    context.put("selectedIssueTypeMappingId", "New");
-                } else {
-                    if (null != issueTypeMappingSelectId && !issueTypeMappingSelectId.equalsIgnoreCase("")) {
-                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordFromAOTableById(issueTypeMappingSelectId);
-
-                        if (null != issueTypeMapping) {
-                            context.put("selectedLocalProjectId", issueTypeMapping.getLocalProjectId());
-                            context.put("selectedLocalIssueTypeId", issueTypeMapping.getLocalIssueTypeId());
-                            context.put("selectedLocalEndStatusId", issueTypeMapping.getLocalEndStatusId());
-                            context.put("selectedRemoteProjectId", issueTypeMapping.getRemoteProjectId());
-                            context.put("selectedRemoteIssueTypeId", issueTypeMapping.getRemoteIssueTypeId());
-                            context.put("selectedIssueTypeMappingId", String.valueOf(issueTypeMapping.getID()));
-                            context.put("localIssueTypeList", getLocalIssueTypeList(issueTypeMapping.getLocalProjectId()));
-                            context.put("localEndStatusList", getLocalEndStatusList(issueTypeMapping.getLocalProjectId(), issueTypeMapping.getLocalIssueTypeId()));
-
-                            context.put("issueTypeMappingNameAvail", "no");
-                            context.put("issueTypeMappingFieldsAvail", "yes");
-                            context.put("recordExists", "yes");
-                        }
-                    } else {
-                        context.put("issueTypeMappingNameAvail", "no");
-                        context.put("issueTypeMappingFieldsAvail", "no");
-                        context.put("recordExists", "no");
-                    }
-                }
-
-                context.put("selectedIntegrationId", selectedIntegrationId);
-
-                context.put("localProjectList", getLocalProjectList());
-                context.put("remoteProjectList", getRemoteProjectList(integrationObject));
-                context.put("remoteIssueTypeList", getRemoteIssueTypeList(integrationObject));
-                context.put("issueTypeMappingList", getIssueTypeMappingList(selectedIntegrationId));
-
-                templateRenderer.render(ISSUE_TYPE_MAPPING_DETAIL_TEMPLATE, context, resp.getWriter());
             } else {
                 context.put("integrationList", getIntegrationList());
                 templateRenderer.render(ISSUE_TYPE_MAPPING_TEMPLATE, context, resp.getWriter());
@@ -253,7 +254,6 @@ public class IssueTypeMappingServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-
         ApplicationUser user = jiraAuthenticationContext.getLoggedInUser();
         Collection<ApplicationUser> administrators = ComponentAccessor.getUserUtil().getJiraAdministrators();
         if (null == jiraAuthenticationContext.getLoggedInUser() && !administrators.contains(user))
@@ -289,7 +289,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
                                 if (null != issueTypeMapping) {
                                     IssueTypeMappingObject issueTypeMappingObject = new IssueTypeMappingObject();
                                     issueTypeMappingObject.setIntegrationId(issueTypeMapping.getIntegrationId());
-                                    issueTypeMappingObject.setName(issueTypeMapping.getName());
+                                    issueTypeMappingObject.setName(issueTypeMappingName);
                                     issueTypeMappingObject.setLocalProjectId(localProjectId);
                                     issueTypeMappingObject.setLocalIssueTypeId(localIssueTypeId);
                                     issueTypeMappingObject.setLocalEndStatusId(localEndStatusId);

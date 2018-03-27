@@ -275,6 +275,8 @@ public class CreateIssueOnRemoteSystem extends AbstractJiraFunctionProvider
                 remoteIssueObject.setIntegrationId(integrationId);
                 remoteIssueObject.setIssueKey(issue.getKey());
                 remoteIssueObject.setRiKey(remoteIssueModel.getIssueKey());
+                remoteIssueObject.setRiProjectId(remoteIssueModel.getProject().getProjectId());
+                remoteIssueObject.setRiIssueTypeId(remoteIssueModel.getIssueType().getIssueTypeId());
                 remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
                 remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
                 remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());

@@ -2,20 +2,31 @@ package tr.com.almbase.plugin.service;
 
 import com.atlassian.event.api.EventListener;
 import com.atlassian.event.api.EventPublisher;
+import com.atlassian.jira.config.managedconfiguration.ConfigurationItemAccessLevel;
+import com.atlassian.jira.config.managedconfiguration.ManagedConfigurationItem;
+import com.atlassian.jira.config.managedconfiguration.ManagedConfigurationItemService;
+import com.atlassian.jira.issue.CustomFieldManager;
+import com.atlassian.jira.issue.context.GlobalIssueContext;
+import com.atlassian.jira.issue.context.JiraContextNode;
+import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.fields.screen.FieldScreen;
+import com.atlassian.jira.issue.fields.screen.FieldScreenManager;
+import com.atlassian.jira.issue.fields.screen.FieldScreenTab;
+import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.service.ServiceManager;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
+import org.ofbiz.core.entity.GenericValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.concurrent.GuardedBy;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Created by b96906 on 26.03.2018.
+ * Created by kivanc.ahat@almbase.com on 26.03.2018.
  */
 public class ServiceRefresher implements LifecycleAware, InitializingBean, DisposableBean
 {
@@ -23,136 +34,153 @@ public class ServiceRefresher implements LifecycleAware, InitializingBean, Dispo
 
     private final EventPublisher eventPublisher;
     private final ServiceManager serviceManager;
+    private final CustomFieldManager customFieldManager;
+    private final ManagedConfigurationItemService managedConfigurationItemService;
+    private final FieldScreenManager fieldScreenManager;
 
     @GuardedBy("this")
     private final Set<LifecycleEvent> lifecycleEvents = EnumSet.noneOf(LifecycleEvent.class);
 
-    /**
-     * Used to keep track of everything that needs to happen before we are sure that it is safe
-     * to talk to all of the components we need to use, particularly the {@code SchedulerService}
-     * and Active Objects.  We will not try to initialize until all of them have happened.
-     */
-    enum LifecycleEvent
-    {
+    enum LifecycleEvent {
         AFTER_PROPERTIES_SET,
         PLUGIN_ENABLED,
         LIFECYCLE_AWARE_ON_START
     }
 
-    public ServiceRefresher(EventPublisher eventPublisher, ServiceManager serviceManager)
-    {
+    public ServiceRefresher(EventPublisher eventPublisher,
+                            ServiceManager serviceManager,
+                            CustomFieldManager customFieldManager,
+                            ManagedConfigurationItemService managedConfigurationItemService,
+                            FieldScreenManager fieldScreenManager) {
         this.eventPublisher = eventPublisher;
         this.serviceManager = serviceManager;
+        this.customFieldManager = customFieldManager;
+        this.managedConfigurationItemService = managedConfigurationItemService;
+        this.fieldScreenManager = fieldScreenManager;
     }
 
-    /**
-     * This is received from the plugin system after the plugin is fully initialized.  It is not safe to use
-     * Active Objects before this event is received.
-     */
     @EventListener
-    public void onPluginEnabled(PluginEnabledEvent event)
-    {
+    public void onPluginEnabled(PluginEnabledEvent event) {
+        this.logger.debug("onPluginEnabled");
         this.onLifecycleEvent(LifecycleEvent.PLUGIN_ENABLED);
     }
 
-    /**
-     * This is received from Spring after the bean's properties are set.  We need to accept this to know when
-     * it is safe to register an event listener.
-     */
     @Override
-    public void afterPropertiesSet()
-    {
+    public void afterPropertiesSet() {
+        this.logger.debug("afterPropertiesSet");
         this.registerListener();
         this.onLifecycleEvent(LifecycleEvent.AFTER_PROPERTIES_SET);
     }
 
-    /**
-     * This is received from SAL after the system is really up and running from its perspective.  This includes
-     * things like the database being set up and other tricky things like that.  This needs to happen before we
-     * try to schedule anything, or the scheduler's tables may not be in a good state on a clean install.
-     */
     @Override
-    public void onStart()
-    {
+    public void onStart() {
+        this.logger.debug("onStart started!");
         this.onLifecycleEvent(LifecycleEvent.LIFECYCLE_AWARE_ON_START);
+
+        try {
+            CustomField itmslCustomField = null;
+            List<CustomField> customFields = customFieldManager.getCustomFieldObjects();
+            if (null != customFields) {
+                for (CustomField customField : customFields) {
+                    if (null != customField) {
+                        if (customField.getCustomFieldType().getKey().equalsIgnoreCase("tr.com.almbase.plugin.cardif-jsd-engine:itmsl")) {
+                            itmslCustomField = customField;
+                        }
+                    } else {
+                        this.logger.error("destroy : Custom Field is null");
+                    }
+                }
+            }
+
+            if (null == itmslCustomField) {
+                List<JiraContextNode> contexts = new ArrayList<JiraContextNode>();
+                contexts.add(GlobalIssueContext.getInstance());
+
+                List<IssueType> issueTypes = new ArrayList<>();
+                issueTypes.add(null);
+
+                CustomField customField = this.customFieldManager.createCustomField("Issue Type Mapping", "",
+                        this.customFieldManager.getCustomFieldType("tr.com.almbase.plugin.cardif-jsd-engine:itmsl"),
+                        this.customFieldManager.getCustomFieldSearcher("com.atlassian.jira.plugin.system.customfieldtypes:selectsearcher"),
+                        contexts,
+                        issueTypes);
+
+                lockCustomField(managedConfigurationItemService, customField);
+
+                FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11100L);
+                if (!remoteIssueLinkScreen.containsField(customField.getId())) {
+                    FieldScreenTab firstTab = remoteIssueLinkScreen.getTab(0);
+                    firstTab.addFieldScreenLayoutItem(customField.getId(), 0);
+                }
+            }
+        } catch (Exception e) {
+            this.logger.error("createCustomField error!");
+        }
     }
 
-    public void onStop()
+    private void lockCustomField(ManagedConfigurationItemService managedConfigurationItemService, CustomField customField)
     {
+        ManagedConfigurationItem managedConfigurationItem = managedConfigurationItemService.getManagedCustomField(customField);
+        managedConfigurationItem = managedConfigurationItem.newBuilder().setManaged(true).setConfigurationItemAccessLevel(ConfigurationItemAccessLevel.LOCKED).build();
+        managedConfigurationItemService.updateManagedConfigurationItem(managedConfigurationItem);
     }
 
-    /**
-     * This is received from Spring when we are getting destroyed.  We should make sure we do not leave any
-     * event listeners or job runners behind; otherwise, we could leak the current plugin context, leading to
-     * exceptions from destroyed OSGi proxies, memory leaks, and strange behaviour in general.
-     */
+    public void onStop() {
+        this.logger.debug("onStop started!");
+        /*List<CustomField> customFields = customFieldManager.getCustomFieldObjects();
+        if (null != customFields) {
+            for (CustomField customField : customFields) {
+                if (null != customField) {
+                    //this.logger.debug(customField.getFieldName());
+                    if (customField.getCustomFieldType().getKey().equalsIgnoreCase("tr.com.almbase.plugin.cardif-jsd-engine:itmsl")) {
+                        try {
+                            customFieldManager.removeCustomField(customField);
+                            this.logger.debug("customFieldManager.removeCustomField : Custom Field Name : " + customField.getFieldName() + " removed!");
+                        } catch (Exception e) {
+                            this.logger.error("customFieldManager.removeCustomField : Custom Field Name : " + customField.getFieldName());
+                        }
+                    }
+                } else {
+                    this.logger.error("destroy : Custom Field is null");
+                }
+            }
+        }*/
+        this.logger.debug("onStop ended!");
+    }
+
     @Override
-    public void destroy() throws Exception
-    {
+    public void destroy() throws Exception {
+        this.logger.debug("destroy");
         this.unregisterListener();
     }
 
-    /**
-     * The latch which ensures all of the plugin/application lifecycle progress is completed before we call
-     * {@code launch()}.
-     */
-    private void onLifecycleEvent(LifecycleEvent event)
-    {
-        this.logger.error("onLifecycleEvent: " + event);
-
+    private void onLifecycleEvent(LifecycleEvent event) {
+        this.logger.debug("onLifecycleEvent: " + event);
         if (this.isLifecycleReady(event)) {
-
             unregisterListener();
-
             try {
-
                 this.launch();
-
             } catch (Exception ex) {
-
                 this.logger.error("Unexpected error during launch", ex);
-
             }
         }
     }
 
-    /**
-     * The event latch.
-     * <p>
-     * When something related to the plugin initialization happens, we call this with
-     * the corresponding type of the event.  We will return {@code true} at most once, when the very last type
-     * of event is triggered.  This method has to be {@code synchronized} because {@code EnumSet} is not
-     * thread-safe and because we have multiple accesses to {@code lifecycleEvents} that need to happen
-     * atomically for correct behaviour.
-     * </p>
-     *
-     * @param event the lifecycle event that occurred
-     * @return {@code true} if this completes the set of initialization-related events; {@code false} otherwise
-     */
-    synchronized private boolean isLifecycleReady(LifecycleEvent event)
-    {
+    synchronized private boolean isLifecycleReady(LifecycleEvent event) {
+        this.logger.debug("isLifecycleReady");
         return this.lifecycleEvents.add(event) && this.lifecycleEvents.size() == LifecycleEvent.values().length;
     }
 
-    /**
-     * Do all the things we can't do before the system is fully up.
-     */
-    private void launch() throws Exception
-    {
+    private void launch() throws Exception {
+        this.logger.debug("launch");
         this.serviceManager.refreshServiceByName("2");
     }
 
-    /**
-     * Register listener
-     */
     private void registerListener()
     {
         this.eventPublisher.register(this);
     }
 
-    /**
-     * Unregister listener
-     */
     private void unregisterListener()
     {
         this.eventPublisher.unregister(this);
