@@ -305,7 +305,7 @@
     <description key="permission-restricted-projects.description">The Permission Restricted Projects Plugin</description>
   </rest>
 
-  <customfield-type name="Issue Type Mapping Custom Field" i18n-name-key="issue-type-mapping-custom-field.name" key="itmsl" class="tr.com.almbase.plugin.customfield.IssueTypeMapSelectList">
+  <customfield-type name="Issue Type Mapping Custom Field" i18n-name-key="issue-type-mapping-custom-field.name" key="itmsl" class="tr.com.almbase.plugin.customfield.IssueTypeMapSelectList" managed-access-level="locked" managed-description-key="Locked">
     <description key="issue-type-mapping-custom-field.description">The Issue Type Mapping Select List Custom Field Plugin</description>
     <resource name="view" type="velocity" location="/templates/customfields/itmview.vm"/>
     <resource name="edit" type="velocity" location="/templates/customfields/itmedit.vm"/>

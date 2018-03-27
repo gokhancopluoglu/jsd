@@ -77,6 +77,8 @@ public class RemoteIssueUpdateService extends AbstractService{
                                         remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
                                         remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
                                         remoteIssueObject.setRiKey(remoteIssue.getRiKey());
+                                        remoteIssueObject.setRiProjectId(remoteIssue.getRiProjectId());
+                                        remoteIssueObject.setRiIssueTypeId(remoteIssue.getRiIssueTypeId());
                                         remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
                                         remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
                                         remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
