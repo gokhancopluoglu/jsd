@@ -13,6 +13,7 @@ import com.atlassian.jira.util.json.JSONArray;
 import com.atlassian.jira.util.json.JSONObject;
 import com.atlassian.jira.workflow.WorkflowException;
 import com.atlassian.jira.workflow.function.issue.AbstractJiraFunctionProvider;
+import com.atlassian.sal.api.message.I18nResolver;
 import com.opensymphony.module.propertyset.PropertySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
     private final ProxyController proxyController;
     private final IssueTypeMappingController issueTypeMappingController;
     private final CustomFieldManager customFieldManager;
+    private final I18nResolver i18nResolver;
     private final FieldMappingController fieldMappingController;
     private final RemoteIssueController remoteIssueController;
     private final CategoryComponentController categoryComponentController;
@@ -51,6 +53,7 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
                                    ProxyController proxyController,
                                    IssueTypeMappingController issueTypeMappingController,
                                    CustomFieldManager customFieldManager,
+                                   I18nResolver i18nResolver,
                                    FieldMappingController fieldMappingController,
                                    RemoteIssueController remoteIssueController,
                                    CategoryComponentController categoryComponentController,
@@ -62,6 +65,7 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
         this.proxyController = proxyController;
         this.issueTypeMappingController = issueTypeMappingController;
         this.customFieldManager = customFieldManager;
+        this.i18nResolver = i18nResolver;
         this.fieldMappingController = fieldMappingController;
         this.remoteIssueController = remoteIssueController;
         this.categoryComponentController = categoryComponentController;
@@ -652,7 +656,7 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
             JSONArray commentArray = new JSONArray();
             JSONObject commentAddObject = new JSONObject();
             JSONObject commentBodyObject = new JSONObject();
-            commentBodyObject.put("body", "Cardif entegrasyonu tarafından otomatik olarak Açık statüsüne çekilmiştir.");
+            commentBodyObject.put("body", i18nResolver.getText(new Locale("tr", "TR"),"tr.com.almbase.auto.transtion.message"));
             commentAddObject.put("add", commentBodyObject);
             commentArray.put(commentAddObject);
             commentObject.put("comment", commentArray);
