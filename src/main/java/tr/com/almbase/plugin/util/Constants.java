@@ -18,6 +18,7 @@ public class Constants {
 
     public static final String REST_CREATE_ISSUE = "/rest/api/2/issue";
     public static final String REST_GET_ISSUE = "/rest/api/2/issue/ISSUEKEY";
+    public static final String REST_DO_TRANSITON = "/rest/api/2/issue/ISSUEKEY/transitions";
     public static final String BROWSE_ISSUE = "/browse/";
     public static final String REST_GET_ALL_PROJECTS = "/rest/api/2/project";
     public static final String REST_GET_PROJECT = "/rest/api/2/project/PROJECTKEY";

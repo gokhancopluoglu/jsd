@@ -13,9 +13,9 @@ import java.util.Map;
  * Created by kivanc.ahat@almbase.com on 16/11/2017.
  */
 
-public class CreateIssueOnRemoteSystemFactory extends AbstractWorkflowPluginFactory implements WorkflowPluginFunctionFactory
+public class CreateIssueInRemoteJiraFactory extends AbstractWorkflowPluginFactory implements WorkflowPluginFunctionFactory
 {
-    public CreateIssueOnRemoteSystemFactory(WorkflowManager workflowManager) {
+    public CreateIssueInRemoteJiraFactory(WorkflowManager workflowManager) {
     }
 
     @Override

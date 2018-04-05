@@ -1,8 +1,11 @@
 package tr.com.almbase.plugin.util;
 
+import com.atlassian.crowd.embedded.api.Group;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.customfields.option.Option;
+import com.atlassian.jira.issue.customfields.option.Options;
+import com.atlassian.jira.issue.customfields.view.CustomFieldParams;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
@@ -89,6 +92,27 @@ public class Utils {
     private static Response createIssue (String paylod, IntegrationObject integrationObject) throws Exception {
         try {
             String restUrl = integrationObject.getUrl() + Constants.REST_CREATE_ISSUE;
+            return doPost(restUrl, paylod, integrationObject);
+        } catch (Exception e) {
+            Utils.printError(e);
+            throw e;
+        }
+    }
+
+    public static void doRemoteIssueTransition (String remoteIssueKey, String paylod, IntegrationObject integrationObject) throws Exception {
+        try {
+            Response response = doIssueTransition(remoteIssueKey, paylod, integrationObject);
+            log.debug(response.getResponse());
+        } catch (Exception e) {
+            Utils.printError(e);
+            throw e;
+        }
+    }
+
+    private static Response doIssueTransition (String remoteIssueKey, String paylod, IntegrationObject integrationObject) throws Exception {
+        try {
+            String restUrl = integrationObject.getUrl() + Constants.REST_DO_TRANSITON;
+            restUrl = restUrl.replace("ISSUEKEY", remoteIssueKey);
             return doPost(restUrl, paylod, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
@@ -219,20 +243,39 @@ public class Utils {
             {
                 if (issue.getCustomFieldValue(customField) != null)
                 {
-                    if (issue.getCustomFieldValue(customField) instanceof Option)
+                    if (issue.getCustomFieldValue(customField) instanceof Option) //Select List, Radio Button
                     {
                         Option option = (Option)issue.getCustomFieldValue(customField);
                         cfVal = option.getValue();
-                    } else if (issue.getCustomFieldValue(customField) instanceof GenericValue) {
-                        GenericValue gv = (GenericValue)issue.getCustomFieldValue(customField);
-                        cfVal = gv.getOriginalDbValue("originalkey");
+                    } else if (issue.getCustomFieldValue(customField) instanceof Options) { //Multi Select List
+                        cfVal = issue.getCustomFieldValue(customField);
+                    } else if (issue.getCustomFieldValue(customField) instanceof CustomFieldParams) { //Cascading Select List
+                        cfVal = issue.getCustomFieldValue(customField);
                     } else if (issue.getCustomFieldValue(customField) instanceof String) {
                         cfVal = issue.getCustomFieldValue(customField);
                     } else if (issue.getCustomFieldValue(customField) instanceof Date) {
                         cfVal = issue.getCustomFieldValue(customField);
-                    } else if (issue.getCustomFieldValue(customField) instanceof ApplicationUser) {
+                    } else if (issue.getCustomFieldValue(customField) instanceof ApplicationUser) { //User Picker
                         ApplicationUser user = (ApplicationUser)issue.getCustomFieldValue(customField);
-                        cfVal = user.getDirectoryUser().getName();
+                        cfVal = user.getName();
+                    } else if (issue.getCustomFieldValue(customField) instanceof Collection) { //Multi User Picker
+                        try {
+                            cfVal = (Collection<ApplicationUser>)issue.getCustomFieldValue(customField);
+                        } catch (Exception e) {
+                            log.error("Collection cast error. Trying to get Multi User Picker. Custom field id : " + customField.getId());
+                        }
+                    } else if (issue.getCustomFieldValue(customField) instanceof Group) { //Group Picker
+                        Group group = (Group)issue.getCustomFieldValue(customField);
+                        cfVal = group.getName();
+                    } else if (issue.getCustomFieldValue(customField) instanceof Collection) { //Multi Group Picker
+                        try {
+                            cfVal = (Collection<Group>)issue.getCustomFieldValue(customField);
+                        } catch (Exception e) {
+                            log.error("Collection cast error. Trying to get Multi Group Picker. Custom field id : " + customField.getId());
+                        }
+                    } else if (issue.getCustomFieldValue(customField) instanceof GenericValue) {
+                        GenericValue gv = (GenericValue)issue.getCustomFieldValue(customField);
+                        cfVal = gv.getOriginalDbValue("originalkey");
                     }
                 }
             } else {

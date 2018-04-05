@@ -1,0 +1,17 @@
+#enable_html_escaping()
+<html>
+
+<head>
+<title>Jira admin sayfası hata</title>
+<meta name="decorator" content="atl.general">
+
+<style type="text/css">
+</style>
+</head>
+
+<body class="page-type-admin">
+
+<h1>Bu sayfaya erişim yetkiniz bulunmuyor!</h1>
+
+</body>
+</html>

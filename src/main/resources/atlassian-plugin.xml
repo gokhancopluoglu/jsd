@@ -273,13 +273,13 @@
     <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
   </workflow-function>
 
-  <workflow-function key="create-issue-on-remote-system" name="Create Issue On Remote System" i18n-name-key="create-issue-on-remote-system.name" class="tr.com.almbase.plugin.workflow.postfunction.CreateIssueOnRemoteSystemFactory">
-    <description key="create-issue-on-remote-system.description">The Create Issue On Remote System Plugin</description>
-    <function-class>tr.com.almbase.plugin.workflow.postfunction.CreateIssueOnRemoteSystem</function-class>
+  <workflow-function key="create-issue-in-remote-jira" name="Create Issue In Remote Jira" i18n-name-key="create-issue-in-remote-jira.name" class="tr.com.almbase.plugin.workflow.postfunction.CreateIssueInRemoteJiraFactory">
+    <description key="create-issue-in-remote-jira.description">The Create Issue In Remote System Plugin</description>
+    <function-class>tr.com.almbase.plugin.workflow.postfunction.CreateIssueInRemoteJira</function-class>
     <orderable>true</orderable>
     <unique>true</unique>
     <deletable>true</deletable>
-    <resource type="velocity" name="view" location="templates/workflow/postfunctions/create-issue-on-remote-system.vm"/>
+    <resource type="velocity" name="view" location="templates/workflow/postfunctions/create-issue-in-remote-jira.vm"/>
   </workflow-function>
 
   <web-item name="Hide Edit" i18n-name-key="tr.com.almbase.plugin.hide.edit.name" key="hide-edit" section="operations-top-level" weight="1">

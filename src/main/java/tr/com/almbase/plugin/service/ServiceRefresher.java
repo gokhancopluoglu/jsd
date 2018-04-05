@@ -105,12 +105,14 @@ public class ServiceRefresher implements LifecycleAware, InitializingBean, Dispo
                         contexts,
                         issueTypes);
 
-                lockCustomField(managedConfigurationItemService, customField);
+                if (null != customField) {
+                    lockCustomField(managedConfigurationItemService, customField);
 
-                FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11100L);
-                if (!remoteIssueLinkScreen.containsField(customField.getId())) {
-                    FieldScreenTab firstTab = remoteIssueLinkScreen.getTab(0);
-                    firstTab.addFieldScreenLayoutItem(customField.getId(), 0);
+                    FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11100L);
+                    if (null != remoteIssueLinkScreen && !remoteIssueLinkScreen.containsField(customField.getId())) {
+                        FieldScreenTab firstTab = remoteIssueLinkScreen.getTab(0);
+                        firstTab.addFieldScreenLayoutItem(customField.getId(), 0);
+                    }
                 }
             }
         } catch (Exception e) {
