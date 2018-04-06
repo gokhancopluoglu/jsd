@@ -2,6 +2,7 @@ package tr.com.almbase.plugin.service;
 
 import com.atlassian.configurable.ObjectConfiguration;
 import com.atlassian.configurable.ObjectConfigurationException;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.service.AbstractService;
@@ -14,7 +15,6 @@ import tr.com.almbase.plugin.model.RemoteIssueModel;
 import tr.com.almbase.plugin.util.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * Created by kivanc.ahat@almbase.com on 20/02/2018.
@@ -22,23 +22,11 @@ import java.util.Calendar;
 public class RemoteIssueUpdateService extends AbstractService{
     private static final Logger log = LoggerFactory.getLogger(RemoteIssueUpdateService.class);
 
-    private final RemoteIssueController remoteIssueController;
-    private final IntegrationController integrationController;
-    private final IssueTypeMappingController issueTypeMappingController;
-    private final ProxyController proxyController;
     private final ServiceManager serviceManager;
     private final IssueManager issueManager;
 
-    public RemoteIssueUpdateService (RemoteIssueController remoteIssueController,
-                                     IntegrationController integrationController,
-                                     IssueTypeMappingController issueTypeMappingController,
-                                     ProxyController proxyController,
-                                     ServiceManager serviceManager,
+    public RemoteIssueUpdateService (ServiceManager serviceManager,
                                      IssueManager issueManager) {
-        this.remoteIssueController = remoteIssueController;
-        this.integrationController = integrationController;
-        this.issueTypeMappingController = issueTypeMappingController;
-        this.proxyController = proxyController;
         this.serviceManager = serviceManager;
         this.issueManager = issueManager;
     }
@@ -57,6 +45,10 @@ public class RemoteIssueUpdateService extends AbstractService{
         }
 
         try {
+
+            RemoteIssueController remoteIssueController = ComponentAccessor.getOSGiComponentInstanceOfType(RemoteIssueController.class);
+            IssueTypeMappingController issueTypeMappingController = ComponentAccessor.getOSGiComponentInstanceOfType(IssueTypeMappingController.class);
+
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
             if (null != remoteIssues) {
                 for (RemoteIssue remoteIssue : remoteIssues) {
@@ -123,8 +115,11 @@ public class RemoteIssueUpdateService extends AbstractService{
     private IntegrationObject getIntegrationObject(String integrationId) {
         IntegrationObject integrationObject = null;
         try {
+            IntegrationController integrationController = ComponentAccessor.getOSGiComponentInstanceOfType(IntegrationController.class);
             Integration integration = integrationController.getRecordFromAOTableById(integrationId);
             integrationObject = new IntegrationObject(integration);
+
+            ProxyController proxyController = ComponentAccessor.getOSGiComponentInstanceOfType(ProxyController.class);
             integrationObject.setProxy(proxyController.getProxyRecordFromAOTable());
         } catch (Exception e) {
             Utils.printError(e);

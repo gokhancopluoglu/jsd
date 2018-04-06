@@ -16,14 +16,16 @@ import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.service.ServiceManager;
 import com.atlassian.plugin.event.events.PluginEnabledEvent;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
-import org.ofbiz.core.entity.GenericValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.concurrent.GuardedBy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by kivanc.ahat@almbase.com on 26.03.2018.
@@ -175,7 +177,7 @@ public class ServiceRefresher implements LifecycleAware, InitializingBean, Dispo
 
     private void launch() throws Exception {
         this.logger.debug("launch");
-        this.serviceManager.refreshServiceByName("2");
+        this.serviceManager.refreshServiceByName("RemoteIssueUpdateService");
     }
 
     private void registerListener()

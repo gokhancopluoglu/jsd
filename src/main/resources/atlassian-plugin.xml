@@ -86,9 +86,11 @@
   <component key="ProxyControllerImpl" class="tr.com.almbase.plugin.activeobject.ProxyControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.ProxyController</interface>
   </component>
+
   <component key="IssueTypeMappingControllerImpl" class="tr.com.almbase.plugin.activeobject.IssueTypeMappingControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.IssueTypeMappingController</interface>
   </component>
+
   <component key="FieldMappingControllerImpl" class="tr.com.almbase.plugin.activeobject.FieldMappingControllerImpl" public="true">
     <interface>tr.com.almbase.plugin.activeobject.FieldMappingController</interface>
   </component>
