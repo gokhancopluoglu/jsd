@@ -513,6 +513,8 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
                 remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
                 remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
                 remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+                remoteIssueObject.setRiProjectId(remoteIssueModel.getProject().getProjectId());
+                remoteIssueObject.setRiIssueTypeId(remoteIssueModel.getIssueType().getIssueTypeId());
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");

@@ -58,6 +58,7 @@ public class RemoteIssueUpdateService extends AbstractService{
                                 String.valueOf(issue.getProjectId()), issue.getIssueTypeId(), remoteIssue.getRiProjectId(), remoteIssue.getRiIssueTypeId());
 
                         if (null != issueTypeMapping) {
+                            log.debug("issueTypeMapping is not null!");
                             if (!issue.getStatusId().equalsIgnoreCase(issueTypeMapping.getLocalEndStatusId())) {
 
                                 IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());

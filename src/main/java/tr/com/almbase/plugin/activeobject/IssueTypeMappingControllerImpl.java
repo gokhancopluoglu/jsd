@@ -54,18 +54,26 @@ public class IssueTypeMappingControllerImpl implements IssueTypeMappingControlle
     }
 
     public IssueTypeMapping getRecordWithAllParameters(String integrationId, String localProjectId, String localIssueTypeId, String remoteProjectId, String remoteIssueTypeId) {
-        IssueTypeMapping issueTypeMap = null;
+        IssueTypeMapping issueTypeMapping = null;
         try {
+            log.debug("Integration Id : " + integrationId);
+            log.debug("Local Project Id : " + localProjectId);
+            log.debug("Local Issue Type Id : " + localIssueTypeId);
+            log.debug("Remote Project Id : " + remoteProjectId);
+            log.debug("Remote Issue Type Id : " + remoteIssueTypeId);
+
             IssueTypeMapping [] issueTypeMappings = activeObjects.find(IssueTypeMapping.class, "INTEGRATION_ID = ? AND LOCAL_PROJECT_ID = ? AND LOCAL_ISSUE_TYPE_ID = ? AND REMOTE_PROJECT_ID = ? AND REMOTE_ISSUE_TYPE_ID = ?", integrationId, localProjectId, localIssueTypeId, remoteProjectId, remoteIssueTypeId);
             if (null != issueTypeMappings && issueTypeMappings.length > 0)
-                issueTypeMap = issueTypeMappings[0];
+                issueTypeMapping = issueTypeMappings[0];
+
+            log.debug("IssueTypeMapping is " + issueTypeMapping == null ? "null!" : "not null");
         } catch (Exception e) {
             StringWriter stack = new StringWriter();
             e.printStackTrace(new PrintWriter(stack));
             log.error(stack.toString());
             log.error("Couldn't find any record!");
         }
-        return issueTypeMap;
+        return issueTypeMapping;
     }
 
     public IssueTypeMapping[] getRecordFromAOTableByIntegrationId(String integrationId) {
