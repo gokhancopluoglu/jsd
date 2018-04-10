@@ -417,7 +417,7 @@ public class IssueTypeMappingServlet extends HttpServlet {
             if (!localProjectId.equalsIgnoreCase("") && !localIssueTypeId.equalsIgnoreCase("")) {
                 Project project = projectManager.getProjectObj(Long.parseLong(localProjectId));
                 IssueType issueType = constantsManager.getIssueType(localIssueTypeId);
-                String workflowName = workflowSchemeManager.getWorkflowName(project, issueType.getName());
+                String workflowName = workflowSchemeManager.getWorkflowName(project, issueType.getId());
 
                 JiraWorkflow jiraWorkflow = ComponentAccessor.getWorkflowManager().getWorkflow(workflowName);
                 List<Status> statusList = jiraWorkflow.getLinkedStatusObjects();
