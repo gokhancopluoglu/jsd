@@ -317,9 +317,9 @@
 
   <customfield-type name="Remote Issue Link View Custom Field" i18n-name-key="remote-issue-link-view-custom-field.name" key="rilv" class="tr.com.almbase.plugin.customfield.RemoteIssueLinkView" managed-access-level="locked" managed-description-key="Locked">
     <description key="remote-issue-link-view-custom-field.description">The Remote Issue Link View Custom Field Plugin</description>
-    <resource name="view" type="velocity" location="/templates/customfields/rilview.vm"/>
-    <resource name="column-view" type="velocity" location="templates/customfields/rilview.vm"/>
-    <resource name="xml" type="velocity" location="templates/customfields/rilview.vm"/>
+    <resource name="view" type="velocity" location="/templates/customfields/rilvview.vm"/>
+    <resource name="column-view" type="velocity" location="templates/customfields/rilvview.vm"/>
+    <resource name="xml" type="velocity" location="templates/customfields/rilvview.vm"/>
   </customfield-type>
 
   <component key="test" class="tr.com.almbase.plugin.service.ServiceRefresher" public="true">
