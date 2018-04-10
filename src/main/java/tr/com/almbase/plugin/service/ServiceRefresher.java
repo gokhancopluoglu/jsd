@@ -79,7 +79,7 @@ public class ServiceRefresher implements LifecycleAware, InitializingBean, Dispo
         this.logger.debug("onStart started!");
         this.onLifecycleEvent(LifecycleEvent.LIFECYCLE_AWARE_ON_START);
 
-        try {
+        try {/*
             CustomField itmslCustomField = null;
             List<CustomField> customFields = customFieldManager.getCustomFieldObjects();
             if (null != customFields) {
@@ -110,13 +110,54 @@ public class ServiceRefresher implements LifecycleAware, InitializingBean, Dispo
                 if (null != customField) {
                     lockCustomField(managedConfigurationItemService, customField);
 
-                    FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11100L);
+                    FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11321L);
                     if (null != remoteIssueLinkScreen && !remoteIssueLinkScreen.containsField(customField.getId())) {
                         FieldScreenTab firstTab = remoteIssueLinkScreen.getTab(0);
                         firstTab.addFieldScreenLayoutItem(customField.getId(), 0);
                     }
                 }
             }
+*/
+
+            CustomField rilvCustomField = null;
+            List<CustomField> customFields = customFieldManager.getCustomFieldObjects();
+            if (null != customFields) {
+                for (CustomField customField : customFields) {
+                    if (null != customField) {
+                        if (customField.getCustomFieldType().getKey().equalsIgnoreCase("tr.com.almbase.plugin.cardif-jsd-engine:rilv")) {
+                            rilvCustomField = customField;
+                        }
+                    } else {
+                        this.logger.error("destroy : Custom Field is null");
+                    }
+                }
+            }
+
+            if (null == rilvCustomField) {
+                List<JiraContextNode> contexts = new ArrayList<JiraContextNode>();
+                contexts.add(GlobalIssueContext.getInstance());
+
+                List<IssueType> issueTypes = new ArrayList<>();
+                issueTypes.add(null);
+
+                CustomField customField = this.customFieldManager.createCustomField("Remote Issue Links", "",
+                        this.customFieldManager.getCustomFieldType("tr.com.almbase.plugin.cardif-jsd-engine:rilv"),
+                        this.customFieldManager.getCustomFieldSearcher("com.atlassian.jira.plugin.system.customfieldtypes:textsearcher"),
+                        contexts,
+                        issueTypes);
+
+                if (null != customField) {
+                    lockCustomField(managedConfigurationItemService, customField);
+
+                    FieldScreen remoteIssueLinkScreen = fieldScreenManager.getFieldScreen(11321L);
+                    if (null != remoteIssueLinkScreen && !remoteIssueLinkScreen.containsField(customField.getId())) {
+                        FieldScreenTab firstTab = remoteIssueLinkScreen.getTab(0);
+                        firstTab.addFieldScreenLayoutItem(customField.getId(), 0);
+                    }
+                }
+            }
+
+
         } catch (Exception e) {
             this.logger.error("createCustomField error!");
         }

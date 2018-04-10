@@ -1,0 +1,19 @@
+#set($size = $remoteIssueLinks.size())
+#if ($size > 0)
+    <table>
+        #foreach($remoteIssueLinkMap in $remoteIssueLinks)
+            #set ($remoteIssueKey = $remoteIssueLinkMap.get('remoteIssueKey'))
+            #set ($remoteIssueStatus = $remoteIssueLinkMap.get('remoteIssueStatus'))
+            #set ($remoteIssueStatusColor = $remoteIssueLinkMap.get('remoteIssueStatusColor'))
+
+            <tr>
+                <td style="width: 50%;">
+                    <a target="_blank" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueSummary)$remoteIssueSummary#end</a>
+                </td>
+                <td style="width: 50%;">
+                    <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$remoteIssueStatusColor jira-issue-status-lozenge-indeterminate jira-issue-status-lozenge-max-width-medium" original-title>#if($remoteIssueStatus)$remoteIssueStatus#end</span>
+                </td>
+            </tr>
+         #end
+    </table>
+#end
