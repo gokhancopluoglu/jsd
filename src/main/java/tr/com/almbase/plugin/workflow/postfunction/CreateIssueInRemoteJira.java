@@ -1,6 +1,7 @@
 package tr.com.almbase.plugin.workflow.postfunction;
 
 import com.atlassian.crowd.embedded.api.Group;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
@@ -17,6 +18,7 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.opensymphony.module.propertyset.PropertySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.awt.AWTAccessor;
 import tr.com.almbase.plugin.activeobject.*;
 import tr.com.almbase.plugin.model.RemoteComponentModel;
 import tr.com.almbase.plugin.model.RemoteCustomFieldModel;
@@ -126,8 +128,8 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
                     throw new Exception("Remote issue could not be created! Reason : Integration point is incorrect!");
                 }
             } else {
-                log.error("Issue Key : " + issue.getKey() + " Issue Type Mapping is null!");
-                throw new Exception("Remote issue could not be created! Reason : Issue Type Mapping is incorrect");
+                log.debug("Issue Key : " + issue.getKey() + " Issue Type Mapping is null!");
+                //throw new Exception("Remote issue could not be created! Reason : Issue Type Mapping is incorrect");
             }
 
         } catch (Exception e) {
@@ -139,6 +141,8 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
     private JSONObject getJSONForIssueCreate (Issue issue, IssueTypeMapping issueTypeMapping) {
         JSONObject jsonObject = new JSONObject();
         try {
+            ApplicationUser loggedInUser = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
+
             FieldMapping[] fieldMappings = fieldMappingController.getRecordFromAOTableByIssueTypeMappingId(String.valueOf(issueTypeMapping.getID()));
 
             IntegrationObject integrationObject = getIntegrationObject(issueTypeMapping.getIntegrationId());
@@ -156,6 +160,14 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
             JSONObject issueType = new JSONObject();
             issueType.put("id", issueTypeMapping.getRemoteIssueTypeId());
             fields.put("issuetype", issueType);
+
+            //Reporter
+            String reportingUser = Utils.getRemoteUser(loggedInUser.getEmailAddress(), integrationObject);
+            if (null != reportingUser) {
+                JSONObject reporter = new JSONObject();
+                issueType.put("name", reportingUser);
+                fields.put("reporter", issueType);
+            }
 
             for (FieldMapping fieldMapping : fieldMappings) {
                 if (fieldMapping.getRemoteFieldId().equalsIgnoreCase("summary")) {

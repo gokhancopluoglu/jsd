@@ -27,6 +27,7 @@ public class Constants {
     public static final String REST_GET_ISSUE_TYPES = "/rest/api/2/issuetype";
     public static final String REST_GET_FIELDS = "/rest/api/2/field";
     public static final String REST_GET_ISSUE_CREATE_METADATA = "/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys=PROJECTKEY&issuetypeIds=ISSUETYPEID";
+    public static final String REST_GET_USER = "/rest/api/2/user/picker?query=EMAILADDRESS";
 
     public static final String BRANS_CUSTOMFIELD_ID = "customfield_10061";
 

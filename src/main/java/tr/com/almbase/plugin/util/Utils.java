@@ -142,7 +142,7 @@ public class Utils {
         }
     }
 
-    private static Response getRemoteCustomField (String projectKey, String issueTypeId, IntegrationObject integrationObject) throws Exception {
+    private static Response getCustomField (String projectKey, String issueTypeId, IntegrationObject integrationObject) throws Exception {
         try {
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_ISSUE_CREATE_METADATA;
             restUrl = restUrl.replace("PROJECTKEY", projectKey);
@@ -199,6 +199,17 @@ public class Utils {
     private static Response getFields (IntegrationObject integrationObject) throws Exception {
         try {
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_FIELDS;
+            return doGet(restUrl, integrationObject);
+        } catch (Exception e) {
+            Utils.printError(e);
+            throw e;
+        }
+    }
+
+    private static Response getUser (String emailAddress, IntegrationObject integrationObject) throws Exception {
+        try {
+            String restUrl = integrationObject.getUrl() + Constants.REST_GET_USER;
+            restUrl = restUrl.replace("EMAILADDRESS", emailAddress);
             return doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
@@ -850,7 +861,7 @@ public class Utils {
     public static RemoteCustomFieldModel getRemoteCustomFieldModel (String projectKey, String issueTypeId, String fieldId, IntegrationObject integrationObject) {
         RemoteCustomFieldModel remoteSelectListModel = null;
         try {
-            Response response = getRemoteCustomField(projectKey, issueTypeId, integrationObject);
+            Response response = getCustomField(projectKey, issueTypeId, integrationObject);
 
             if (response.getResponseCode() == 200) {
                 printDebug(response.getResponse());
@@ -908,5 +919,37 @@ public class Utils {
             printError(e);
         }
         return remoteSelectListModel;
+    }
+
+    public static String getRemoteUser(String emailAddress, IntegrationObject integrationObject) {
+        String remoteUserName = null;
+        try {
+            Response response = getUser(emailAddress, integrationObject);
+
+            if (response.getResponseCode() == 200) {
+                printDebug(response.getResponse());
+                JSONObject jsonObject = new JSONObject(response.getResponse());
+                if (null != jsonObject && jsonObject.has("users")) {
+                    JSONArray users = jsonObject.getJSONArray("users");
+                    printDebug("Users json : " + users.toString());
+                    if (null != users && users.length() > 0) {
+                        for (int i = 0; i < users.length(); i++) {
+                            JSONObject user = users.getJSONObject(i);
+                            printDebug("User json : " + user.toString());
+                            if (null != user && user.has("name")) {
+                                remoteUserName = user.getString("name");
+                                printDebug("User name : " + remoteUserName);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                log.debug("Can not get User : " + emailAddress + " Response code is : " + response.getResponseCode());
+            }
+        } catch (Exception e) {
+            printError(e);
+        }
+        return remoteUserName;
     }
 }
