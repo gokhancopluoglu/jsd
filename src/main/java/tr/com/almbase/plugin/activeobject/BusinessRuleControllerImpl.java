@@ -3,10 +3,12 @@ package tr.com.almbase.plugin.activeobject;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tr.com.almbase.plugin.util.Utils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -155,53 +157,146 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         BusinessRule businessRule = null;
         try {
             if (null != issueType && !issueType.equalsIgnoreCase("")) {
+                Utils.printDebug("getRecordFromAOTableByIssueType : issueType is not null." );
                 if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryComponentId is not null." + categoryComponentId);
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                        if (br.getCategoryComponentId().equalsIgnoreCase(categoryComponentId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
                     }
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryComponentId : userNames : " + Arrays.toString(userNames.toArray()));
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 }
                 if (null == businessRule
                         && (null != categoryItemId && !categoryItemId.equalsIgnoreCase(""))) {
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryItemId is not null." + categoryItemId);
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                        if (br.getCategoryItemId().equalsIgnoreCase(categoryItemId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
                     }
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryItemId : userNames : " + Arrays.toString(userNames.toArray()));
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 }
                 if (null == businessRule
                         && (null != subCategoryId && !subCategoryId.equalsIgnoreCase(""))) {
+                    Utils.printDebug("getRecordFromAOTableByIssueType : subCategoryId is not null." + subCategoryId);
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                        if (br.getSubCategoryId().equalsIgnoreCase(subCategoryId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
                     }
+                    Utils.printDebug("getRecordFromAOTableByIssueType : subCategoryId : userNames : " + Arrays.toString(userNames.toArray()));
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
                 }
                 if (null == businessRule
                         && null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryId is not null." + categoryId);
                     BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
                     List<String> userNames = new ArrayList<>();
                     for (BusinessRule br : tempBusinessRules) {
-                        if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
-                            userNames.add(br.getUserName().trim());
+                        if (br.getCategoryId().equalsIgnoreCase(categoryId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
                         }
                     }
+                    Utils.printDebug("getRecordFromAOTableByIssueType : categoryId : userNames : " + Arrays.toString(userNames.toArray()));
+                    if (userNames.size() == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                }
+            }
+        } catch (Exception e) {
+            StringWriter stack = new StringWriter();
+            e.printStackTrace(new PrintWriter(stack));
+            log.error(stack.toString());
+            log.error("Couldn't find any record!");
+        }
+        return businessRule;
+    }
+
+    public BusinessRule getRecordFromAOTableByAllParameters(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId) {
+        BusinessRule businessRule = null;
+        try {
+            if (null != issueType && !issueType.equalsIgnoreCase("")) {
+                Utils.printDebug("getRecordFromAOTableByAllParameters : issueType is not null." );
+                if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryComponentId is not null." + categoryComponentId);
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_COMPONENT_ID = ?", issueType, categoryComponentId);
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (br.getCategoryComponentId().equalsIgnoreCase(categoryComponentId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
+                        }
+                    }
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryComponentId : userNames : " + Arrays.toString(userNames.toArray()));
+                    if (userNames.size() == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryItemId is not null." + categoryItemId);
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ITEM_ID = ?", issueType, categoryItemId);
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (br.getCategoryItemId().equalsIgnoreCase(categoryItemId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
+                        }
+                    }
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryItemId : userNames : " + Arrays.toString(userNames.toArray()));
+                    if (userNames.size() == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : subCategoryId is not null." + subCategoryId);
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND SUB_CATEGORY_ID = ?", issueType, subCategoryId);
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (br.getSubCategoryId().equalsIgnoreCase(subCategoryId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
+                        }
+                    }
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : subCategoryId : userNames : " + Arrays.toString(userNames.toArray()));
+                    if (userNames.size() == 1) {
+                        businessRule = tempBusinessRules[0];
+                    }
+                } else if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryId is not null." + categoryId);
+                    BusinessRule [] tempBusinessRules = activeObjects.find(BusinessRule.class, "ISSUE_TYPE = ? AND CATEGORY_ID = ?", issueType, categoryId);
+                    List<String> userNames = new ArrayList<>();
+                    for (BusinessRule br : tempBusinessRules) {
+                        if (br.getCategoryId().equalsIgnoreCase(categoryId)) {
+                            if (null != br.getUserName() && !br.getUserName().trim().equalsIgnoreCase("")) {
+                                userNames.add(br.getUserName().trim());
+                            }
+                        }
+                    }
+                    Utils.printDebug("getRecordFromAOTableByAllParameters : categoryId : userNames : " + Arrays.toString(userNames.toArray()));
                     if (userNames.size() == 1) {
                         businessRule = tempBusinessRules[0];
                     }
@@ -234,7 +329,7 @@ public class BusinessRuleControllerImpl implements BusinessRuleController{
         try {
             BusinessRule foundAO = null;
              if (null != businessRuleObject.getIssueType() && !businessRuleObject.getIssueType().equalsIgnoreCase("")) {
-                 BusinessRule businessRule = getRecordFromAOTableByIssueType(businessRuleObject.getIssueType(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId(), businessRuleObject.getCategoryItemId(), businessRuleObject.getCategoryComponentId());
+                 BusinessRule businessRule = getRecordFromAOTableByAllParameters(businessRuleObject.getIssueType(), businessRuleObject.getCategoryId(), businessRuleObject.getSubCategoryId(), businessRuleObject.getCategoryItemId(), businessRuleObject.getCategoryComponentId());
                  if (null != businessRule) {
                      foundAO = businessRule;
                  }

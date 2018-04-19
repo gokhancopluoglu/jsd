@@ -5,6 +5,7 @@ public interface BusinessRuleController {
 	BusinessRule getRecordFromAOTableById(String businessRuleId);
 	BusinessRule[] getAllRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId);
 	BusinessRule getRecordFromAOTableByIssueType(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId);
+	BusinessRule getRecordFromAOTableByAllParameters(String issueType, String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId);
 	BusinessRule[] getRecordFromAOTableByCategoryId(String categoryId);
 	BusinessRule[] getRecordFromAOTableBySubCategoryId(String subCategoryId);
 	BusinessRule[] getRecordFromAOTableByCategoryItemId(String categoryItemId);

@@ -7,12 +7,10 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tr.com.almbase.plugin.activeobject.*;
+import tr.com.almbase.plugin.util.Utils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -236,17 +234,26 @@ public class BusinessRuleDefServlet extends HttpServlet
                     String userName = "";
                     String userDisplayName = "";
                     if (isCategorySelected(req) && isIssueTypeSelected(req)) {
-                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(selectedIssueType, selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId);
+                        Utils.printDebug("issuetypechanged : selectedIssueType : " + selectedIssueType);
+                        Utils.printDebug("issuetypechanged : selectedCategoryId : " + selectedCategoryId);
+                        Utils.printDebug("issuetypechanged : selectedSubCategoryId : " + selectedSubCategoryId);
+                        Utils.printDebug("issuetypechanged : selectedCategoryItemId : " + selectedCategoryItemId);
+                        Utils.printDebug("issuetypechanged : selectedCategoryComponentId : " + selectedCategoryComponentId);
+                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByAllParameters(selectedIssueType, selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId);
                         if (null != businessRule) {
+                            Utils.printDebug("issuetypechanged : businessRule is founded.");
                             String userKey = businessRule.getUserName();
                             if (null != userKey) {
                                 ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
                                 if (null != applicationUser) {
                                     userName = applicationUser.getName();
                                     userDisplayName = applicationUser.getDisplayName();
+                                    Utils.printDebug("issuetypechanged : userDisplayName : " + userDisplayName);
                                     recordExists = "yes";
                                 }
                             }
+                        } else {
+                            Utils.printDebug("issuetypechanged : businessRule is null!");
                         }
                     }
 
@@ -289,9 +296,6 @@ public class BusinessRuleDefServlet extends HttpServlet
         if (null == jiraAuthenticationContext.getLoggedInUser()) {
             redirectToLogin(req, resp);
         } else {
-            List<Map<String, String>> businessRuleMapList = new ArrayList<>();
-
-            JsonParser parser = new JsonParser();
             String selectedCategoryId = req.getParameter("selectedCategoryId") == null ? "" : req.getParameter("selectedCategoryId").trim();
             String selectedSubCategoryId = req.getParameter("selectedSubCategoryId") == null ? "" : req.getParameter("selectedSubCategoryId").trim();
             String selectedCategoryItemId = req.getParameter("selectedCategoryItemId") == null ? "" : req.getParameter("selectedCategoryItemId").trim();
@@ -302,7 +306,7 @@ public class BusinessRuleDefServlet extends HttpServlet
             String actionType = req.getParameter("actionType");
 
             if (actionType.equalsIgnoreCase("save")) {
-                if (null != selectedCategoryId && !selectedCategoryId.equalsIgnoreCase("") && null != selectedUserName && !selectedUserName.equalsIgnoreCase("")) {
+                if (!selectedCategoryId.equalsIgnoreCase("") && !selectedUserName.equalsIgnoreCase("")) {
                     ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(selectedUserName);
                     if (null != applicationUser) {
                         BusinessRuleObject businessRuleObject = new BusinessRuleObject();
@@ -316,30 +320,30 @@ public class BusinessRuleDefServlet extends HttpServlet
                     }
                 }
             } else if (actionType.equalsIgnoreCase("delete")) {
-                if (null != selectedCategoryId && !selectedCategoryId.equalsIgnoreCase("") && null != selectedUserName && !selectedUserName.equalsIgnoreCase("")) {
+                if (!selectedCategoryId.equalsIgnoreCase("") && !selectedUserName.equalsIgnoreCase("")) {
                     BusinessRule foundAO = null;
 
-                    if (null != selectedIssueType && !selectedIssueType.equalsIgnoreCase("")) {
-                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(selectedIssueType, selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId);
+                    if (!selectedIssueType.equalsIgnoreCase("")) {
+                        BusinessRule businessRule = businessRuleController.getRecordFromAOTableByAllParameters(selectedIssueType, selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId, selectedCategoryComponentId);
                         if (null != businessRule) {
                             foundAO = businessRule;
                         }
-                    } else if (null != selectedCategoryComponentId && !selectedCategoryComponentId.equalsIgnoreCase("")) {
+                    } else if (!selectedCategoryComponentId.equalsIgnoreCase("")) {
                         BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(selectedCategoryComponentId);
                         if (null != businessRules && businessRules.length == 1) {
                             foundAO = businessRules[0];
                         }
-                    } else if (null != selectedCategoryItemId && !selectedCategoryItemId.equalsIgnoreCase("")) {
+                    } else if (!selectedCategoryItemId.equalsIgnoreCase("")) {
                         BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(selectedCategoryItemId);
                         if (null != businessRules && businessRules.length == 1) {
                             foundAO = businessRules[0];
                         }
-                    } else if (null != selectedSubCategoryId && !selectedSubCategoryId.equalsIgnoreCase("")) {
+                    } else if (!selectedSubCategoryId.equalsIgnoreCase("")) {
                         BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(selectedSubCategoryId);
                         if (null != businessRules && businessRules.length == 1) {
                             foundAO = businessRules[0];
                         }
-                    } else if (null != selectedCategoryId && !selectedCategoryId.equalsIgnoreCase("")) {
+                    } else if (!selectedCategoryId.equalsIgnoreCase("")) {
                         BusinessRule[] businessRules = businessRuleController.getRecordFromAOTableByCategoryId(selectedCategoryId);
                         if (null != businessRules && businessRules.length == 1) {
                             foundAO = businessRules[0];
@@ -357,7 +361,7 @@ public class BusinessRuleDefServlet extends HttpServlet
     private boolean isCategorySelected (HttpServletRequest req) {
         String selectedCategoryId = req.getParameter("selectedCategoryId") == null ? "" : req.getParameter("selectedCategoryId").trim();
         Category category = null;
-        if (null != selectedCategoryId && !selectedCategoryId.trim().equalsIgnoreCase("")) {
+        if (!selectedCategoryId.trim().equalsIgnoreCase("")) {
             category = categoryController.getRecordFromAOTableById(selectedCategoryId);
         }
 
@@ -367,7 +371,7 @@ public class BusinessRuleDefServlet extends HttpServlet
     private boolean isSubCategorySelected (HttpServletRequest req) {
         String selectedSubCategoryId = req.getParameter("selectedSubCategoryId") == null ? "" : req.getParameter("selectedSubCategoryId").trim();
         SubCategory subCategory = null;
-        if (null != selectedSubCategoryId && !selectedSubCategoryId.trim().equalsIgnoreCase("")) {
+        if (!selectedSubCategoryId.trim().equalsIgnoreCase("")) {
             subCategory = subCategoryController.getRecordFromAOTableById(selectedSubCategoryId);
         }
 
@@ -377,7 +381,7 @@ public class BusinessRuleDefServlet extends HttpServlet
     private boolean isCategoryItemSelected (HttpServletRequest req) {
         String selectedCategoryItemId = req.getParameter("selectedCategoryItemId") == null ? "" : req.getParameter("selectedCategoryItemId").trim();
         CategoryItem categoryItem = null;
-        if (null != selectedCategoryItemId && !selectedCategoryItemId.trim().equalsIgnoreCase("")) {
+        if (!selectedCategoryItemId.trim().equalsIgnoreCase("")) {
             categoryItem = categoryItemController.getRecordFromAOTableById(selectedCategoryItemId);
         }
 
@@ -387,7 +391,7 @@ public class BusinessRuleDefServlet extends HttpServlet
     private boolean isCategoryComponentSelected (HttpServletRequest req) {
         String selectedCategoryComponentId = req.getParameter("selectedCategoryComponentId") == null ? "" : req.getParameter("selectedCategoryComponentId").trim();
         CategoryComponent categoryComponent = null;
-        if (null != selectedCategoryComponentId && !selectedCategoryComponentId.trim().equalsIgnoreCase("")) {
+        if (!selectedCategoryComponentId.trim().equalsIgnoreCase("")) {
             categoryComponent = categoryComponentController.getRecordFromAOTableById(selectedCategoryComponentId);
         }
 
