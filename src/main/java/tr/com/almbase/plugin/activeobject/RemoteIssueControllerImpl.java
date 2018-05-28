@@ -163,6 +163,7 @@ public class RemoteIssueControllerImpl implements RemoteIssueController {
             remoteIssueRecord.setRiStatus(remoteIssueObject.getRiStatus());
             remoteIssueRecord.setRiStatusColor(remoteIssueObject.getRiStatusColor());
             remoteIssueRecord.setLastUpdatedDate(remoteIssueObject.getLastUpdatedDate());
+            remoteIssueRecord.setDeleted(remoteIssueObject.getDeleted());
             remoteIssueRecord.save();
         } catch (Exception e) {
             StringWriter stack = new StringWriter();

@@ -14,6 +14,21 @@ public class RemoteIssueObject {
     String riStatusColor;
     String riAssginee;
     String lastUpdatedDate;
+    String deleted;
+
+    public RemoteIssueObject() {}
+
+    public RemoteIssueObject (RemoteIssue remoteIssue) {
+        setIntegrationId(remoteIssue.getIntegrationId());
+        setIssueKey(remoteIssue.getIssueKey());
+        setRiKey(remoteIssue.getRiKey());
+        setRiProjectId(remoteIssue.getRiProjectId());
+        setRiIssueTypeId(remoteIssue.getRiIssueTypeId());
+        setRiSummary(remoteIssue.getRiSummary());
+        setRiAssginee(remoteIssue.getRiAssginee());
+        setRiStatus(remoteIssue.getRiStatus());
+        setRiStatusColor(remoteIssue.getRiStatusColor());
+    }
 
     public String getIntegrationId() {
         return integrationId;
@@ -93,5 +108,13 @@ public class RemoteIssueObject {
 
     public void setRiIssueTypeId(String riIssueTypeId) {
         this.riIssueTypeId = riIssueTypeId;
+    }
+
+    public String getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(String deleted) {
+        this.deleted = deleted;
     }
 }

@@ -131,15 +131,17 @@ public class Utils {
         }
     }
 
-    private static Response getIssue (String issueKey, IntegrationObject integrationObject) throws Exception {
+    private static Response getIssue (String issueKey, IntegrationObject integrationObject) {
+        Response response = null;
         try {
             String restUrl = integrationObject.getUrl() + Constants.REST_GET_ISSUE;
             restUrl = restUrl.replace("ISSUEKEY", issueKey);
-            return doGet(restUrl, integrationObject);
+            response = doGet(restUrl, integrationObject);
         } catch (Exception e) {
             Utils.printError(e);
-            throw e;
         }
+
+        return response;
     }
 
     private static Response getCustomField (String projectKey, String issueTypeId, IntegrationObject integrationObject) throws Exception {
@@ -399,7 +401,7 @@ public class Utils {
         return httpClientBuilder;
     }
 
-    private static Response send(HttpRequestBase httpRequestBase, IntegrationObject integrationObject) throws Exception {
+    private static Response send(HttpRequestBase httpRequestBase, IntegrationObject integrationObject) {
         CloseableHttpResponse httpResponse = null;
         HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
         if (null != integrationObject.getProxy()) {
@@ -407,8 +409,9 @@ public class Utils {
             httpClientBuilder.setProxy(httpProxy);
         }
         CloseableHttpClient httpClient = httpClientBuilder.build();
+        Response response = null;
         try {
-            Response response = new Response();
+            response = new Response();
             String responseString = "";
             httpResponse = httpClient.execute(httpRequestBase);
 
@@ -441,37 +444,42 @@ public class Utils {
                             responseJSON.addProperty("200", "succesful but response null");
                         }
 
+                        response.setResponseCode(statusCode);
+                        response.setResponse(responseString);
+
                         if (responseJSON.has("error") && statusCode > 400) {
                             JsonObject error = responseJSON.getAsJsonObject("error");
                             String message = "";
                             if (error.has("message"))
                                 message = error.get("message").getAsString();
 
-                            throw new Exception(message);
+                            response.setResponseCode(statusCode);
+                            response.setResponse(message);
                         } else if (responseJSON.has("errorMessages")) {
-                            throw new Exception(responseString);
+                            response.setResponseCode(statusCode);
+                            response.setResponse(responseJSON.get("errorMessages").getAsString());
                         } else if (statusCode > 400) {
-                            throw new Exception(responseString);
+                            response.setResponseCode(statusCode);
+                            response.setResponse(responseString);
                         }
                     } catch (JsonParseException e) {
                         // input is not in json format, shall be handled in upper
                         if (statusCode > 400) {
-                            throw new Exception("Json Parse Exception - it couse could be authentication fail to endpoint");
+                            response.setResponseCode(statusCode);
+                            response.setResponse("Json Parse Exception - it couse could be authentication fail to endpoint");
                         }
                     }
 
                 } else if (statusCode > 300) {
-                    throw new Exception(responseString);
+                    response.setResponseCode(statusCode);
+                    response.setResponse(responseString);
                 }
-
-                response.setResponseCode(statusCode);
-                response.setResponse(responseString);
             }
-
-            return response;
         } catch (IOException e) {
             printError(e);
-            throw new Exception("Error at reading: " + e.getMessage());
+            response = new Response();
+            response.setResponseCode(4444);
+            response.setResponse("Error at reading: " + e.getMessage());
         } finally {
             try {
                 if (null != httpResponse)
@@ -482,6 +490,8 @@ public class Utils {
                 printError(e2);
             }
         }
+
+        return response;
     }
 
     public static RemoteIssueModel getRemoteIssue(String remoteIssueKey, IntegrationObject integrationObject) {
@@ -489,8 +499,8 @@ public class Utils {
         try {
             Response response = getIssue(remoteIssueKey, integrationObject);
 
-            if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+            if (null != response && (response.getResponseCode() == 200 || response.getResponseCode() == 201)) {
+                //printDebug(response.getResponse());
                 remoteIssueModel = new RemoteIssueModel();
 
                 JSONObject expand = new JSONObject(response.getResponse());
@@ -696,7 +706,15 @@ public class Utils {
                     }
                 }
             } else {
-                log.debug("Can not get Issue : " + remoteIssueKey + " : Response code is : " + response.getResponseCode());
+                log.debug("Can not get Issue : " + remoteIssueKey + " : Response code is : " + (response == null ? "null" : response.getResponseCode()));
+                log.debug("Can not get Issue : " + remoteIssueKey + " : Response is : " + (response == null ? "null" : response.getResponse()));
+
+                if (null != response) {
+                    if (null != response.getResponse() && response.getResponse().contains("Issue Does Not Exist")) {
+                        remoteIssueModel = new RemoteIssueModel();
+                        remoteIssueModel.setDeleted("T");
+                    }
+                }
             }
         } catch (Exception e) {
             printError(e);
@@ -710,7 +728,7 @@ public class Utils {
             Response response = getProjects(integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject project = array.getJSONObject(i);
@@ -735,7 +753,7 @@ public class Utils {
             Response response = getProject(projectId, integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONObject project = new JSONObject(response.getResponse());
                 projectId = project.getString("id");
                 String projectKey = project.getString("key");
@@ -758,7 +776,7 @@ public class Utils {
             Response response = getProjectComponents(projectKey, integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject component = array.getJSONObject(i);
@@ -781,7 +799,7 @@ public class Utils {
             Response response = getProjectVersions(projectKey, integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject version = array.getJSONObject(i);
@@ -804,7 +822,7 @@ public class Utils {
             Response response = getIssueTypes(integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject issueType = array.getJSONObject(i);
@@ -827,7 +845,7 @@ public class Utils {
             Response response = getFields(integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONArray array = new JSONArray(response.getResponse());
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject field = array.getJSONObject(i);
@@ -864,7 +882,7 @@ public class Utils {
             Response response = getCustomField(projectKey, issueTypeId, integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 remoteSelectListModel = new RemoteCustomFieldModel(projectKey, issueTypeId);
 
                 JSONObject expand = new JSONObject(response.getResponse());
@@ -927,18 +945,18 @@ public class Utils {
             Response response = getUser(emailAddress, integrationObject);
 
             if (response.getResponseCode() == 200) {
-                printDebug(response.getResponse());
+                //printDebug(response.getResponse());
                 JSONObject jsonObject = new JSONObject(response.getResponse());
                 if (null != jsonObject && jsonObject.has("users")) {
                     JSONArray users = jsonObject.getJSONArray("users");
-                    printDebug("Users json : " + users.toString());
+                    //printDebug("Users json : " + users.toString());
                     if (null != users && users.length() > 0) {
                         for (int i = 0; i < users.length(); i++) {
                             JSONObject user = users.getJSONObject(i);
-                            printDebug("User json : " + user.toString());
+                            //printDebug("User json : " + user.toString());
                             if (null != user && user.has("name")) {
                                 remoteUserName = user.getString("name");
-                                printDebug("User name : " + remoteUserName);
+                                //printDebug("User name : " + remoteUserName);
                                 break;
                             }
                         }

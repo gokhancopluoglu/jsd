@@ -62,6 +62,7 @@ public class RemoteIssueServlet extends HttpServlet {
 
             List<Map<String, String>> remoteIssueLinkMapList = new ArrayList<>();
 
+            String deletedRecordExists = "";
             RemoteIssue[] remoteIssues = remoteIssueController.getRecordFromAOTableByIssueKey(issueKey);
             if (null != remoteIssues) {
                 for (RemoteIssue remoteIssue : remoteIssues) {
@@ -73,10 +74,20 @@ public class RemoteIssueServlet extends HttpServlet {
                     remoteIssueLinkMap.put("remoteIssueStatusAssignee", remoteIssue.getRiAssginee());
                     remoteIssueLinkMap.put("remoteIssueStatusColor", remoteIssue.getRiStatusColor());
                     remoteIssueLinkMap.put("lastUpdatedDate", remoteIssue.getLastUpdatedDate());
+
+                    String deleted = "F";
+                    if (remoteIssue.getDeleted() != null && remoteIssue.getDeleted().equalsIgnoreCase("T")) {
+                        deleted = "T";
+                    }
+                    remoteIssueLinkMap.put("deleted", deleted);
+                    if (deleted.equalsIgnoreCase("T"))
+                        deletedRecordExists = "yes";
+
                     remoteIssueLinkMapList.add(remoteIssueLinkMap);
                 }
             }
 
+            context.put("deletedRecordExists", deletedRecordExists);
             context.put("remoteIssueLinkMapList", remoteIssueLinkMapList);
             templateRenderer.render(REMOTE_ISSUE_DETAIL_TEMPLATE, context, resp.getWriter());
         }

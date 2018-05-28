@@ -28,6 +28,8 @@ public class RemoteIssueModel {
     List<RemoteVersionModel> affectedVersions;
     List<String> labels;
 
+    String deleted;
+
     public RemoteIssueModel() {
         this.assignee = new HashMap<>();
         this.reporter = new HashMap<>();
@@ -177,5 +179,13 @@ public class RemoteIssueModel {
 
     public void setPriority(RemotePriorityModel priority) {
         this.priority = priority;
+    }
+
+    public String getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(String deleted) {
+        this.deleted = deleted;
     }
 }

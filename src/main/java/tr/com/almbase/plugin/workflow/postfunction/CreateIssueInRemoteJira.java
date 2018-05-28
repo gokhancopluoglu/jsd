@@ -305,7 +305,10 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
                         }
                     } else if (fieldMapping.getLocalFieldId().equalsIgnoreCase("issuekey")) {
                         String value = issue.getKey();
-                        fields.put(fieldMapping.getRemoteFieldId(), value);
+                        fields = setJSONObjectForRemoteFieldType(value,  fields, fieldMapping, issueTypeMapping, remoteProjectModel, integrationObject);
+                    } else if (fieldMapping.getLocalFieldId().equalsIgnoreCase("reporter")) {
+                        String value = issue.getReporter().getDisplayName();
+                        fields = setJSONObjectForRemoteFieldType(value,  fields, fieldMapping, issueTypeMapping, remoteProjectModel, integrationObject);
                     }
                 }
             }
@@ -532,6 +535,7 @@ public class CreateIssueInRemoteJira extends AbstractJiraFunctionProvider
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                 String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
                 remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
+                remoteIssueObject.setDeleted("F");
 
                 remoteIssueController.createRecordInAOTable(remoteIssueObject);
                 log.debug("Issue Key : " + issue.getKey() + " remote issue link saved!");

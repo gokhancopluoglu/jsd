@@ -19,6 +19,11 @@
                     <th id="remoteIssueStatusTitle" class="sorter-true" align="left">
                         <div class="tablesorter-header-inner">Durum</div>
                     </th>
+                    #if ($deletedRecordExists == "yes")
+                        <th id="remoteIssueDeletedStatusTitle" class="sorter-true" align="left">
+                            <div class="tablesorter-header-inner"></div>
+                        </th>
+                    #end
                 </tr>
             </thead>
 
@@ -31,12 +36,13 @@
                     #set ($remoteIssueStatusAssignee = $remoteIssueLinkMap.get('remoteIssueStatusAssignee'))
                     #set ($remoteIssueStatusColor = $remoteIssueLinkMap.get('remoteIssueStatusColor'))
                     #set ($lastUpdatedDate = $remoteIssueLinkMap.get('lastUpdatedDate'))
+                    #set ($deleted = $remoteIssueLinkMap.get('deleted'))
 
                     <tr>
                         <td style="width: 10%;">
                             <a target="_blank" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueKey)$remoteIssueKey#end</a>
                         </td>
-                        <td style="width: 40%;">
+                        <td style="width: 30%;">
                             <a target="_blank" data-issue-key="#if($remoteIssueKey)$remoteIssueKey#end" href="https://jira.agito.com.tr/browse/#if($remoteIssueKey)$remoteIssueKey#end">#if($remoteIssueSummary)$remoteIssueSummary#end</a>
                         </td>
                         <td style="width: 10%;">
@@ -48,6 +54,13 @@
                         <td style="width: 20%;">
                             <span class=" jira-issue-status-lozenge aui-lozenge jira-issue-status-lozenge-$remoteIssueStatusColor jira-issue-status-lozenge-indeterminate jira-issue-status-lozenge-max-width-medium" original-title>#if($remoteIssueStatus)$remoteIssueStatus#end</span>
                         </td>
+                        #if ($deletedRecordExists == "yes")
+                            <td style="width: 10%;">
+                                #if($deleted == "T")
+                                    <span class=" jira-issue-status-lozenge aui-lozenge aui-lozenge aui-lozenge-error jira-issue-status-lozenge-indeterminate jira-issue-status-lozenge-max-width-medium" original-title>Silindi</span>
+                                #end
+                            </td>
+                        #end
                     </tr>
                  #end
             </tbody>

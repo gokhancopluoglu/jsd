@@ -52,56 +52,61 @@ public class RemoteIssueUpdateService extends AbstractService{
             RemoteIssue[] remoteIssues = remoteIssueController.getAllEntriesFromAOTable();
             if (null != remoteIssues) {
                 for (RemoteIssue remoteIssue : remoteIssues) {
-                    Issue issue = issueManager.getIssueObject(remoteIssue.getIssueKey());
-                    if (null != issue) {
-                        IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordWithAllParameters(remoteIssue.getIntegrationId(),
-                                String.valueOf(issue.getProjectId()), issue.getIssueTypeId(), remoteIssue.getRiProjectId(), remoteIssue.getRiIssueTypeId());
+                    if (remoteIssue.getDeleted() == null || remoteIssue.getDeleted().equalsIgnoreCase("F")) {
+                        Issue issue = issueManager.getIssueObject(remoteIssue.getIssueKey());
+                        if (null != issue) {
+                            IssueTypeMapping issueTypeMapping = issueTypeMappingController.getRecordWithAllParameters(remoteIssue.getIntegrationId(),
+                                    String.valueOf(issue.getProjectId()), issue.getIssueTypeId(), remoteIssue.getRiProjectId(), remoteIssue.getRiIssueTypeId());
 
-                        if (null != issueTypeMapping) {
-                            log.debug("issueTypeMapping is not null!");
-                            if (!issue.getStatusId().equalsIgnoreCase(issueTypeMapping.getLocalEndStatusId())) {
+                            if (null != issueTypeMapping) {
+                                log.debug("issueTypeMapping is not null!");
+                                //if (!issue.getStatusId().equalsIgnoreCase(issueTypeMapping.getLocalEndStatusId())) {
 
-                                IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());
-                                if (null != integrationObject) {
-                                    RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), integrationObject);
+                                    IntegrationObject integrationObject = getIntegrationObject(remoteIssue.getIntegrationId());
+                                    if (null != integrationObject) {
+                                        RemoteIssueModel remoteIssueModel = Utils.getRemoteIssue(remoteIssue.getRiKey(), integrationObject);
 
-                                    if (null != remoteIssueModel) {
-                                        RemoteIssueObject remoteIssueObject = new RemoteIssueObject();
-                                        remoteIssueObject.setIntegrationId(remoteIssue.getIntegrationId());
-                                        remoteIssueObject.setIssueKey(remoteIssue.getIssueKey());
-                                        remoteIssueObject.setRiKey(remoteIssue.getRiKey());
-                                        remoteIssueObject.setRiProjectId(remoteIssue.getRiProjectId());
-                                        remoteIssueObject.setRiIssueTypeId(remoteIssue.getRiIssueTypeId());
-                                        remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
-                                        remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
-                                        remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
-                                        remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+                                        if (null != remoteIssueModel) {
+                                            RemoteIssueObject remoteIssueObject = new RemoteIssueObject(remoteIssue);
 
-                                        try {
-                                            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-                                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                                            String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
-                                            remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
-                                        } catch (Exception e) {
-                                            Utils.printError(e);
-                                            remoteIssueObject.setLastUpdatedDate("");
+                                            if (remoteIssueModel.getDeleted() != null && remoteIssueModel.getDeleted().equalsIgnoreCase("T")) {
+                                                remoteIssueObject.setDeleted("T");
+                                            } else {
+                                                remoteIssueObject.setDeleted("F");
+                                                remoteIssueObject.setRiSummary(remoteIssueModel.getSummary());
+                                                remoteIssueObject.setRiAssginee(remoteIssueModel.getAssignee().get("displayName"));
+                                                remoteIssueObject.setRiStatus(remoteIssueModel.getStatus().getStatusName());
+                                                remoteIssueObject.setRiStatusColor(remoteIssueModel.getStatus().getStatusColor());
+
+                                                try {
+                                                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+                                                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                                    String lastUpdatedDate = sdf.format(format.parse(remoteIssueModel.getUpdatedDate()));
+                                                    remoteIssueObject.setLastUpdatedDate(lastUpdatedDate);
+                                                } catch (Exception e) {
+                                                    Utils.printError(e);
+                                                    remoteIssueObject.setLastUpdatedDate("");
+                                                }
+                                            }
+
+                                            remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
+                                        } else {
+                                            log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                                         }
-
-                                        remoteIssueController.updateRecordFromAOTable(remoteIssue, remoteIssueObject);
                                     } else {
-                                        log.error("Broken remote issue link : Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                                        log.error("Broken remote issue link : Integration Object is null!" + " Issue Key : " + issue.getKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                                     }
-                                } else {
-                                    log.error("Broken remote issue link : Integration Object is null!" + " Issue Key : " + issue.getKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
-                                }
+                                //} else {
+                                //    log.debug("Issue is at Local Issue End Status : " + " Issue Key : " + issue.getKey() + " Issue End Status : " + issue.getStatus().getName() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                                //}
                             } else {
-                                log.debug("Issue is at Local Issue End Status : " + " Issue Key : " + issue.getKey() + " Issue End Status : " + issue.getStatus().getName() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                                log.debug("Issue Type Mapping is null!" + " Issue Key : " + issue.getKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                             }
                         } else {
-                            log.debug("Issue Type Mapping is null!" + " Issue Key : " + issue.getKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                            log.debug("Issue is null!" + " Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                         }
                     } else {
-                        log.debug("Issue is null!" + " Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
+                        log.debug("Issue has been deleted!" + " Issue Key : " + remoteIssue.getIssueKey() + " Remote Issue Key : " + remoteIssue.getRiKey());
                     }
                 }
             } else {

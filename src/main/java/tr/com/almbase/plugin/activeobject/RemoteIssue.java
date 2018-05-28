@@ -30,4 +30,7 @@ public interface RemoteIssue extends Entity {
     String getRiIssueTypeId();
     void setRiProjectId(String riProjectId);
     void setRiIssueTypeId(String riIssueTypeId);
+
+    String getDeleted();
+    void setDeleted(String deleted);
 }
