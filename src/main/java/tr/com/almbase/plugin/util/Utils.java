@@ -432,6 +432,7 @@ public class Utils {
                     try {
                         JsonObject responseJSON;
                         if (!responseString.equals("")) {
+                            log.debug("responseString : " + responseString);
                             try {
                                 responseJSON = (JsonObject) parser.parse(responseString);
                             } catch (ClassCastException e) {
@@ -453,25 +454,34 @@ public class Utils {
                             if (error.has("message"))
                                 message = error.get("message").getAsString();
 
+                            log.error(String.valueOf(statusCode));
                             response.setResponseCode(statusCode);
+                            log.error(message);
                             response.setResponse(message);
                         } else if (responseJSON.has("errorMessages")) {
+                            log.error(String.valueOf(statusCode));
                             response.setResponseCode(statusCode);
-                            response.setResponse(responseJSON.get("errorMessages").getAsString());
+                            log.error(responseJSON.get("errorMessages") == null ? "responseJSON.get(\"errorMessages\") is null" : responseJSON.get("errorMessages").toString());
+                            response.setResponse(responseJSON.get("errorMessages") == null ? "responseJSON.get(\"errorMessages\") is null" : responseJSON.get("errorMessages").toString());
                         } else if (statusCode > 400) {
+                            log.error(String.valueOf(statusCode));
                             response.setResponseCode(statusCode);
+                            log.error(responseString);
                             response.setResponse(responseString);
                         }
                     } catch (JsonParseException e) {
-                        // input is not in json format, shall be handled in upper
                         if (statusCode > 400) {
+                            log.error(String.valueOf(statusCode));
                             response.setResponseCode(statusCode);
+                            log.error("Json Parse Exception - it couse could be authentication fail to endpoint" + e.getMessage());
                             response.setResponse("Json Parse Exception - it couse could be authentication fail to endpoint");
                         }
                     }
 
                 } else if (statusCode > 300) {
+                    log.error(String.valueOf(statusCode));
                     response.setResponseCode(statusCode);
+                    log.error(responseString);
                     response.setResponse(responseString);
                 }
             }
