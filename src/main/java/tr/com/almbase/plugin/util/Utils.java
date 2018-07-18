@@ -432,7 +432,7 @@ public class Utils {
                     try {
                         JsonObject responseJSON;
                         if (!responseString.equals("")) {
-                            log.debug("responseString : " + responseString);
+                            //log.debug("responseString : " + responseString);
                             try {
                                 responseJSON = (JsonObject) parser.parse(responseString);
                             } catch (ClassCastException e) {
