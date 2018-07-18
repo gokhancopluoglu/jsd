@@ -100,6 +100,65 @@
             <span class="aui-icon icon-success"></span>
         </p>
     </div>
+
+
+<table id="jsdtable">
+    <thead>
+    <tr class="tr">
+        <th id="test" class="sorter-true" colspan="6">
+            <div class="tablesorter-header-inner">JSD MAPPING TABLE</div>
+        </th>
+    </tr>
+    <tr class="tr">
+        <th id="categoryName" class="sorter-true" >
+            <div class="tablesorter-header-inner">Category</div>
+        </th>
+        <th id="subCategoryName" class="sorter-true" >
+            <div class="tablesorter-header-inner">Sub Category</div>
+        </th>
+        <th id="categoryItemName" class="sorter-true" >
+            <div class="tablesorter-header-inner">Category Item</div>
+        </th>
+        <th id="categoryComponentName" class="sorter-true">
+            <div class="tablesorter-header-inner">Category Component</div>
+        </th>
+        <th id="issueTypeName" class="sorter-true">
+            <div class="tablesorter-header-inner">Issue Type</div>
+        </th>
+        <th id="userName" class="sorter-true" ">
+        <div class="tablesorter-header-inner">User Name</div>
+        </th>
+
+    </tr>
+
+
+    </thead>
+    <tbody>
+        #foreach($businessRuleListRow in $businessRuleList)
+            #set ($categoryName = "")
+            #set ($subCategoryName = "")
+            #set ($categoryItemName = "")
+            #set ($categoryComponentName = "")
+            #set ($issueTypeName = "")
+            #set ($userName = "")
+
+            #set ($categoryName = $businessRuleListRow.get('categoryName'))
+            #set ($subCategoryName = $businessRuleListRow.get('subCategoryName'))
+            #set ($categoryItemName = $businessRuleListRow.get('categoryItemName'))
+            #set ($categoryComponentName = $businessRuleListRow.get('categoryComponentName'))
+            #set ($issueTypeName = $businessRuleListRow.get('issueTypeName'))
+            #set ($userName = $businessRuleListRow.get('userName'))
+            <tr bordercolor="red">
+                <td><span>#if($categoryName)$categoryName#end</span></td>
+                <td><span>#if($subCategoryName)$subCategoryName#end</span></td>
+                <td><span>#if($categoryItemName)$categoryItemName#end</span></td>
+                <td><span>#if($categoryComponentName)$categoryComponentName#end</span></td>
+                <td><span>#if($issueTypeName)$issueTypeName#end</span></td>
+                <td><span>#if($userName)$userName#end</span></td>
+            </tr>
+        #end
+    </tbody>
+</table>
 </div>
 
 
@@ -142,6 +201,7 @@
                     success : function(data) {
                         console.log(data);
                         AJS.$("#businessRuleDetail").html(data);
+
                     },
                     error : function(response) {
                         AJS.$("#businessRuleDetail").html("");
@@ -165,7 +225,7 @@
                         'selectedCategoryItemId' : AJS.$("#categoryItem").val()
                     },
                     success : function(data) {
-                        console.log(data);
+                        console.log("testttt"+data);
                         AJS.$("#businessRuleDetail").html(data);
                     },
                     error : function(response) {

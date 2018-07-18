@@ -54,6 +54,7 @@
                         success : function(data) {
                             console.log(data);
                             AJS.$("#businessRuleDetail").html(data);
+
                         },
                         error : function(response) {
                             AJS.$("#businessRuleDetail").html("");

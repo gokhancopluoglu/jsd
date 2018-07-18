@@ -41,7 +41,7 @@ public class AssignToGroupUser extends AbstractJiraFunctionProvider
             if (null != groupUser) {
                 String userKey = groupUser.getUserName();
                 if (null != userKey && !userKey.equalsIgnoreCase("")) {
-                    ApplicationUser user = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                    ApplicationUser user = ComponentAccessor.getUserManager().getUserByName(userKey);
                     if (null != user) {
                         ApplicationUser autodispatcher = ComponentAccessor.getUserManager().getUserByName("autodispatcher");
                         ComponentAccessor.getJiraAuthenticationContext().setLoggedInUser(autodispatcher);

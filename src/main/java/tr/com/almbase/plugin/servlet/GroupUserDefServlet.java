@@ -70,7 +70,7 @@ public class GroupUserDefServlet extends HttpServlet
                     if (null != groupUser) {
                         userName = groupUser.getUserName();
                         if (null != userName && !userName.equalsIgnoreCase("")) {
-                            ApplicationUser selectedUser = ComponentAccessor.getUserManager().getUserByKey(userName);
+                            ApplicationUser selectedUser = ComponentAccessor.getUserManager().getUserByName(userName);
                             if (null != selectedUser) {
                                 userDisplayName = selectedUser.getDisplayName();
                                 recordExists = "yes";

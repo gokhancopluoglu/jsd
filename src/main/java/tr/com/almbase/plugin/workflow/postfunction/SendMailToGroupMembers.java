@@ -63,7 +63,7 @@ public class SendMailToGroupMembers extends AbstractJiraFunctionProvider {
             Collection<String> groupUsers = ComponentAccessor.getGroupManager().getUserNamesInGroup(groupName);
             if (null != groupUsers) {
                 for (String userName : groupUsers) {
-                    ApplicationUser user = userManager.getUserByKey(userName);
+                    ApplicationUser user = userManager.getUserByName(userName);
                     if (null != user) {
                         Email email = new Email(user.getEmailAddress());
                         email.setMimeType("text/html");

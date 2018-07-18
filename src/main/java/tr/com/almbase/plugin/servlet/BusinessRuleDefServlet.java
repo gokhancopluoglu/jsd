@@ -98,7 +98,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             if (subCategoryId.equalsIgnoreCase("") && issueType.equalsIgnoreCase("")) {
                                 String userKey = businessRule.getUserName();
                                 if (null != userKey) {
-                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(userKey);
                                     if (null != applicationUser) {
                                         userName = applicationUser.getName();
                                         userDisplayName = applicationUser.getDisplayName();
@@ -109,6 +109,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                         }
                     }
 
+                    context.put("businessRuleList", getBusinessRules(selectedCategoryId, null, null,null,null));
                     context.put("recordExists", recordExists);
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
@@ -133,7 +134,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             if (categoryItemId.equalsIgnoreCase("") && issueType.equalsIgnoreCase("")) {
                                 String userKey = businessRule.getUserName();
                                 if (null != userKey) {
-                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(userKey);
                                     if (null != applicationUser) {
                                         userName = applicationUser.getName();
                                         userDisplayName = applicationUser.getDisplayName();
@@ -144,6 +145,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                         }
                     }
 
+                    context.put("businessRuleList", getBusinessRules(selectedCategoryId, selectedSubCategoryId, null,null,null));
                     context.put("recordExists", recordExists);
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
@@ -169,7 +171,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             if (categoryComponentId.equalsIgnoreCase("") && issueType.equalsIgnoreCase("")) {
                                 String userKey = businessRule.getUserName();
                                 if (null != userKey) {
-                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(userKey);
                                     if (null != applicationUser) {
                                         userName = applicationUser.getName();
                                         userDisplayName = applicationUser.getDisplayName();
@@ -179,7 +181,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             }
                         }
                     }
-
+                    context.put("businessRuleList", getBusinessRules(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId,null,null));
                     context.put("recordExists", recordExists);
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
@@ -205,7 +207,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             if (issueType.equalsIgnoreCase("")) {
                                 String userKey = businessRule.getUserName();
                                 if (null != userKey) {
-                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(userKey);
                                     if (null != applicationUser) {
                                         userName = applicationUser.getName();
                                         userDisplayName = applicationUser.getDisplayName();
@@ -215,7 +217,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             }
                         }
                     }
-
+                    context.put("businessRuleList", getBusinessRules(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId,selectedCategoryComponentId,null));
                     context.put("recordExists", recordExists);
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
@@ -244,7 +246,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                             Utils.printDebug("issuetypechanged : businessRule is founded.");
                             String userKey = businessRule.getUserName();
                             if (null != userKey) {
-                                ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(userKey);
+                                ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(userKey);
                                 if (null != applicationUser) {
                                     userName = applicationUser.getName();
                                     userDisplayName = applicationUser.getDisplayName();
@@ -257,6 +259,7 @@ public class BusinessRuleDefServlet extends HttpServlet
                         }
                     }
 
+                    context.put("businessRuleList", getBusinessRules(selectedCategoryId, selectedSubCategoryId, selectedCategoryItemId,selectedCategoryComponentId,selectedIssueType));
                     context.put("recordExists", recordExists);
                     context.put("selectedCategoryId", selectedCategoryId);
                     context.put("selectedSubCategoryId", selectedSubCategoryId);
@@ -307,7 +310,7 @@ public class BusinessRuleDefServlet extends HttpServlet
 
             if (actionType.equalsIgnoreCase("save")) {
                 if (!selectedCategoryId.equalsIgnoreCase("") && !selectedUserName.equalsIgnoreCase("")) {
-                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByKey(selectedUserName);
+                    ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(selectedUserName);
                     if (null != applicationUser) {
                         BusinessRuleObject businessRuleObject = new BusinessRuleObject();
                         businessRuleObject.setUserName(selectedUserName);
@@ -357,6 +360,8 @@ public class BusinessRuleDefServlet extends HttpServlet
             }
         }
     }
+
+
 
     private boolean isCategorySelected (HttpServletRequest req) {
         String selectedCategoryId = req.getParameter("selectedCategoryId") == null ? "" : req.getParameter("selectedCategoryId").trim();
@@ -467,57 +472,69 @@ public class BusinessRuleDefServlet extends HttpServlet
         return issueTypeMap;
     }
 
-    private List<Map<String, String>> getBusinessRuleMapList (String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId, String issueTypeId) {
-        List<Map<String, String>> businessRuleMapList = new ArrayList<>();
+    private List<Map<String, String>> getBusinessRules (String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId, String issueTypeId) {
+
+        List<Map<String, String>> businessRuleList = new ArrayList<>();
         BusinessRule [] businessRules = null;
-        if (null != issueTypeId && !issueTypeId.equalsIgnoreCase("")) {
-            businessRules = businessRuleController.getAllRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId, categoryItemId, categoryComponentId);
-        }
+        try {
 
-        if (null == businessRules && null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
-            businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
-        }
-
-        if (null == businessRules && null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
-            businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
-        }
-
-        if (null == businessRules && null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
-            businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
-        }
-
-        if (null == businessRules && null != categoryId && !categoryId.equalsIgnoreCase("")) {
-            businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(categoryId);
-        }
-
-        if (null != businessRules) {
-            for (BusinessRule businessRule : businessRules) {
-                Map<String, String> businessRuleMap = new HashMap<>();
-                Category category = categoryController.getRecordFromAOTableById(businessRule.getCategoryId());
-                String categoryName = category == null ? "" : category.getCategoryName();
-                businessRuleMap.put("categoryName", categoryName);
-
-                SubCategory subCategory = subCategoryController.getRecordFromAOTableById(businessRule.getSubCategoryId());
-                String subCategoryName = subCategory == null ? "" : subCategory.getSubCategoryName();
-                businessRuleMap.put("subCategoryName", subCategoryName);
-
-                CategoryItem categoryItem = categoryItemController.getRecordFromAOTableById(businessRule.getCategoryItemId());
-                String categoryItemName = categoryItem == null ? "" : categoryItem.getCategoryItemName();
-                businessRuleMap.put("categoryItemName", categoryItemName);
-
-                CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableById(businessRule.getCategoryComponentId());
-                String categoryComponentName = categoryComponent == null ? "" : categoryComponent.getCategoryComponentName();
-                businessRuleMap.put("categoryComponentName", categoryComponentName);
-
-                IssueType issueType = ComponentAccessor.getConstantsManager().getIssueType(businessRule.getIssueType());
-                businessRuleMap.put("issueTypeName", issueType.getName());
-
-                businessRuleMapList.add(businessRuleMap);
+            if (issueTypeId != null && !issueTypeId.equalsIgnoreCase("")) {
+                businessRules = businessRuleController.getAllRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId, categoryItemId, categoryComponentId);
+            } else if (null != categoryComponentId && !categoryComponentId.equalsIgnoreCase("")) {
+                businessRules = businessRuleController.getRecordFromAOTableByCategoryComponentId(categoryComponentId);
+            } else if (null != categoryItemId && !categoryItemId.equalsIgnoreCase("")) {
+                businessRules = businessRuleController.getRecordFromAOTableByCategoryItemId(categoryItemId);
+            } else if (null != subCategoryId && !subCategoryId.equalsIgnoreCase("")) {
+                businessRules = businessRuleController.getRecordFromAOTableBySubCategoryId(subCategoryId);
+            } else if (null != categoryId && !categoryId.equalsIgnoreCase("")) {
+                businessRules = businessRuleController.getRecordFromAOTableByCategoryId(categoryId);
             }
+            if (null != businessRules) {
+                for (BusinessRule businessRule : businessRules) {
+                    Map<String, String> businessRuleMap = new HashMap<>();
+                    if (null != businessRule.getCategoryId() && !businessRule.getCategoryId().equalsIgnoreCase("")) {
+                        Category category = categoryController.getRecordFromAOTableById(businessRule.getCategoryId());
+                        String categoryName = category == null ? "" : category.getCategoryName();
+                        businessRuleMap.put("categoryName", categoryName);
+                    }
+
+                    if (null != businessRule.getSubCategoryId() && !businessRule.getSubCategoryId().equalsIgnoreCase("")) {
+                        SubCategory subCategory = subCategoryController.getRecordFromAOTableById(businessRule.getSubCategoryId());
+                        String subCategoryName = subCategory == null ? "" : subCategory.getSubCategoryName();
+                        businessRuleMap.put("subCategoryName", subCategoryName);
+                    }
+
+                    if (null != businessRule.getCategoryItemId() && !businessRule.getCategoryItemId().equalsIgnoreCase("")) {
+                        CategoryItem categoryItem = categoryItemController.getRecordFromAOTableById(businessRule.getCategoryItemId());
+                        String categoryItemName = categoryItem == null ? "" : categoryItem.getCategoryItemName();
+                        businessRuleMap.put("categoryItemName", categoryItemName);
+                    }
+
+                    if (null != businessRule.getCategoryComponentId() && !businessRule.getCategoryComponentId().equalsIgnoreCase("")) {
+                        CategoryComponent categoryComponent = categoryComponentController.getRecordFromAOTableById(businessRule.getCategoryComponentId());
+                        String categoryComponentName = categoryComponent == null ? "" : categoryComponent.getCategoryComponentName();
+                        businessRuleMap.put("categoryComponentName", categoryComponentName);
+                    }
+
+                    IssueType issueType = ComponentAccessor.getConstantsManager().getIssueType(businessRule.getIssueType());
+                    businessRuleMap.put("issueTypeName", issueType == null ? "" : issueType.getName());
+
+
+                    ApplicationUser user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
+                    businessRuleMap.put("userName", user == null ? "" : user.getName());
+
+                    businessRuleList.add(businessRuleMap);
+                }
+            }
+        } catch (Exception e) {
+            Utils.printError(e);
         }
 
-        return businessRuleMapList;
+        return  businessRuleList;
     }
+
+
+
 
     private void redirectToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException
     {

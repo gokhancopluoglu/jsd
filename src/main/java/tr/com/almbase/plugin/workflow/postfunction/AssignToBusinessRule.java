@@ -112,7 +112,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                 BusinessRule businessRule = businessRuleController.getRecordFromAOTableByIssueType(issueTypeId, categoryId, subCategoryId, categoryItemId, categoryComponentId);
                 if (null != businessRule) {
                     log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                    user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                    user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
                     log.debug("Business rule will run by issue type division");
                 } else {
                     log.debug("There is no any record by issue type");
@@ -131,7 +131,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
                         log.debug("Business rule will run by category component division");
                     } else if (userNames.size() == 0) {
                         log.debug("Zero record by category component");
@@ -154,7 +154,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
                         log.debug("Business rule will run by category item division");
                     } else if (userNames.size() == 0) {
                         log.debug("Zero record by category item");
@@ -177,7 +177,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
                         log.debug("Business rule will run by sub category division");
                     } else if (userNames.size() == 0) {
                         log.debug("Zero record by sub category");
@@ -200,7 +200,7 @@ public class AssignToBusinessRule extends AbstractJiraFunctionProvider
                     if (userNames.size() == 1) {
                         BusinessRule businessRule = businessRules[0];
                         log.debug("Business rule is not null. User : " + businessRule.getUserName());
-                        user = ComponentAccessor.getUserManager().getUserByKey(businessRule.getUserName());
+                        user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
                         log.debug("Business rule will run by category division");
                     } else if (userNames.size() == 0) {
                         log.debug("Zero record by category");

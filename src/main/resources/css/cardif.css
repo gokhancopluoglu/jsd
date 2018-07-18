@@ -13,3 +13,29 @@ a#assign-issue {
 a#assign-to-me {
   display: none;
 }
+
+
+#jsdtable {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  border-color: #a9a9a9;
+}
+
+#jsdtable td, #jsdtable th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+
+#jsdtable tr:nth-child(even){background-color: #f2f2f2;}
+
+#jsdtable tr:hover {background-color: #ddd;}
+
+#jsdtable th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #00A770;
+  color: white;
+}
