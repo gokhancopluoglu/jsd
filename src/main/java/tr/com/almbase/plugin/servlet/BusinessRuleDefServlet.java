@@ -463,14 +463,26 @@ public class BusinessRuleDefServlet extends HttpServlet
         return categoryComponentList;
     }
 
-    private Map<String, IssueType> getIssueTypes () {
-        Map<String, IssueType> issueTypeMap = new HashMap<>();
-        Collection<IssueType> issueTypeList = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
-        for (IssueType issueType : issueTypeList) {
-            issueTypeMap.put(issueType.getId(), issueType);
+    private List<Map<String, String>> getIssueTypes () {
+        List<Map<String, String>> issueTypeList = new ArrayList<>();
+        Collection<IssueType> issueTypes = ComponentAccessor.getConstantsManager().getAllIssueTypeObjects();
+        for (IssueType issueType : issueTypes) {
+            Map<String, String> issueTypeMap = new HashMap<>();
+            issueTypeMap.put("issueTypeId", issueType.getId());
+            issueTypeMap.put("issueTypeName", issueType.getName());
+            issueTypeList.add(issueTypeMap);
         }
-        return issueTypeMap;
+
+        Collections.sort(issueTypeList, mapComparatorIssueTypes);
+
+        return issueTypeList;
     }
+
+    public Comparator<Map<String, String>> mapComparatorIssueTypes = new Comparator<Map<String, String>>() {
+        public int compare(Map<String, String> m1, Map<String, String> m2) {
+            return m1.get("issueTypeName").compareTo(m2.get("issueTypeName"));
+        }
+    };
 
     private List<Map<String, String>> getBusinessRules (String categoryId, String subCategoryId, String categoryItemId, String categoryComponentId, String issueTypeId) {
 
@@ -521,7 +533,7 @@ public class BusinessRuleDefServlet extends HttpServlet
 
 
                     ApplicationUser user = ComponentAccessor.getUserManager().getUserByName(businessRule.getUserName());
-                    businessRuleMap.put("userName", user == null ? "" : user.getName());
+                    businessRuleMap.put("userName", user == null ? "" : user.getDisplayName() + " (" + user.getName() +")");
 
                     businessRuleList.add(businessRuleMap);
                 }
