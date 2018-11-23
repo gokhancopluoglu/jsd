@@ -16,6 +16,7 @@
     <dependency>com.atlassian.auiplugin:jquery-ui-other</dependency>
     <resource type="download" name="cardif.css" location="/css/cardif.css"/>
     <resource type="download" name="cardif-jsd-engine.js" location="/js/cardif-jsd-engine.js"/>
+    <resource type="download" name="adminJS.js" location="/js/adminJS.js"/>
     <resource type="download" name="comment.png" location="/images/comment.png"/>
     <resource type="download" name="images/" location="/images"/>
     <context>cardif-jsd-engine</context>
@@ -106,6 +107,12 @@
   <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
   <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver"/>
   <component-import key="serviceManager" interface="com.atlassian.jira.service.ServiceManager"/>
+
+  <web-resource key="cardif-logo" name="AdminJS">
+    <resource type="download" name="adminJS.js" location="js/adminJS.js">
+      <property key="content-type" value="text/javascript"/></resource>
+    <context>atl.admin</context>
+  </web-resource>
 
   <web-section key="jsd_engine_plugin_section" name="JSD Engine Plugin Settings" location="admin_plugins_menu" i18n-name-key="JSD Engine Plugin Settings" weight="120">
     <label key="Cardif JSD Engine"/>
@@ -247,36 +254,36 @@
   </web-panel>
 
 
-  <workflow-function key="assign-to-business-rule" name="Assign To Business Rule" i18n-name-key="assign-to-business-rule.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRuleFactory">
-    <description key="assign-to-business-rule.description">The Assign To Business Rule Plugin</description>
+  <workflow-function key="bnp.paribas.cardif.jse.assign-to-business-rule" name="Assign To Business Rule" i18n-name-key="bnp.paribas.cardif.jse.assign-to-business-rule.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRuleFactory">
+    <description key="bnp.paribas.cardif.jse.assign-to-business-rule.description">The Assign To Business Rule Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToBusinessRule</function-class>
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-business-rule.vm"/>
   </workflow-function>
 
-  <workflow-function key="assign-to-issue-type-group" name="Assign To Issue Type Group Default User" i18n-name-key="assign-to-issue-type-group.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToIssueTypeGroupFactory">
-    <description key="assign-to-issue-type-group.description">The Assign To Issue Type Group Default User Plugin</description>
+  <workflow-function key="bnp.paribas.cardif.jse.assign-to-issue-type-group" name="Assign To Issue Type Group Default User" i18n-name-key="bnp.paribas.cardif.jse.assign-to-issue-type-group.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToIssueTypeGroupFactory">
+    <description key="bnp.paribas.cardif.jse.assign-to-issue-type-group.description">The Assign To Issue Type Group Default User Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToIssueTypeGroup</function-class>
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-issue-type-group.vm"/>
   </workflow-function>
 
-  <workflow-function key="assign-to-group-user" name="Assign To Group User" i18n-name-key="assign-to-group-user.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUserFactory">
-    <description key="assign-to-group-user.description">The Assign To Group User Plugin</description>
+  <workflow-function key="bnp.paribas.cardif.jse.assign-to-group-user" name="Assign To Group User" i18n-name-key="bnp.paribas.cardif.jse.assign-to-group-user.name" class="tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUserFactory">
+    <description key="bnp.paribas.cardif.jse.assign-to-group-user.description">The Assign To Group User Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.AssignToGroupUser</function-class>
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/assign-to-group-user.vm"/>
     <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
     <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/assign-to-group-user-input.vm"/>
   </workflow-function>
 
-  <workflow-function key="send-mail-to-group-members" name="Send Mail To Group Members" i18n-name-key="send-mail-to-group-members.name" class="tr.com.almbase.plugin.workflow.postfunction.SendMailToGroupMembersFactory">
-    <description key="send-mail-to-group-members.description">The Send Mail To Group Members Plugin</description>
+  <workflow-function key="bnp.paribas.cardif.jse.send-mail-to-group-members" name="Send Mail To Group Members" i18n-name-key="bnp.paribas.cardif.jse.send-mail-to-group-members.name" class="tr.com.almbase.plugin.workflow.postfunction.SendMailToGroupMembersFactory">
+    <description key="bnp.paribas.cardif.jse.send-mail-to-group-members.description">The Send Mail To Group Members Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.SendMailToGroupMembers</function-class>
     <resource type="velocity" name="view" location="templates/workflow/postfunctions/send-mail-to-group-members.vm"/>
     <resource type="velocity" name="input-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
     <resource type="velocity" name="edit-parameters" location="templates/workflow/postfunctions/send-mail-to-group-members-input.vm"/>
   </workflow-function>
 
-  <workflow-function key="create-issue-in-remote-jira" name="Create Issue In Remote Jira" i18n-name-key="create-issue-in-remote-jira.name" class="tr.com.almbase.plugin.workflow.postfunction.CreateIssueInRemoteJiraFactory">
-    <description key="create-issue-in-remote-jira.description">The Create Issue In Remote System Plugin</description>
+  <workflow-function key="bnp.paribas.cardif.jse.create-issue-in-remote-jira" name="Create Issue In Remote Jira" i18n-name-key="bnp.paribas.cardif.jse.create-issue-in-remote-jira.name" class="tr.com.almbase.plugin.workflow.postfunction.CreateIssueInRemoteJiraFactory">
+    <description key="bnp.paribas.cardif.jse.create-issue-in-remote-jira.description">The Create Issue In Remote System Plugin</description>
     <function-class>tr.com.almbase.plugin.workflow.postfunction.CreateIssueInRemoteJira</function-class>
     <orderable>true</orderable>
     <unique>true</unique>
